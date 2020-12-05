@@ -20,7 +20,7 @@ subroutine write_tripolegrid
 
   ! define the output variables and file name
   call fixgrid_typedefine
-  fname_out= trim(dirout)//'tripole.'//trim(res)//'.nc'
+  fname_out= trim(dirout)//'tripole.mx'//trim(res)//'.nc'
   print *,trim(fname_out)
 
   ! create the file

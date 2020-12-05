@@ -180,7 +180,7 @@ program gen_fixgrid
 ! read the land mask
 !---------------------------------------------------------------------
 
-  fname_in = trim(dirsrc)//trim(maskfile)
+  fname_in = trim(dirsrc)//trim(res)//'/'//trim(maskfile)
 
   rc = nf90_open(fname_in, nf90_nowrite, ncid)
   print *, 'reading ocean mask from ',trim(fname_in)
@@ -198,7 +198,7 @@ program gen_fixgrid
 ! read supergrid file
 !---------------------------------------------------------------------
 
-  fname_in = trim(dirsrc)//'ocean_hgrid.nc'
+  fname_in = trim(dirsrc)//trim(res)//'/'//'ocean_hgrid.nc'
 
   rc = nf90_open(fname_in, nf90_nowrite, ncid)
   print *, 'reading supergrid from ',trim(fname_in)
@@ -393,8 +393,8 @@ program gen_fixgrid
 ! extract the kmt into a separate file
 !---------------------------------------------------------------------
 
-   fname_in =  trim(dirout)//'grid_cice_NEMS_'//trim(res)//'.nc'
-  fname_out = trim(dirout)//'kmtu_cice_NEMS_'//trim(res)//'.nc'
+   fname_in =  trim(dirout)//'grid_cice_NEMS_mx'//trim(res)//'.nc'
+  fname_out = trim(dirout)//'kmtu_cice_NEMS_mx'//trim(res)//'.nc'
 
      cmdstr = 'ncks -O -v kmt '//trim(fname_in)//'  '//trim(fname_out)
      rc = system(trim(cmdstr))

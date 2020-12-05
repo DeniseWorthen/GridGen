@@ -20,7 +20,7 @@ subroutine write_cicegrid
 
   call ice_typedefine
 
-  fname_out= trim(dirout)//'grid_cice_NEMS_'//trim(res)//'.nc'
+  fname_out= trim(dirout)//'grid_cice_NEMS_mx'//trim(res)//'.nc'
 
   rc = nf90_create(fname_out, nf90_write, ncid)
   print *, 'writing CICE grid to ',trim(fname_out)
