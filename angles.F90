@@ -29,12 +29,21 @@ module angles
     !pole on supergrid
     ipolesg = -1
         j = ny
+#ifdef output_grid_3deg
+    do i = 1,nx/2
+     if(y(i,j) .ge. 89.9)ipolesg(1) = i
+    enddo
+    do i = nx/2+1,nx
+     if(y(i,j) .ge. 89.9)ipolesg(2) = i
+    enddo
+#else
     do i = 1,nx/2
      if(y(i,j) .eq. 90.0)ipolesg(1) = i
     enddo
     do i = nx/2+1,nx
      if(y(i,j) .eq. 90.0)ipolesg(2) = i
     enddo
+#endif
     print *,'poles found at ',ipolesg
   
     xsgp1(:,0:ny) = x(:,0:ny)

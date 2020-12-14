@@ -10,6 +10,9 @@ module param
 #ifdef output_grid_1deg
   integer, parameter :: ni =  360, nj = 320
 #endif
+#ifdef output_grid_3deg
+  integer, parameter :: ni =  120, nj =  84
+#endif
 
   ! number of vertices
   integer, parameter :: nv = 4

@@ -180,7 +180,8 @@ program gen_fixgrid
 ! read the land mask
 !---------------------------------------------------------------------
 
-  fname_in = trim(dirsrc)//trim(res)//'/'//trim(maskfile)
+  !fname_in = trim(dirsrc)//trim(res)//'/'//trim(maskfile)
+  fname_in = trim(dirsrc)//'/'//trim(maskfile)
 
   rc = nf90_open(fname_in, nf90_nowrite, ncid)
   print *, 'reading ocean mask from ',trim(fname_in)
@@ -194,11 +195,15 @@ program gen_fixgrid
 
   if(xtype.eq. 6)wet4 = real(wet8,4)
 
+  print *,minval(wet8),maxval(wet8)
+  print *,minval(wet4),maxval(wet4)
+
 !---------------------------------------------------------------------
 ! read supergrid file
 !---------------------------------------------------------------------
 
-  fname_in = trim(dirsrc)//trim(res)//'/'//'ocean_hgrid.nc'
+  !fname_in = trim(dirsrc)//trim(res)//'/'//'ocean_hgrid.nc'
+  fname_in = trim(dirsrc)//'ocean_hgrid.nc'
 
   rc = nf90_open(fname_in, nf90_nowrite, ncid)
   print *, 'reading supergrid from ',trim(fname_in)
@@ -301,12 +306,21 @@ program gen_fixgrid
 
   ipole = -1
       j = nj
+#ifdef output_grid_3deg
+  do i = 1,ni/2
+   if(latBu(i,j) .ge. 89.9)ipole(1) = i
+  enddo
+  do i = ni/2+1,ni
+   if(latBu(i,j) .ge. 89.9)ipole(2) = i
+  enddo
+#else
   do i = 1,ni/2
    if(latBu(i,j) .eq. 90.0)ipole(1) = i
   enddo
   do i = ni/2+1,ni
    if(latBu(i,j) .eq. 90.0)ipole(2) = i
   enddo
+#endif
   print *,'poles found at ',ipole,latBu(ipole(1),nj),latBu(ipole(2),nj)
 
   call checkseam
