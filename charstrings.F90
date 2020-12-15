@@ -2,10 +2,10 @@ module charstrings
 
   implicit none
 
-  !character(len=256) :: dirsrc = &
-  ! '/scratch2/NCEPDEV/climate/climpara/S2S/FIX/fix_mom6/'
   character(len=256) :: dirsrc = &
-   '/scratch2/NCEPDEV/climate/Denise.Worthen/Huiskamp/INPUT/'
+   '/scratch2/NCEPDEV/climate/climpara/S2S/FIX/fix_mom6/'
+  !character(len=256) :: dirsrc = &
+  ! '/scratch2/NCEPDEV/climate/Denise.Worthen/Huiskamp/INPUT/'
 #ifdef output_grid_qdeg
   character(len= 10) :: res = '025'
 #endif
@@ -21,7 +21,8 @@ module charstrings
   character(len=100) :: maskfile = 'ocean_mask.nc'
   character(len= 12) :: maskname = 'mask'
 
-  character(len=256) :: dirout = '/scratch2/NCEPDEV/climate/Denise.Worthen/GRIDS/'
+  !character(len=256) :: dirout = '/scratch2/NCEPDEV/climate/Denise.Worthen/GRIDS/'
+  character(len=256) :: dirout = '/scratch2/NCEPDEV/climate/Denise.Worthen/GTMP/'
   character(len=256) :: history
   character(len=  8) :: cdate
 

@@ -180,8 +180,8 @@ program gen_fixgrid
 ! read the land mask
 !---------------------------------------------------------------------
 
-  !fname_in = trim(dirsrc)//trim(res)//'/'//trim(maskfile)
-  fname_in = trim(dirsrc)//'/'//trim(maskfile)
+  fname_in = trim(dirsrc)//trim(res)//'/'//trim(maskfile)
+  !fname_in = trim(dirsrc)//'/'//trim(maskfile)
 
   rc = nf90_open(fname_in, nf90_nowrite, ncid)
   print *, 'reading ocean mask from ',trim(fname_in)
@@ -202,8 +202,8 @@ program gen_fixgrid
 ! read supergrid file
 !---------------------------------------------------------------------
 
-  !fname_in = trim(dirsrc)//trim(res)//'/'//'ocean_hgrid.nc'
-  fname_in = trim(dirsrc)//'ocean_hgrid.nc'
+  fname_in = trim(dirsrc)//trim(res)//'/'//'ocean_hgrid.nc'
+  !fname_in = trim(dirsrc)//'ocean_hgrid.nc'
 
   rc = nf90_open(fname_in, nf90_nowrite, ncid)
   print *, 'reading supergrid from ',trim(fname_in)
@@ -223,6 +223,8 @@ program gen_fixgrid
 
   rc = nf90_close(ncid)
   print *,'super grid size ',size(y,1),size(y,2)
+  print *,'max lat in super grid ',maxval(y)
+  sg_maxlat = maxval(y)
 
 !---------------------------------------------------------------------
 ! find the angle on corners---this requires the supergrid
@@ -306,21 +308,12 @@ program gen_fixgrid
 
   ipole = -1
       j = nj
-#ifdef output_grid_3deg
   do i = 1,ni/2
-   if(latBu(i,j) .ge. 89.9)ipole(1) = i
+   if(latBu(i,j) .eq. sg_maxlat)ipole(1) = i
   enddo
   do i = ni/2+1,ni
-   if(latBu(i,j) .ge. 89.9)ipole(2) = i
+   if(latBu(i,j) .eq. sg_maxlat)ipole(2) = i
   enddo
-#else
-  do i = 1,ni/2
-   if(latBu(i,j) .eq. 90.0)ipole(1) = i
-  enddo
-  do i = ni/2+1,ni
-   if(latBu(i,j) .eq. 90.0)ipole(2) = i
-  enddo
-#endif
   print *,'poles found at ',ipole,latBu(ipole(1),nj),latBu(ipole(2),nj)
 
   call checkseam

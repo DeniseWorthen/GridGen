@@ -19,13 +19,13 @@
    ; min lat to plot for each res
   minlats = (/    89.0,     89.5,     89.7,   89.0,   84.00/)
    ; ipole
-  ipoles = (/       90,      180,      360,     125,      30/)
+  ;ipoles = (/       90,      180,      360,     125,      30/)
 
   ;ires = 0 ; 1deg
   ;ires = 1 ; 1/2deg
   ;ires = 2 ; 1/4deg
-  ires = 3 ; 072deg
-  ;ires = 4 ; 3deg
+  ;ires = 3 ; 072deg
+  ires = 4 ; 3deg
 
 ;************************************************
 ; read in netCDF file
@@ -53,27 +53,15 @@
   dims = dimsizes(tmp)
     ny = dims(0)
     nx = dims(1)
-  delete(tmp)
+  lats = new((/nx/), typeof(tmp))
+  lats = tmp(ny-1,:)
+  ; fortran style
+  ipole = (/maxind(lats)+1, maxind(lats)+1/)
+  print("using pole locations ipole = "+ipole)
 
    imax = nx
    jmax = (/ny,ny/)
    ioff = 0
-  ipole = (/ipoles(ires), ipoles(ires)/)
-
-; if(grres .eq. "mx025")then
-;   imax = 1440
-;   jmax = (/1080,1080/)
-;  ipole = (/ 360, 360/)
-;   ioff = 0
-;   minlat = 89.7
-;  end if
-; if(grres .eq. "mx050")then
-;   imax = 720
-;   jmax = (/ 576, 576/)
-;  ipole = (/ 180, 180/)
-;   ioff = 0
-;   minlat = 89.5
-;  end if
 
 ;************************************************
 ; load the grid file
