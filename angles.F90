@@ -30,10 +30,10 @@ module angles
     ipolesg = -1
         j = ny
     do i = 1,nx/2
-     if(y(i,j) .eq. 90.0)ipolesg(1) = i
+     if(y(i,j) .eq. sg_maxlat)ipolesg(1) = i
     enddo
     do i = nx/2+1,nx
-     if(y(i,j) .eq. 90.0)ipolesg(2) = i
+     if(y(i,j) .eq. sg_maxlat)ipolesg(2) = i
     enddo
     print *,'poles found at ',ipolesg
   

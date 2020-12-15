@@ -24,37 +24,13 @@ begin
 
   ;ires = 0 ; 1deg
   ;ires = 1 ; 1/2deg
-  ;ires = 2 ; 1/4deg
+  ires = 2 ; 1/4deg
   ;ires = 3 ; 072deg
-  ires = 4 ; 3deg
+  ;ires = 4 ; 3deg
 
-;************************************************
-; read in netCDF file
-;************************************************
+  levs = (/-1.6, 1.6, 0.1/)
 
-  ; read anglet from tripole.mxres.nc file
-  ; read angle (on corners) from cice grid file
-  ; coords are stored as radians in cice file
-  ;angle2plot = "angle"
-  angle2plot = "anglet"
-        levs = (/-1.6, 1.6, 0.1/)
-
-  if(angle2plot .eq. "anglet")then
-      angname  = "anglet"
-    anglonname = "lonCt"
-    anglatname = "latCt"
-       rfactor = 1.0
-            gr = addfile(grdsrc+"tripole."+fsrcs(ires)+".nc","r")
-  else
-      angname = "angle"
-   anglonname = "ulon"
-   anglatname = "ulat"
-       rfactor = rad2deg
-         levs = (/-1.6, 1.6, 0.1/)
-           gr = addfile(grdsrc+"grid_cice_NEMS_"+fsrcs(ires)+".nc","r")
-  end if
-
-   plottitle = angname+"_"+fsrcs(ires)+"_"+minlats(ires)+"N"
+  plottitle = "rotangs_"+fsrcs(ires)+"_"+minlats(ires)+"N"
 
 ;************************************************
 ; add a poly line showing the polar seem along
@@ -78,7 +54,7 @@ begin
   wkstype@wkHeight=800
   wks   = gsn_open_wks (wkstype,plottitle)              ; send graphics to X11 window
 
-  npanels = 1
+  npanels = 2
      plot = new(npanels,graphic)
       dum = new(npanels,graphic)
 
@@ -88,10 +64,10 @@ begin
   res@mpFillOn             = False
   res@cnFillMode           = "RasterFill"
 
-  res@cnFillDrawOrder    = "PreDraw"             ; draw contours first
+  res@cnFillDrawOrder    = "PreDraw"         ; draw contours first
   res@cnFillOn           = True              ; color fill
   res@cnLinesOn          = False             ; no contour lines
-  res@lbLabelBarOn       = True                 ; turn off individual colorbars
+  res@lbLabelBarOn       = False             ; turn off individual colorbars
   res@lbLabelFontHeightF = 0.015
 
   res@gsnPolar     = "NH"                   ; specify the hemisphere
@@ -123,11 +99,40 @@ begin
 ;
 ;************************************************
 
+   ; plot angle on t-grid
+      angname  = "anglet"
+    anglonname = "lonCt"
+    anglatname = "latCt"
+       rfactor = 1.0
+            gr = addfile(grdsrc+"tripole."+fsrcs(ires)+".nc","r")
+
           ii = 0
          ang = gr->$angname$(:,:)
    ang@lon2d = gr->$anglonname$*rfactor
    ang@lat2d = gr->$anglatname$*rfactor
-  ang@units     = " "
+   ang@units = " "
+   res@gsnCenterString = "angle on Ct-grid"
+
+  plot(ii) = gsn_csm_contour_map_polar(wks,ang,res)    ; create the plot
+   dum(ii) = gsn_add_polyline(wks,plot(ii),(/lon1, lon2/) , (/lat1, lat2/) ,pres)
+   delete([/gr,ang,rfactor/])
+
+
+   ; plot angle on q-grid
+      angname = "angle"
+   anglonname = "ulon"
+   anglatname = "ulat"
+       rfactor = rad2deg
+         levs = (/-1.6, 1.6, 0.1/)
+           gr = addfile(grdsrc+"grid_cice_NEMS_"+fsrcs(ires)+".nc","r")
+
+          ii = 1
+         ang = gr->$angname$(:,:)
+   ang@lon2d = gr->$anglonname$*rfactor
+   ang@lat2d = gr->$anglatname$*rfactor
+   ang@units = " "
+   ang@long_name = " "
+   res@gsnCenterString = "angle on Bu-grid"
 
   plot(ii) = gsn_csm_contour_map_polar(wks,ang,res)    ; create the plot
    dum(ii) = gsn_add_polyline(wks,plot(ii),(/lon1, lon2/) , (/lat1, lat2/) ,pres)
@@ -138,10 +143,10 @@ begin
 
   resP                     = True                ; modify the panel plot
 
-  resP@gsnPanelMainString  = plottitle
+  ;resP@gsnPanelMainString  = plottitle
   resP@gsnPanelMainFontHeightF = 0.010            ; new resource added in NCL V6.4.0
 
-  gsn_panel(wks,plot,(/1,1/),resP)               ; now draw as one plot
+  gsn_panel(wks,plot,(/2,1/),resP)               ; now draw as one plot
 
 exit
 end

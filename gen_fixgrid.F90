@@ -194,6 +194,9 @@ program gen_fixgrid
 
   if(xtype.eq. 6)wet4 = real(wet8,4)
 
+  print *,minval(wet8),maxval(wet8)
+  print *,minval(wet4),maxval(wet4)
+
 !---------------------------------------------------------------------
 ! read supergrid file
 !---------------------------------------------------------------------
@@ -218,6 +221,8 @@ program gen_fixgrid
 
   rc = nf90_close(ncid)
   print *,'super grid size ',size(y,1),size(y,2)
+  print *,'max lat in super grid ',maxval(y)
+  sg_maxlat = maxval(y)
 
 !---------------------------------------------------------------------
 ! find the angle on corners---this requires the supergrid
@@ -302,10 +307,10 @@ program gen_fixgrid
   ipole = -1
       j = nj
   do i = 1,ni/2
-   if(latBu(i,j) .eq. 90.0)ipole(1) = i
+   if(latBu(i,j) .eq. sg_maxlat)ipole(1) = i
   enddo
   do i = ni/2+1,ni
-   if(latBu(i,j) .eq. 90.0)ipole(2) = i
+   if(latBu(i,j) .eq. sg_maxlat)ipole(2) = i
   enddo
   print *,'poles found at ',ipole,latBu(ipole(1),nj),latBu(ipole(2),nj)
 

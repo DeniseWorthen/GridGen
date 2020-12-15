@@ -12,6 +12,8 @@ module grdvars
   !super-grid replicate row
   real(kind=8), dimension(0:nx,0:ny+1) :: xsgp1, ysgp1
  
+  !super-grid maximum latitude
+     real(kind=8) :: sg_maxlat
   ! pole locations
   integer(kind=4) :: ipole(2)
 
