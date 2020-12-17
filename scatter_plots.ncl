@@ -18,8 +18,6 @@
      lons = (/    60.0,     60.0,     60.0,   73.75,   75.00/)
    ; min lat to plot for each res
   minlats = (/    89.0,     89.5,     89.7,   89.0,   84.00/)
-   ; ipole
-  ;ipoles = (/       90,      180,      360,     125,      30/)
 
   ;ires = 0 ; 1deg
   ;ires = 1 ; 1/2deg
