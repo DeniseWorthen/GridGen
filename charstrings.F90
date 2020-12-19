@@ -2,10 +2,15 @@ module charstrings
 
   implicit none
 
-  !character(len=256) :: dirsrc = &
-  ! '/scratch2/NCEPDEV/climate/climpara/S2S/FIX/fix_mom6/'
+#ifdef output_grid_3deg
+! temporary location
   character(len=256) :: dirsrc = &
    '/scratch2/NCEPDEV/climate/Denise.Worthen/Huiskamp/INPUT/'
+#else
+  character(len=256) :: dirsrc = &
+   '/scratch2/NCEPDEV/climate/climpara/S2S/FIX/fix_mom6/'
+#endif
+
 #ifdef output_grid_qdeg
   character(len= 10) :: res = '025'
 #endif
