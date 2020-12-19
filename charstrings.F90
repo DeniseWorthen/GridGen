@@ -36,8 +36,7 @@ module charstrings
   character(len=100) :: maskfile = 'ocean_mask.nc'
   character(len= 12) :: maskname = 'mask'
 
-  !character(len=256) :: dirout = '/scratch2/NCEPDEV/climate/Denise.Worthen/GRIDS/'
-  character(len=256) :: dirout = '/scratch2/NCEPDEV/climate/Denise.Worthen/GTMP/'
+  character(len=256) :: dirout = '/scratch2/NCEPDEV/climate/Denise.Worthen/GRIDS/'
   character(len=256) :: history
   character(len=  8) :: cdate
 
