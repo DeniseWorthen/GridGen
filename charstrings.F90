@@ -2,17 +2,38 @@ module charstrings
 
   implicit none
 
+!set temporary locations
+#ifdef output_grid_3deg
+  character(len=256) :: tmpsrc = 'Huiskamp/INPUT/'
+#endif
+#ifdef output_grid_072deg
+  character(len=256) :: tmpsrc = 'Hae-Cheol/INPUT/'
+#endif
+
+#if defined output_grid_3deg || defined output_grid_072deg
+  character(len=256) :: dirsrc = &
+   '/scratch2/NCEPDEV/climate/Denise.Worthen/'//trim(tmpsrc)
+#else
   character(len=256) :: dirsrc = &
    '/scratch2/NCEPDEV/climate/climpara/S2S/FIX/fix_mom6/'
+#endif
+
 #ifdef output_grid_qdeg
   character(len= 10) :: res = '025'
 #endif
 #ifdef output_grid_hdeg
   character(len= 10) :: res = '050'
 #endif
+#ifdef output_grid_072deg
+  character(len= 10) :: res = '072'
+#endif
 #ifdef output_grid_1deg
   character(len= 10) :: res = '100'
 #endif
+#ifdef output_grid_3deg
+  character(len= 10) :: res = '300'
+#endif
+
   character(len=100) :: maskfile = 'ocean_mask.nc'
   character(len= 12) :: maskname = 'mask'
 
