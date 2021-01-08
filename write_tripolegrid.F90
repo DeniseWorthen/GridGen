@@ -24,7 +24,9 @@ subroutine write_tripolegrid
   print *,trim(fname_out)
 
   ! create the file
-  rc = nf90_create(trim(fname_out), nf90_write, ncid)
+  ! 64_bit offset reqd for 008 grid
+  ! produces b4b results for smaller grids
+  rc = nf90_create(trim(fname_out), nf90_64bit_offset, ncid)
   print *, 'writing grid to ',trim(fname_out)
   print *, 'nf90_create = ',trim(nf90_strerror(rc))
 
@@ -71,7 +73,9 @@ subroutine write_tripolegrid
   enddo
 
   rc = nf90_put_att(ncid, nf90_global, 'history', trim(history))
+  print *,trim(nf90_strerror(rc))
   rc = nf90_enddef(ncid)
+  print *,trim(nf90_strerror(rc))
 
   rc = nf90_inq_varid(ncid,   'wet',        id)
   rc = nf90_put_var(ncid,        id, int(wet4))

@@ -2,7 +2,9 @@ CDF=/apps/netcdf/4.7.0/intel/18.0.5.274
 #####################################################################
 # compiler options
 # #####################################################################
-FOPT = -C -O0
+#FOPT = -C -O0
+#fPIC reqd for 008 and is b4b when used on smaller grids
+FOPT = -C -O0 -fPIC
 #FOPT = -C -warn
 
 F90 = ifort
@@ -11,7 +13,8 @@ F90 = ifort
 #opt1 = -Doutput_grid_hdeg
 #opt1 = -Doutput_grid_072deg
 #opt1 = -Doutput_grid_1deg
-opt1 = -Doutput_grid_3deg
+#opt1 = -Doutput_grid_3deg
+opt1 = -Doutput_grid_twelfdeg
 
 optall = $(opt1) $(opt2)
 ######################################################################
