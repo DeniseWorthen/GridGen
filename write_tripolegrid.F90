@@ -73,9 +73,7 @@ subroutine write_tripolegrid
   enddo
 
   rc = nf90_put_att(ncid, nf90_global, 'history', trim(history))
-  print *,trim(nf90_strerror(rc))
   rc = nf90_enddef(ncid)
-  print *,trim(nf90_strerror(rc))
 
   rc = nf90_inq_varid(ncid,   'wet',        id)
   rc = nf90_put_var(ncid,        id, int(wet4))
