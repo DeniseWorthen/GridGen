@@ -147,7 +147,7 @@ program gen_fixgrid
 
   integer :: rc,ncid,id,xtype
   integer :: i,j,i2,j2
-  integer :: ii
+  integer :: ii,jj,k
   integer :: system
 
 !---------------------------------------------------------------------
@@ -196,7 +196,15 @@ program gen_fixgrid
 
   print *,minval(wet8),maxval(wet8)
   print *,minval(wet4),maxval(wet4)
+#ifdef output_grid_1deg
+!---------------------------------------------------------------------
+! kludgy fix: 1-deg model has single point which switches froma
+! land->ocean at run time. see issue #47 on NOAA-EMC/MOM6
+!---------------------------------------------------------------------
 
+   ii = 88; jj = 132
+   if(wet4(ii+1,jj+1) .eq. 0.0)wet4(ii+1,jj+1) = 1.0
+#endif
 !---------------------------------------------------------------------
 ! read supergrid file
 !---------------------------------------------------------------------
