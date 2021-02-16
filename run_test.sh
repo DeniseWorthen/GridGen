@@ -24,13 +24,13 @@ edit_namelist < grid.nml.IN > grid.nml
 make
 ./gengrid
 
-export NI='1440'
-export NJ='1080'
-export GRDNAME='025'
-export MASKEDIT='.F.'
+#export NI='1440'
+#export NJ='1080'
+#export GRDNAME='025'
+#export MASKEDIT='.F.'
 
-edit_namelist < grid.nml.IN > grid.nml
-./gengrid
+#edit_namelist < grid.nml.IN > grid.nml
+#./gengrid
 
 # clean up
 make clean
