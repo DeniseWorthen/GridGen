@@ -322,7 +322,6 @@ program gen_fixgrid
   where(lonCv .lt. 0.0)lonCv = lonCv + 360.d0
   where(lonBu .lt. 0.0)lonBu = lonBu + 360.d0
 
-  if(debug)then
 !---------------------------------------------------------------------
 ! some basic error checking
 ! find the i-th index of the poles at j= nj
@@ -339,7 +338,7 @@ program gen_fixgrid
     enddo
     print *,'poles found at ',ipole,latBu(ipole(1),nj),latBu(ipole(2),nj)
 
-    call checkseam
+    if(debug)call checkseam
 
     do i = 1,ni
       i2 = ipole(2)+(ipole(1)-i)+1
@@ -365,7 +364,7 @@ program gen_fixgrid
      !print *,i,xlonCu(i),lonCu(i2,nj)
     enddo
  
-    call checkxlatlon
+    if(debug)call checkxlatlon
 
     !do i = 1,ni
     !  i2 = ipole(2)+(ipole(1)-i)
@@ -378,7 +377,6 @@ program gen_fixgrid
      dlatBu(i) = latBu(i,1) + 2.0*(latCu(i,1) - latBu(i,1))
      dlatCv(i) = latCt(i,1) + 2.0*(latCt(i,1) - latCv(i,1))
     enddo
-  end if
 
 !---------------------------------------------------------------------
 ! fill grid vertices variables
