@@ -130,20 +130,18 @@ program gen_fixgrid
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
   use netcdf
-  use param
   use grdvars
   use angles
   use physcon
   use charstrings
   use debugprint
-  use fixgriddefs
 
   implicit none
 
   real(kind=8) :: dxT, dyT
 
-  character(len=256) :: fname_out, fname_in
-  character(len=300) :: cmdstr
+  character(len=CL) :: fname_out, fname_in
+  character(len=CL) :: cmdstr
 
   integer :: rc,ncid,id,xtype
   integer :: i,j,i2,j2
@@ -154,7 +152,15 @@ program gen_fixgrid
 !
 !---------------------------------------------------------------------
 
-  call gridgen_config(ni,nj,nx,ny)
+  call read_inputnml('grid.nml')
+
+  print *,'output grid requested ',ni,nj
+  print *,'supergrid size used ', nx,ny
+  print *,'output grid tag ',trim(res)
+  print *,'supergrid source directory ',trim(dirsrc)
+  print *,'output grid directory ',trim(dirout)
+  print *,'editmask flag ',editmask
+  print *,'debug flag ',debug
 
   call allocate_all
   
@@ -204,7 +210,8 @@ program gen_fixgrid
 
   print *,minval(wet8),maxval(wet8)
   print *,minval(wet4),maxval(wet4)
-#ifdef output_grid_1deg
+
+  if(editmask)then
 !---------------------------------------------------------------------
 ! kludgy fix: 1-deg model has single point which switches froma
 ! land->ocean at run time. see issue #47 on NOAA-EMC/MOM6
@@ -212,7 +219,8 @@ program gen_fixgrid
 
    ii = 88; jj = 132
    if(wet4(ii+1,jj+1) .eq. 0.0)wet4(ii+1,jj+1) = 1.0
-#endif
+  endif
+
 !---------------------------------------------------------------------
 ! read supergrid file
 !---------------------------------------------------------------------
@@ -314,60 +322,63 @@ program gen_fixgrid
   where(lonCv .lt. 0.0)lonCv = lonCv + 360.d0
   where(lonBu .lt. 0.0)lonBu = lonBu + 360.d0
 
+  if(debug)then
 !---------------------------------------------------------------------
 ! some basic error checking
 ! find the i-th index of the poles at j= nj
 ! the corner points must lie on the pole
 !---------------------------------------------------------------------
 
-  ipole = -1
-      j = nj
-  do i = 1,ni/2
-   if(latBu(i,j) .eq. sg_maxlat)ipole(1) = i
-  enddo
-  do i = ni/2+1,ni
-   if(latBu(i,j) .eq. sg_maxlat)ipole(2) = i
-  enddo
-  print *,'poles found at ',ipole,latBu(ipole(1),nj),latBu(ipole(2),nj)
+    ipole = -1
+        j = nj
+    do i = 1,ni/2
+     if(latBu(i,j) .eq. sg_maxlat)ipole(1) = i
+    enddo
+    do i = ni/2+1,ni
+     if(latBu(i,j) .eq. sg_maxlat)ipole(2) = i
+    enddo
+    print *,'poles found at ',ipole,latBu(ipole(1),nj),latBu(ipole(2),nj)
 
-  call checkseam
+    call checkseam
 
-  do i = 1,ni
-    i2 = ipole(2)+(ipole(1)-i)+1
-    xlonCt(i) = lonCt(i2,nj)
-    xlatCt(i) = latCt(i2,nj)
-  enddo
+    do i = 1,ni
+      i2 = ipole(2)+(ipole(1)-i)+1
+      xlonCt(i) = lonCt(i2,nj)
+      xlatCt(i) = latCt(i2,nj)
+    enddo
 
-  !do i = 1,10
-  !  i2 = ipole(2)+(ipole(1)-i)
-  !  print *,i,i2,lonCu(i,nj)
-  !enddo
-  !do i = 1430,1440
-  !  i2 = ipole(2)+(ipole(1)-i)
-  !  if(i2 .lt. 1)i2 = ni
-  !  print *,i,i2,lonCu(i,nj)
-  !enddo
+    !do i = 1,10
+    !  i2 = ipole(2)+(ipole(1)-i)
+    !  print *,i,i2,lonCu(i,nj)
+    !enddo
+    !do i = 1430,1440
+    !  i2 = ipole(2)+(ipole(1)-i)
+    !  if(i2 .lt. 1)i2 = ni
+    !  print *,i,i2,lonCu(i,nj)
+    !enddo
  
-  do i = 1,ni
-    i2 = ipole(2)+(ipole(1)-i)
-    if(i2 .lt. 1)i2 = ni
-   xlonCu(i) = lonCu(i2,nj)
-   xlatCu(i) = latCu(i2,nj)
-   !print *,i,xlonCu(i),lonCu(i2,nj)
-  enddo
+    do i = 1,ni
+      i2 = ipole(2)+(ipole(1)-i)
+      if(i2 .lt. 1)i2 = ni
+     xlonCu(i) = lonCu(i2,nj)
+     xlatCu(i) = latCu(i2,nj)
+     !print *,i,xlonCu(i),lonCu(i2,nj)
+    enddo
  
-  call checkxlatlon
-  !do i = 1,ni
-  !  i2 = ipole(2)+(ipole(1)-i)
-  !  if(i2 .lt. 1)i2 = ni
-  ! print *,i,xlonCu(i),lonCu(i2,nj)
-  !enddo
+    call checkxlatlon
 
-  !approx lat at grid bottom
-  do i = 1,ni
-   dlatBu(i) = latBu(i,1) + 2.0*(latCu(i,1) - latBu(i,1))
-   dlatCv(i) = latCt(i,1) + 2.0*(latCt(i,1) - latCv(i,1))
-  enddo
+    !do i = 1,ni
+    !  i2 = ipole(2)+(ipole(1)-i)
+    !  if(i2 .lt. 1)i2 = ni
+    ! print *,i,xlonCu(i),lonCu(i2,nj)
+    !enddo
+
+    !approx lat at grid bottom
+    do i = 1,ni
+     dlatBu(i) = latBu(i,1) + 2.0*(latCu(i,1) - latBu(i,1))
+     dlatCv(i) = latCt(i,1) + 2.0*(latCt(i,1) - latCv(i,1))
+    enddo
+  end if
 
 !---------------------------------------------------------------------
 ! fill grid vertices variables
@@ -387,7 +398,7 @@ program gen_fixgrid
   call fill_vertices(1,nj-1, iVertBu,jVertBu, latCt,lonCt, latBu_vert,lonBu_vert)
   call              fill_top(iVertBu,jVertBu, latCt,lonCt, latBu_vert,lonBu_vert, xlatCt, xlonCt)
  
-  call checkpoint
+  if(debug)call checkpoint
 
   if(minval(latCt_vert) .lt. -1.e3)stop
   if(minval(lonCt_vert) .lt. -1.e3)stop
@@ -430,7 +441,7 @@ program gen_fixgrid
   deallocate(latCv, lonCv, latCv_vert, lonCv_vert)
   deallocate(latCu, lonCu, latCu_vert, lonCu_vert)
   deallocate(latBu, lonBu, latBu_vert, lonBu_vert)
-  deallocate(xlonCt, xlatCt, xlonCu, xlatCu, dlonBu, dlatBu)
+  deallocate(xlonCt, xlatCt, xlonCu, xlatCu, dlatBu, dlatCv)
   deallocate(wet4, wet8)
   deallocate(ulon, ulat, htn, hte)
 

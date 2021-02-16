@@ -2,7 +2,7 @@ module icegriddefs
 
   implicit none
 
-  integer, parameter :: ncicevars = 20
+  integer, parameter :: ncicevars = 6
 
   type icedefs
     character(len=12)   ::  var_name

@@ -1,8 +1,11 @@
 module angles
 
-  use param
-  use grdvars
-    
+  use grdvars, only : ni,nj,nx,ny
+  use grdvars, only : x,y,xsgp1,ysgp1,sg_maxlat
+  use grdvars, only : latBu,lonBu,lonCt
+  use grdvars, only : angq,anglet
+  use grdvars, only : debug
+
   contains
 
   subroutine find_angq
@@ -35,7 +38,7 @@ module angles
     do i = nx/2+1,nx
      if(y(i,j) .eq. sg_maxlat)ipolesg(2) = i
     enddo
-    print *,'poles found at ',ipolesg
+    if(debug)print *,'poles found at ',ipolesg
   
     xsgp1(:,0:ny) = x(:,0:ny)
     ysgp1(:,0:ny) = y(:,0:ny)
@@ -43,12 +46,12 @@ module angles
     !check
     do i = ipolesg(1)-5,ipolesg(1)+5
      i2 = ipolesg(2)+(ipolesg(1)-i)+1
-     print *,i,i2
+     if(debug)print *,i,i2
     enddo
      print *
     do i = ipolesg(2)-5,ipolesg(2)+5
      i2 = ipolesg(2)+(ipolesg(1)-i)+1
-     print *,i,i2
+     if(debug)print *,i,i2
     enddo
   
     !replicate supergrid across pole
@@ -59,21 +62,23 @@ module angles
     enddo
    
     !check
+    if(debug)then
      j = ny+1
     i1 = ipolesg(1); i2 = ipolesg(2)-(ipolesg(1)-i1)
-    print *,'replicate X across seam on SG'
-    print *,xsgp1(i1-2,j),xsgp1(i2+2,j)
-    print *,xsgp1(i1-1,j),xsgp1(i2+1,j)
-    print *,xsgp1(i1,  j),xsgp1(i2,  j)
-    print *,xsgp1(i1+1,j),xsgp1(i2-1,j)
-    print *,xsgp1(i1+2,j),xsgp1(i2-2,j)
+      print *,'replicate X across seam on SG'
+      print *,xsgp1(i1-2,j),xsgp1(i2+2,j)
+      print *,xsgp1(i1-1,j),xsgp1(i2+1,j)
+      print *,xsgp1(i1,  j),xsgp1(i2,  j)
+      print *,xsgp1(i1+1,j),xsgp1(i2-1,j)
+      print *,xsgp1(i1+2,j),xsgp1(i2-2,j)
   
-    print *,'replicate Y across seam on SG'
-    print *,ysgp1(i1-2,j),ysgp1(i2+2,j)
-    print *,ysgp1(i1-1,j),ysgp1(i2+1,j)
-    print *,ysgp1(i1,  j),ysgp1(i2,  j)
-    print *,ysgp1(i1+1,j),ysgp1(i2-1,j)
-    print *,ysgp1(i1+2,j),ysgp1(i2-2,j)
+      print *,'replicate Y across seam on SG'
+      print *,ysgp1(i1-2,j),ysgp1(i2+2,j)
+      print *,ysgp1(i1-1,j),ysgp1(i2+1,j)
+      print *,ysgp1(i1,  j),ysgp1(i2,  j)
+      print *,ysgp1(i1+1,j),ysgp1(i2-1,j)
+      print *,ysgp1(i1+2,j),ysgp1(i2-2,j)
+    end if
   
 !---------------------------------------------------------------------
 ! rotation angle on supergrid vertices
@@ -94,16 +99,18 @@ module angles
                             ysgp1(i-1,j+1) + ysgp1(i+1,j+1) - &
                             ysgp1(i-1,j-1) - ysgp1(i+1,j-1) )
     enddo ; enddo
-  
+ 
     !check
-     j = ny
-    i1 = ipolesg(1); i2 = ipolesg(2)-(ipolesg(1)-i1)
-    print *,'angq along seam on SG'
-    print *,angq(i1-2,j),angq(i2+2,j)
-    print *,angq(i1-1,j),angq(i2+1,j)
-    print *,angq(i1,  j),angq(i2,  j)
-    print *,angq(i1+1,j),angq(i2-1,j)
-    print *,angq(i1+2,j),angq(i2-2,j)
+    if(debug) then
+       j = ny
+      i1 = ipolesg(1); i2 = ipolesg(2)-(ipolesg(1)-i1)
+      print *,'angq along seam on SG'
+      print *,angq(i1-2,j),angq(i2+2,j)
+      print *,angq(i1-1,j),angq(i2+1,j)
+      print *,angq(i1,  j),angq(i2,  j)
+      print *,angq(i1+1,j),angq(i2-1,j)
+      print *,angq(i1+2,j),angq(i2-2,j)
+    end if
 
   end subroutine find_angq
 

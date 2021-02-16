@@ -1,6 +1,5 @@
 subroutine write_cicegrid
  
-   use param
    use grdvars
    use charstrings
    use icegriddefs
@@ -10,7 +9,7 @@ subroutine write_cicegrid
 
   ! local variables
 
-  character(len=256) :: fname_out, fname_in
+  character(len=CL) :: fname_out, fname_in
   integer :: ii,id,rc, ncid, vardim(2)
   integer :: ni_dim,nj_dim
 

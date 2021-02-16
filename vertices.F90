@@ -1,6 +1,6 @@
 subroutine fill_vertices(jbeg,jend,iVert,jVert,lat,lon,latvert,lonvert)
 
-  use param
+  use grdvars, only : ni,nj,nv
 
   implicit none
 
@@ -27,7 +27,7 @@ end subroutine fill_vertices
  
 subroutine fill_bottom(iVert,jVert,lat,lon,latvert,lonvert,dlat)
 
-  use param
+  use grdvars, only : ni,nj,nv
 
   implicit none
 
@@ -64,7 +64,7 @@ end subroutine fill_bottom
 
 subroutine fill_top(iVert,jVert,lat,lon,latvert,lonvert,xlat,xlon)
 
-  use param
+  use grdvars, only : ni,nj,nv
 
   implicit none
 

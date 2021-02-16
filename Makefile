@@ -12,7 +12,7 @@ F90 = ifort
 ######################################################################
 #
 #####################################################################
-OBJS = param.o charstrings.o grdvars.o angles.o physcon.o debugprint.o fixgriddefs.o gen_fixgrid.o vertices.o write_tripolegrid.o icedefs.o write_cicegrid.o
+OBJS = grdvars.o charstrings.o read_inputnml.o angles.o physcon.o debugprint.o fixgriddefs.o gen_fixgrid.o vertices.o write_tripolegrid.o icedefs.o write_cicegrid.o
 
 gengrid: $(OBJS)
 	$(F90) $(FOPT) -o gengrid $(OBJS) -L$(CDF)/lib -lnetcdff -lnetcdf

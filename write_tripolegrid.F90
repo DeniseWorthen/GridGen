@@ -1,6 +1,5 @@
 subroutine write_tripolegrid
 
-   use param
    use grdvars
    use charstrings
    use fixgriddefs
@@ -10,7 +9,7 @@ subroutine write_tripolegrid
 
   ! local variables
 
-  character(len=256) :: fname_out
+  character(len=CL) :: fname_out
   integer :: ii,id,rc, ncid, dim2(2),dim3(3)
   integer :: ni_dim,nj_dim,nv_dim
 
