@@ -21,6 +21,8 @@ export FIXDIR_PATH='/scratch2/NCEPDEV/climate/climpara/S2S/FIX/fix_UFSp4/fix_mom
 export OUTDIR_PATH='/scratch2/NCEPDEV/climate/Denise.Worthen/grids-ufs/'
 
 edit_namelist < grid.nml.IN > grid.nml
+make
+./gengrid
 
 export NI='1440'
 export NJ='1080'
@@ -28,4 +30,6 @@ export GRDNAME='025'
 export MASKEDIT='.F.'
 
 edit_namelist < grid.nml.IN > grid.nml
+./gengrid
 
+make clean
