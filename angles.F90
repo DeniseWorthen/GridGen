@@ -120,7 +120,7 @@ module angles
   
     ! local variables
     integer :: i,j,m,n
-    integer :: im1,jm1,ii,jj
+    integer :: ii,jj
   
     ! from geolonB fix in MOM6
     real(kind=8) :: len_lon ! The periodic range of longitudes, usually 360 degrees.

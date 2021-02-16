@@ -148,7 +148,7 @@ program gen_fixgrid
 
   integer :: rc,ncid,id,xtype
   integer :: i,j,i2,j2
-  integer :: ii,jj,k
+  integer :: ii,jj
   integer :: system
 
 !---------------------------------------------------------------------

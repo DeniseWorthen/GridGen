@@ -9,7 +9,7 @@ subroutine write_cicegrid
 
   ! local variables
 
-  character(len=CL) :: fname_out, fname_in
+  character(len=CL) :: fname_out
   integer :: ii,id,rc, ncid, vardim(2)
   integer :: ni_dim,nj_dim
 

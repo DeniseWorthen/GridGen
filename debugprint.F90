@@ -84,7 +84,7 @@ module debugprint
 
   subroutine checkxlatlon
  
-  integer :: i,j
+  integer :: i
 
     print *,'============== Ct grid ==============='
     print *,'============== Left pole ============'

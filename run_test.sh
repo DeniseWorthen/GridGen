@@ -32,4 +32,6 @@ export MASKEDIT='.F.'
 edit_namelist < grid.nml.IN > grid.nml
 ./gengrid
 
+# clean up
 make clean
+rm grid.nml
