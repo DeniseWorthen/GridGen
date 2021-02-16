@@ -151,6 +151,14 @@ program gen_fixgrid
   integer :: system
 
 !---------------------------------------------------------------------
+!
+!---------------------------------------------------------------------
+
+  call gridgen_config(ni,nj,nx,ny)
+
+  call allocate_all
+  
+!---------------------------------------------------------------------
 ! set up the arrays to retrieve the vertices
 !---------------------------------------------------------------------
 
@@ -411,5 +419,19 @@ program gen_fixgrid
 
      cmdstr = 'ncks -O -v kmt '//trim(fname_in)//'  '//trim(fname_out)
      rc = system(trim(cmdstr))
+
+!---------------------------------------------------------------------
+! clean up
+!---------------------------------------------------------------------
+
+  deallocate(x,y, angq, dx, dy, xsgp1, ysgp1)
+  deallocate(areaCt, anglet, angle)
+  deallocate(latCt, lonCt, latCt_vert, lonCt_vert)
+  deallocate(latCv, lonCv, latCv_vert, lonCv_vert)
+  deallocate(latCu, lonCu, latCu_vert, lonCu_vert)
+  deallocate(latBu, lonBu, latBu_vert, lonBu_vert)
+  deallocate(xlonCt, xlatCt, xlonCu, xlatCu, dlonBu, dlatBu)
+  deallocate(wet4, wet8)
+  deallocate(ulon, ulat, htn, hte)
 
 end program gen_fixgrid
