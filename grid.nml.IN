@@ -1,0 +1,9 @@
+& grid_nml
+ni=NI_GLB
+nj=NJ_GLB
+dirsrc='FIXDIR'
+dirout='OUTDIR'
+res='RESNAME'
+editmask=DO_MASKEDIT
+debug=DO_DEBUG
+/
