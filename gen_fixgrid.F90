@@ -180,7 +180,7 @@ program gen_fixgrid
 ! read the land mask
 !---------------------------------------------------------------------
 
-  fname_in = trim(dirsrc)//trim(res)//'/'//trim(maskfile)
+  fname_in = trim(dirsrc)//trim(res)//'/'//trim(maskfile)//'.nc'
 
   rc = nf90_open(fname_in, nf90_nowrite, ncid)
   print *, 'reading ocean mask from ',trim(fname_in)
@@ -204,6 +204,9 @@ program gen_fixgrid
 
    ii = 88; jj = 132
    if(wet4(ii+1,jj+1) .eq. 0.0)wet4(ii+1,jj+1) = 1.0
+
+   ! set j=1 to land
+   wet4(:,1) = 0.0
 #endif
 !---------------------------------------------------------------------
 ! read supergrid file
@@ -401,7 +404,9 @@ program gen_fixgrid
    call write_tripolegrid
 
    call write_cicegrid
-
+#ifdef output_grid_1deg
+   call write_newmask
+#endif
 !---------------------------------------------------------------------
 ! extract the kmt into a separate file
 !---------------------------------------------------------------------

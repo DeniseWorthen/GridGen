@@ -12,15 +12,15 @@ F90 = ifort
 #opt1 = -Doutput_grid_qdeg
 #opt1 = -Doutput_grid_hdeg
 #opt1 = -Doutput_grid_072deg
-#opt1 = -Doutput_grid_1deg
+opt1 = -Doutput_grid_1deg
 #opt1 = -Doutput_grid_3deg
-opt1 = -Doutput_grid_twelfdeg
+#opt1 = -Doutput_grid_twelfdeg
 
 optall = $(opt1) $(opt2)
 ######################################################################
 #
 #####################################################################
-OBJS = param.o charstrings.o grdvars.o angles.o physcon.o debugprint.o fixgriddefs.o gen_fixgrid.o vertices.o write_tripolegrid.o icedefs.o write_cicegrid.o
+OBJS = param.o charstrings.o grdvars.o angles.o physcon.o debugprint.o fixgriddefs.o gen_fixgrid.o vertices.o write_tripolegrid.o icedefs.o write_cicegrid.o write_newmask.o
 
 gengrid: $(OBJS)
 	$(F90) $(FOPT) -o gengrid $(OBJS) -L$(CDF)/lib -lnetcdff -lnetcdf
