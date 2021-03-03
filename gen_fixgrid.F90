@@ -404,9 +404,7 @@ program gen_fixgrid
    call write_tripolegrid
 
    call write_cicegrid
-#ifdef output_grid_1deg
-   call write_newmask
-#endif
+
 !---------------------------------------------------------------------
 ! extract the kmt into a separate file
 !---------------------------------------------------------------------
@@ -416,5 +414,15 @@ program gen_fixgrid
 
      cmdstr = 'ncks -O -v kmt '//trim(fname_in)//'  '//trim(fname_out)
      rc = system(trim(cmdstr))
+!---------------------------------------------------------------------
+!
+!---------------------------------------------------------------------
+#ifdef output_grid_1deg
+   fname_in = trim(dirsrc)//trim(res)//'/'//'topog.nc'
+  fname_out = trim(dirout)//'topog.ciceB.mx'//trim(res)//'.nc'
+     cmdstr = 'ncks -O '//trim(fname_in)//'  '//trim(fname_out)
+     rc = system(trim(cmdstr))
 
+   call write_newtopog(fname_out)
+#endif
 end program gen_fixgrid
