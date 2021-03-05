@@ -27,7 +27,7 @@ subroutine write_newtopog(fname)
   rc = nf90_get_var(ncid,      id,  depth)
   rc = nf90_close(ncid)
 
-  depth(:,1) = 0.0
+  where(xwet .eq. 0.0)depth = 0.0
 
   rc = nf90_open(fname, nf90_write, ncid)
 

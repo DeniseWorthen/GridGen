@@ -204,9 +204,6 @@ program gen_fixgrid
 
    ii = 88; jj = 132
    if(wet4(ii+1,jj+1) .eq. 0.0)wet4(ii+1,jj+1) = 1.0
-
-   ! set j=1 to land
-   wet4(:,1) = 0.0
 #endif
 !---------------------------------------------------------------------
 ! read supergrid file
@@ -393,6 +390,15 @@ program gen_fixgrid
   if(minval(latBu_vert) .lt. -1.e3)stop
   if(minval(lonBu_vert) .lt. -1.e3)stop
 
+#ifdef output_grid_1deg
+!---------------------------------------------------------------------
+! adjust land mask at j=1 and for ocean pts w/ less than 2 active
+! neighbors S of 60S
+!---------------------------------------------------------------------
+
+   call adjust_landmask
+
+#endif
 !---------------------------------------------------------------------
 ! write out grid file files
 !---------------------------------------------------------------------

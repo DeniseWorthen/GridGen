@@ -20,7 +20,7 @@ optall = $(opt1) $(opt2)
 ######################################################################
 #
 #####################################################################
-OBJS = param.o charstrings.o grdvars.o angles.o physcon.o debugprint.o fixgriddefs.o gen_fixgrid.o vertices.o write_tripolegrid.o icedefs.o write_cicegrid.o write_newtopog.o
+OBJS = param.o charstrings.o grdvars.o angles.o physcon.o debugprint.o fixgriddefs.o gen_fixgrid.o vertices.o write_tripolegrid.o icedefs.o write_cicegrid.o write_newtopog.o adjust_landmask.o
 
 gengrid: $(OBJS)
 	$(F90) $(FOPT) -o gengrid $(OBJS) -L$(CDF)/lib -lnetcdff -lnetcdf
