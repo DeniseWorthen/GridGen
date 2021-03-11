@@ -17,7 +17,7 @@ subroutine add_topoedits
   real(kind=4), allocatable, dimension(:) :: oriz, newz
 
    fname_in =  trim(dirsrc)//trim(res)//'/'//'topo_edits_011818.nc'
-  fname_out = trim(dirout)//'ufs.topo_edits_011818.nc'
+  fname_out = trim(dirout)//'ufs.topo_edits_mx100.nc'
 
 !---------------------------------------------------------------------
 ! read existing topo edits
