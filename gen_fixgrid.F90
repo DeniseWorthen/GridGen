@@ -151,6 +151,13 @@ program gen_fixgrid
   integer :: system
 
 !---------------------------------------------------------------------
+!  create a history attribute
+!---------------------------------------------------------------------
+
+   call date_and_time(date=cdate)
+   history = 'created on '//trim(cdate)//' from '//trim(dirsrc)
+
+!---------------------------------------------------------------------
 ! set up the arrays to retrieve the vertices
 !---------------------------------------------------------------------
 
@@ -204,6 +211,9 @@ program gen_fixgrid
 
    ii = 88; jj = 132
    if(wet4(ii+1,jj+1) .eq. 0.0)wet4(ii+1,jj+1) = 1.0
+
+   ! create additional topo edits
+   call add_topoedits
 #endif
 !---------------------------------------------------------------------
 ! read supergrid file
@@ -393,10 +403,6 @@ program gen_fixgrid
 !---------------------------------------------------------------------
 ! write out grid file files
 !---------------------------------------------------------------------
-
-  ! create a history attribute
-   call date_and_time(date=cdate)
-   history = 'created on '//trim(cdate)//' from '//trim(fname_in)
 
    call write_tripolegrid
 
