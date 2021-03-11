@@ -68,8 +68,8 @@ subroutine add_topoedits
   do i = 1,ni
    if(wet4(i,1) .eq. 1.0)then
      ii = ii+1
-     newi(ii) = i
-     newj(ii) = 1
+     newi(ii) = i-1
+     newj(ii) = 1-1
      newz(ii) = 0.0
    end if
   end do
