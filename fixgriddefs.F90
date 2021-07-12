@@ -2,17 +2,20 @@ module fixgriddefs
 
   implicit none
 
-  integer, parameter :: maxvars = 40
+  integer, parameter :: max_fixvars = 40
 
   type grid_defs
-    character(len=12)   ::  var_name
-    character(len=64)   :: long_name
-    character(len=20)   :: unit_name
-    character(len= 2)   ::  var_type
-    character(len=20)   ::  vertices
+    character(len=12)   ::  var_name = ''
+    character(len=64)   :: long_name = ''
+    character(len=20)   :: unit_name = ''
+    character(len= 2)   ::  var_type = 'r8'
+    character(len=20)   ::  vertices = ''
   end type grid_defs
 
-  type(grid_defs) :: fixgrid(maxvars)
+  type(grid_defs) :: fixgrid(max_fixvars)
+
+  integer :: nfixvars
+
   contains
 
   subroutine fixgrid_typedefine
@@ -20,8 +23,6 @@ module fixgriddefs
   integer :: ii = 0
   
    !default
-   fixgrid(:)%var_type  = 'r8'
-   fixgrid(:)%vertices  = ' '
 
    ii = ii + 1
    fixgrid(ii)%var_name  = 'lonCt'
@@ -111,5 +112,6 @@ module fixgriddefs
    fixgrid(ii)%long_name = 'Latitude Vertices of Bu points'
    fixgrid(ii)%unit_name = 'degrees_north'
 
+   nfixvars = ii
  end subroutine fixgrid_typedefine
 end module fixgriddefs

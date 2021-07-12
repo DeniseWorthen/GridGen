@@ -12,7 +12,7 @@ subroutine write_tripolegrid
 
   character(len=256) :: fname_out
   integer :: ii,id,rc, ncid, dim2(2),dim3(3)
-  integer :: ni_dim,nj_dim,nv_dim
+  integer :: idimid,jdimid,kdimid
 
 !---------------------------------------------------------------------
 ! local variables
@@ -30,29 +30,22 @@ subroutine write_tripolegrid
   print *, 'writing grid to ',trim(fname_out)
   print *, 'nf90_create = ',trim(nf90_strerror(rc))
 
-  rc = nf90_def_dim(ncid,'ni', ni, ni_dim)
-  rc = nf90_def_dim(ncid,'nj', nj, nj_dim)
-  rc = nf90_def_dim(ncid,'nv', nv, nv_dim)
+  rc = nf90_def_dim(ncid, 'ni', ni, idimid)
+  rc = nf90_def_dim(ncid, 'nj', nj, jdimid)
+  rc = nf90_def_dim(ncid, 'nv', nv, kdimid)
   
   !mask
-  dim2(2) = nj_dim
-  dim2(1) = ni_dim
-   rc = nf90_def_var(ncid, 'wet', nf90_int, dim2, id)
-
+  dim2(:) = (/idimid, jdimid/)
+   rc = nf90_def_var(ncid, 'wet',     nf90_int, dim2, id)
+   rc = nf90_put_att(ncid, id,     'units',         'nd')
   !area
-  dim2(2) = nj_dim
-  dim2(1) = ni_dim
    rc = nf90_def_var(ncid, 'area', nf90_double, dim2, id)
-   rc = nf90_put_att(ncid, id,     'units',  'm2')
-
+   rc = nf90_put_att(ncid, id,     'units',         'm2')
   !angleT
-  dim2(2) = nj_dim
-  dim2(1) = ni_dim
    rc = nf90_def_var(ncid, 'anglet', nf90_double, dim2, id)
-   rc = nf90_put_att(ncid, id,     'units',  'radians')
+   rc = nf90_put_att(ncid, id,     'units',      'radians')
 
-  dim2(2) = nj_dim
-  dim2(1) = ni_dim
+  dim2(:) = (/idimid, jdimid/)
   do ii = 1,ncoord
    rc = nf90_def_var(ncid, trim(fixgrid(ii)%var_name), nf90_double, dim2, id)
    rc = nf90_put_att(ncid, id,     'units', trim(fixgrid(ii)%unit_name))
@@ -63,9 +56,8 @@ subroutine write_tripolegrid
     rc = nf90_put_att(ncid, id,  'lat_bounds', trim(fixgrid(ii)%vertices))
    endif
   enddo
-  dim3(3) = nv_dim
-  dim3(2) = nj_dim
-  dim3(1) = ni_dim
+
+  dim3(:) = (/idimid, jdimid, kdimid/)
   do ii = ncoord+1,ncoord+nverts
    rc = nf90_def_var(ncid, trim(fixgrid(ii)%var_name), nf90_double, dim3, id)
    rc = nf90_put_att(ncid, id,     'units', trim(fixgrid(ii)%unit_name))
