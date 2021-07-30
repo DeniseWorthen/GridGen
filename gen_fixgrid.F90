@@ -304,7 +304,7 @@ program gen_fixgrid
     if(hte(ii,j) .le. 1.0)hte(ii,j) = 0.5*(hte(ii-1,j) + hte(   1,j))
    enddo
    print *,'min vals of hte at folds ',minval(hte(ni/2,:)),minval(hte(ni,:))
-  
+
 !---------------------------------------------------------------------
 !
 !---------------------------------------------------------------------

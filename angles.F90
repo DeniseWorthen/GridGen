@@ -2,7 +2,7 @@ module angles
 
   use param
   use grdvars
-    
+
   contains
 
   subroutine find_angq
@@ -94,7 +94,7 @@ module angles
                             ysgp1(i-1,j+1) + ysgp1(i+1,j+1) - &
                             ysgp1(i-1,j-1) - ysgp1(i+1,j-1) )
     enddo ; enddo
-  
+
     !check
      j = ny
     i1 = ipolesg(1); i2 = ipolesg(2)-(ipolesg(1)-i1)
