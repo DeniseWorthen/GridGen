@@ -23,8 +23,8 @@ subroutine write_cicegrid
   fname_out= trim(dirout)//'grid_cice_NEMS_mx'//trim(res)//'.nc'
 
   rc = nf90_create(fname_out, nf90_write, ncid)
-  print *, 'writing CICE grid to ',trim(fname_out)
-  print *, 'nf90_create = ',trim(nf90_strerror(rc))
+  print '(a,a)', 'writing CICE grid to ',trim(fname_out)
+  print '(a,a)', 'nf90_create = ',trim(nf90_strerror(rc))
 
   rc = nf90_def_dim(ncid,'ni', ni, ni_dim)
   rc = nf90_def_dim(ncid,'nj', nj, nj_dim)

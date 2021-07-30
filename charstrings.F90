@@ -2,11 +2,11 @@ module charstrings
 
   implicit none
 
-#if defined output_grid_3deg || defined output_grid_072deg || defined output_grid_twelfdeg
+#if defined output_grid_4deg || defined output_grid_072deg || defined output_grid_twelfdeg
 !set temporary locations
-# ifdef output_grid_3deg
+# ifdef output_grid_4deg
   character(len=256) :: dirsrc = &
-   '/scratch2/NCEPDEV/climate/Denise.Worthen/Huiskamp/INPUT/'
+   '/scratch2/NCEPDEV/climate/Denise.Worthen/soca/test/Data/72x35x25/INPUT/'
 # endif
 # ifdef output_grid_072deg
   character(len=256) :: dirsrc = &
@@ -33,8 +33,8 @@ module charstrings
 #ifdef output_grid_1deg
   character(len= 10) :: res = '100'
 #endif
-#ifdef output_grid_3deg
-  character(len= 10) :: res = '300'
+#ifdef output_grid_4deg
+  character(len= 10) :: res = '400'
 #endif
 #ifdef output_grid_twelfdeg
   character(len= 10) :: res = '008'
@@ -43,7 +43,7 @@ module charstrings
   character(len=100) :: maskfile = 'ocean_mask.nc'
   character(len= 12) :: maskname = 'mask'
 
-  character(len=256) :: dirout = '/scratch2/NCEPDEV/climate/Denise.Worthen/grids-20210223/'
+  character(len=256) :: dirout = '/scratch2/NCEPDEV/climate/Denise.Worthen/grids-20210727/'
   character(len=256) :: history
   character(len=  8) :: cdate
 

@@ -180,11 +180,15 @@ program gen_fixgrid
 ! read the land mask
 !---------------------------------------------------------------------
 
+#ifdef output_grid_4deg
+  fname_in = trim(dirsrc)//trim(maskfile)
+#else
   fname_in = trim(dirsrc)//trim(res)//'/'//trim(maskfile)
+#endif
 
   rc = nf90_open(fname_in, nf90_nowrite, ncid)
-  print *, 'reading ocean mask from ',trim(fname_in)
-  print *, 'nf90_open = ',trim(nf90_strerror(rc))
+  print '(a)', 'reading ocean mask from '//trim(fname_in)
+  print '(a)', 'nf90_open = '//trim(nf90_strerror(rc))
 
   rc = nf90_inq_varid(ncid,  trim(maskname), id)
   rc = nf90_inquire_variable(ncid, id, xtype=xtype)
@@ -209,11 +213,15 @@ program gen_fixgrid
 ! read supergrid file
 !---------------------------------------------------------------------
 
+#ifdef output_grid_4deg
+  fname_in = trim(dirsrc)//'ocean_hgrid.nc'
+#else
   fname_in = trim(dirsrc)//trim(res)//'/'//'ocean_hgrid.nc'
+#endif
 
   rc = nf90_open(fname_in, nf90_nowrite, ncid)
-  print *, 'reading supergrid from ',trim(fname_in)
-  print *, 'nf90_open = ',trim(nf90_strerror(rc))
+  print '(a)', 'reading supergrid from '//trim(fname_in)
+  print '(a)', 'nf90_open = '//trim(nf90_strerror(rc))
   
   rc = nf90_inq_varid(ncid, 'x', id)  !lon
   rc = nf90_get_var(ncid,    id,  x)
@@ -296,7 +304,7 @@ program gen_fixgrid
     if(hte(ii,j) .le. 1.0)hte(ii,j) = 0.5*(hte(ii-1,j) + hte(   1,j))
    enddo
    print *,'min vals of hte at folds ',minval(hte(ni/2,:)),minval(hte(ni,:))
-
+  
 !---------------------------------------------------------------------
 !
 !---------------------------------------------------------------------

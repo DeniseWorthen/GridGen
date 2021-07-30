@@ -7,7 +7,8 @@
 ;************************************************
 begin
 
-  grdsrc = "/scratch2/NCEPDEV/climate/Denise.Worthen/GRIDS/"
+  ;grdsrc = "/scratch2/NCEPDEV/climate/Denise.Worthen/GRIDS/"
+  grdsrc = "/scratch2/NCEPDEV/climate/Denise.Worthen/grids-20210727/"
 
   ; rad 2 degree
   rad2deg = 180.0d0/acos(-1.0d0)
@@ -15,18 +16,18 @@ begin
    ; arrays of characterstrings to set locations and filenames
    ;  fsrcs => tripole grid file
    ;  csrcs => cice restart file
-    fsrcs = (/ "mx100",  "mx050",  "mx025", "mx072", "mx300"/)
-    csrcs = (/  "1.00",   "0.50",   "0.25",  "0.72",  "3.00"/)
+    fsrcs = (/ "mx100",  "mx050",  "mx025", "mx072", "mx400"/)
+    csrcs = (/  "1.00",   "0.50",   "0.25",  "0.72",  "4.00"/)
    ; seam longitude for each res
-     lons = (/    60.0,     60.0,     60.0,   73.75,   75.00/)
+     lons = (/    60.0,     60.0,     60.0,   73.75,   80.00/)
    ; min lat to plot for each res
   minlats = (/    86.0,     87.0,     89.0,   86.00,   80.00/)
 
   ;ires = 0 ; 1deg
   ;ires = 1 ; 1/2deg
-  ires = 2 ; 1/4deg
+  ;ires = 2 ; 1/4deg
   ;ires = 3 ; 072deg
-  ;ires = 4 ; 3deg
+  ires = 4 ; 4deg
 
   levs = (/-1.6, 1.6, 0.1/)
 

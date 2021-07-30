@@ -21,14 +21,13 @@ subroutine write_tripolegrid
   ! define the output variables and file name
   call fixgrid_typedefine
   fname_out= trim(dirout)//'tripole.mx'//trim(res)//'.nc'
-  print *,trim(fname_out)
 
   ! create the file
   ! 64_bit offset reqd for 008 grid
   ! produces b4b results for smaller grids
   rc = nf90_create(trim(fname_out), nf90_64bit_offset, ncid)
-  print *, 'writing grid to ',trim(fname_out)
-  print *, 'nf90_create = ',trim(nf90_strerror(rc))
+  print '(a,a)', 'writing grid to ',trim(fname_out)
+  print '(a,a)', 'nf90_create = ',trim(nf90_strerror(rc))
 
   rc = nf90_def_dim(ncid,'ni', ni, ni_dim)
   rc = nf90_def_dim(ncid,'nj', nj, nj_dim)
