@@ -164,6 +164,7 @@ program gen_fixgrid
   print *,'output grid directory ',trim(dirout)
   print *,'editmask flag ',editmask
   print *,'debug flag ',debug
+  print *
 
   call allocate_all
   
@@ -197,11 +198,11 @@ program gen_fixgrid
 ! read the land mask
 !---------------------------------------------------------------------
 
-  fname_in = trim(dirsrc)//trim(res)//'/'//trim(maskfile)
+  fname_in = trim(dirsrc)//trim(maskfile)
 
   rc = nf90_open(fname_in, nf90_nowrite, ncid)
   print '(a)', 'reading ocean mask from '//trim(fname_in)
-  print '(a)', 'nf90_open = '//trim(nf90_strerror(rc))
+  if(rc .ne. 0)print '(a)', 'nf90_open = '//trim(nf90_strerror(rc))
 
   rc = nf90_inq_varid(ncid,  trim(maskname), id)
   rc = nf90_inquire_variable(ncid, id, xtype=xtype)
@@ -229,11 +230,11 @@ program gen_fixgrid
 ! read supergrid file
 !---------------------------------------------------------------------
 
-  fname_in = trim(dirsrc)//trim(res)//'/'//'ocean_hgrid.nc'
+  fname_in = trim(dirsrc)//'ocean_hgrid.nc'
 
   rc = nf90_open(fname_in, nf90_nowrite, ncid)
   print '(a)', 'reading supergrid from '//trim(fname_in)
-  print '(a)', 'nf90_open = '//trim(nf90_strerror(rc))
+  if(rc .ne. 0)print '(a)', 'nf90_open = '//trim(nf90_strerror(rc))
   
   rc = nf90_inq_varid(ncid, 'x', id)  !lon
   rc = nf90_get_var(ncid,    id,  x)

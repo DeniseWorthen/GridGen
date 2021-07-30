@@ -28,7 +28,7 @@ subroutine write_cicegrid
 
   rc = nf90_create(fname_out, nf90_write, ncid)
   print '(a)', 'writing CICE grid to '//trim(fname_out)
-  print '(a)', 'nf90_create = '//trim(nf90_strerror(rc))
+  if(rc .ne. 0)print '(a)', 'nf90_create = '//trim(nf90_strerror(rc))
 
   rc = nf90_def_dim(ncid, 'ni', ni, idimid)
   rc = nf90_def_dim(ncid, 'nj', nj, jdimid)
