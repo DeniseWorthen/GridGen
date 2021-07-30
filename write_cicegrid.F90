@@ -1,5 +1,5 @@
 subroutine write_cicegrid
- 
+
    use param
    use grdvars
    use charstrings
