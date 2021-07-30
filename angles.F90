@@ -99,7 +99,7 @@ module angles
                             ysgp1(i-1,j+1) + ysgp1(i+1,j+1) - &
                             ysgp1(i-1,j-1) - ysgp1(i+1,j-1) )
     enddo ; enddo
- 
+
     !check
     if(debug) then
        j = ny

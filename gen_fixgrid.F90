@@ -200,8 +200,8 @@ program gen_fixgrid
   fname_in = trim(dirsrc)//trim(res)//'/'//trim(maskfile)
 
   rc = nf90_open(fname_in, nf90_nowrite, ncid)
-  print *, 'reading ocean mask from ',trim(fname_in)
-  print *, 'nf90_open = ',trim(nf90_strerror(rc))
+  print '(a)', 'reading ocean mask from '//trim(fname_in)
+  print '(a)', 'nf90_open = '//trim(nf90_strerror(rc))
 
   rc = nf90_inq_varid(ncid,  trim(maskname), id)
   rc = nf90_inquire_variable(ncid, id, xtype=xtype)
@@ -218,6 +218,7 @@ program gen_fixgrid
 !---------------------------------------------------------------------
 ! kludgy fix: 1-deg model has single point which switches froma
 ! land->ocean at run time. see issue #47 on NOAA-EMC/MOM6
+! TODO: add routine to create full topoedits file for runtime
 !---------------------------------------------------------------------
 
    ii = 88; jj = 132
@@ -231,8 +232,8 @@ program gen_fixgrid
   fname_in = trim(dirsrc)//trim(res)//'/'//'ocean_hgrid.nc'
 
   rc = nf90_open(fname_in, nf90_nowrite, ncid)
-  print *, 'reading supergrid from ',trim(fname_in)
-  print *, 'nf90_open = ',trim(nf90_strerror(rc))
+  print '(a)', 'reading supergrid from '//trim(fname_in)
+  print '(a)', 'nf90_open = '//trim(nf90_strerror(rc))
   
   rc = nf90_inq_varid(ncid, 'x', id)  !lon
   rc = nf90_get_var(ncid,    id,  x)
