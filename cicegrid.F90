@@ -1,4 +1,4 @@
-subroutine write_cicegrid
+module cicegrid
 
    use grdvars
    use charstrings
@@ -6,6 +6,10 @@ subroutine write_cicegrid
    use netcdf
 
    implicit none
+
+  contains
+
+  subroutine write_cicegrid
 
   ! local variables
 
@@ -19,10 +23,10 @@ subroutine write_cicegrid
   character(len=12) :: vunit
 
 !---------------------------------------------------------------------
-! local variables
+! create the netcdf file
 !---------------------------------------------------------------------
 
-  call ice_typedefine
+  !call ice_typedefine
 
   fname_out= trim(dirout)//'grid_cice_NEMS_mx'//trim(res)//'.nc'
 
@@ -69,4 +73,5 @@ subroutine write_cicegrid
 
   rc = nf90_close(ncid)
 
-end subroutine write_cicegrid
+  end subroutine write_cicegrid
+end module cicegrid

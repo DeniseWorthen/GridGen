@@ -1,4 +1,4 @@
-subroutine write_tripolegrid
+module tripolegrid
 
    use grdvars
    use charstrings
@@ -6,6 +6,9 @@ subroutine write_tripolegrid
    use netcdf
 
    implicit none
+  contains
+
+  subroutine write_tripolegrid
 
   ! local variables
 
@@ -14,11 +17,11 @@ subroutine write_tripolegrid
   integer :: idimid,jdimid,kdimid
 
 !---------------------------------------------------------------------
-! local variables
+! create the netcdf file
 !---------------------------------------------------------------------
 
   ! define the output variables and file name
-  call fixgrid_typedefine
+  !call fixgrid_typedefine
   fname_out= trim(dirout)//'tripole.mx'//trim(res)//'.nc'
 
   ! create the file
@@ -125,4 +128,5 @@ subroutine write_tripolegrid
 
   rc = nf90_close(ncid)
 
-end subroutine write_tripolegrid
+  end subroutine write_tripolegrid
+end module tripolegrid

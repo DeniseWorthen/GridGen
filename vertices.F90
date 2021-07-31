@@ -1,8 +1,12 @@
-subroutine fill_vertices(jbeg,jend,iVert,jVert,lat,lon,latvert,lonvert)
+module vertices
 
   use grdvars, only : ni,nj,nv
 
   implicit none
+
+  contains
+
+  subroutine fill_vertices(jbeg,jend,iVert,jVert,lat,lon,latvert,lonvert)
 
                             integer, intent( in) :: jbeg,jend
                             integer, intent( in) :: iVert(nv), jVert(nv)
@@ -23,13 +27,9 @@ subroutine fill_vertices(jbeg,jend,iVert,jVert,lat,lon,latvert,lonvert)
     enddo
    enddo
   enddo
-end subroutine fill_vertices
+  end subroutine fill_vertices
  
-subroutine fill_bottom(iVert,jVert,lat,lon,latvert,lonvert,dlat)
-
-  use grdvars, only : ni,nj,nv
-
-  implicit none
+  subroutine fill_bottom(iVert,jVert,lat,lon,latvert,lonvert,dlat)
 
                             integer, intent( in) :: iVert(nv), jVert(nv)
   real(kind=8), dimension(ni,nj),    intent( in) ::  lat, lon
@@ -60,13 +60,9 @@ subroutine fill_bottom(iVert,jVert,lat,lon,latvert,lonvert,dlat)
       lonvert(i,j, 3) = lonvert(i,j,2)
       lonvert(i,j, 4) = lonvert(i,j,1)
    enddo
-end subroutine fill_bottom
+   end subroutine fill_bottom
 
-subroutine fill_top(iVert,jVert,lat,lon,latvert,lonvert,xlat,xlon)
-
-  use grdvars, only : ni,nj,nv
-
-  implicit none
+   subroutine fill_top(iVert,jVert,lat,lon,latvert,lonvert,xlat,xlon)
 
                             integer, intent( in) :: iVert(nv), jVert(nv)
   real(kind=8), dimension(ni,nj),    intent( in) ::  lat,  lon
@@ -100,4 +96,5 @@ subroutine fill_top(iVert,jVert,lat,lon,latvert,lonvert,xlat,xlon)
       !latCv_vert(i,j, 2) = latCv_vert(i,j,3)
       !lonCv_vert(i,j, 1) = lonCv_vert(i,j,4)+240.d0
       !lonCv_vert(i,j, 2) = lonCv_vert(i,j,3)+240.d0
-end subroutine fill_top
+  end subroutine fill_top
+end module vertices
