@@ -132,6 +132,9 @@
 
 program gen_fixgrid
 
+  !use ESMF, only: ESMF_LOGMSG_INFO
+  use ESMF
+
   use netcdf
   use inputnml
   use grdvars
@@ -445,6 +448,10 @@ program gen_fixgrid
    call write_scripgrid('Bu')
   
    call write_scripgrid('Ct',imask=int(wet4))
+
+   fname_in=trim(dirout)//'Ct.mx025_SCRIP_land.nc'
+   fname_out=trim(dirout)//'Ct.mx400_SCRIP_land.nc'
+   call ESMF_RegridWeightGen(trim(fname_in),trim(fname_out))
 
 !---------------------------------------------------------------------
 ! extract the kmt into a separate file
