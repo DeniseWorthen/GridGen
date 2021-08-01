@@ -141,7 +141,7 @@ module scripgrid
   rc = nf90_inq_varid(ncid,  'grid_dims',        id)
   rc = nf90_put_var(ncid,             id,     gdims)
   rc = nf90_inq_varid(ncid, 'grid_imask',        id)
-  rc = nf90_put_var(ncid,             id,     cnmask)
+  rc = nf90_put_var(ncid,             id,    cnmask)
 
   rc = nf90_inq_varid(ncid,  'grid_center_lon',        id)
   rc = nf90_put_var(ncid,                   id,    cnlons)

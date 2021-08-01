@@ -133,6 +133,7 @@
 program gen_fixgrid
 
   use netcdf
+  use inputnml
   use grdvars
   use angles
   use vertices
