@@ -1,8 +1,14 @@
-subroutine read_inputnml(fname)
+module inputnml
 
  use grdvars,     only : nx,ny,ni,nj
  use grdvars,     only : editmask, debug
  use charstrings, only : dirsrc, dirout, res
+
+ implicit none
+
+ contains
+
+ subroutine read_inputnml(fname)
 
   character(len=*),   intent(in) :: fname
 
@@ -31,4 +37,5 @@ subroutine read_inputnml(fname)
   end if
 
   close (iounit)
-end subroutine read_inputnml
+  end subroutine read_inputnml
+end module inputnml
