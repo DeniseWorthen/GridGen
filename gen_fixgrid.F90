@@ -132,7 +132,6 @@
 
 program gen_fixgrid
 
-  !use ESMF, only: ESMF_LOGMSG_INFO
   use ESMF
 
   use netcdf
@@ -162,6 +161,15 @@ program gen_fixgrid
   integer :: ii,jj
   integer :: system
 
+  type(ESMF_VM) :: vm
+
+!-------------------------------------------------------------------------
+! Initialize esmf environment.
+!-------------------------------------------------------------------------
+
+ call ESMF_VMGetGlobal(vm, rc=rc)
+ call ESMF_Initialize(VM=vm, logkindflag=ESMF_LOGKIND_MULTI, rc=rc)
+
 !---------------------------------------------------------------------
 !
 !---------------------------------------------------------------------
@@ -178,7 +186,8 @@ program gen_fixgrid
   print *
 
   call allocate_all
-  
+ 
+ call ESMF_LogWrite("Driver is in ModifyCplLists()", ESMF_LOGMSG_INFO)
 !---------------------------------------------------------------------
 ! set up the arrays to retrieve the vertices
 !---------------------------------------------------------------------
@@ -451,7 +460,7 @@ program gen_fixgrid
 
    fname_in=trim(dirout)//'Ct.mx025_SCRIP_land.nc'
    fname_out=trim(dirout)//'Ct.mx400_SCRIP_land.nc'
-   call ESMF_RegridWeightGen(trim(fname_in),trim(fname_out))
+   !call ESMF_RegridWeightGen(trim(fname_in),trim(fname_out),rc=rc)
 
 !---------------------------------------------------------------------
 ! extract the kmt into a separate file
