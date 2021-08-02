@@ -4,7 +4,7 @@ module vartypedefs
 
   integer, parameter :: maxvars = 20
 
-  type, public :: vardefs
+  type :: vardefs
     character(len=12)   ::  var_name
     character(len=64)   :: long_name
     character(len=20)   :: unit_name
