@@ -5,11 +5,11 @@ module vartypedefs
   integer, parameter :: maxvars = 20
 
   type :: vardefs
-    character(len=12)   ::  var_name
-    character(len=64)   :: long_name
-    character(len=20)   :: unit_name
+    character(len=CM)   ::  var_name
+    character(len=CM)   :: long_name
+    character(len=CM)   :: unit_name
     character(len= 2)   ::  var_type
-    character(len=20)   ::  vertices
+    character(len=CM)   ::  vertices
   end type vardefs
 
   type(vardefs) ::   fixvars(maxvars)

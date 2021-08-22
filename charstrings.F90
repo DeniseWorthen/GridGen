@@ -3,7 +3,8 @@ module charstrings
   implicit none
 
   integer, parameter :: CL = 256
-  integer, parameter :: CS =  12
+  integer, parameter :: CM =  64
+  integer, parameter :: CS =  24
 
   character(len=CL) :: dirsrc, dirout
   character(len=CS) :: res

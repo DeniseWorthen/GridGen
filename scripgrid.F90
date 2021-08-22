@@ -29,8 +29,8 @@ module scripgrid
   real(kind=8), dimension(ni,nj) :: tmp
 
   character(len=2)  :: vtype
-  character(len=24) :: vname
-  character(len=12) :: vunit
+  character(len=CM) :: vname
+  character(len=CM) :: vunit
 
 !---------------------------------------------------------------------
 !
@@ -143,7 +143,7 @@ module scripgrid
   rc = nf90_inq_varid(ncid,  'grid_dims',        id)
   rc = nf90_put_var(ncid,             id,     gdims)
   rc = nf90_inq_varid(ncid, 'grid_imask',        id)
-  rc = nf90_put_var(ncid,             id,     cnmask)
+  rc = nf90_put_var(ncid,             id,    cnmask)
 
   rc = nf90_inq_varid(ncid,  'grid_center_lon',        id)
   rc = nf90_put_var(ncid,                   id,    cnlons)
