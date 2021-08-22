@@ -3,7 +3,9 @@ ni=NI_GLB
 nj=NJ_GLB
 dirsrc='FIXDIR'
 dirout='OUTDIR'
-res='RESNAME'
+fv3dir='MOSAICDIR'
+res=RESNAME
+atmres=MOSAICRES
 editmask=DO_MASKEDIT
 debug=DO_DEBUG
 /

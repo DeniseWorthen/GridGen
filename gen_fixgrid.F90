@@ -154,6 +154,8 @@ program gen_fixgrid
 
   character(len=CL) :: fname_out, fname_in
   character(len=CL) :: cmdstr
+  character(len=CL) :: src,dst,method,wgt
+  character(len=CL) :: logmsg
 
   integer :: rc,ncid,id,xtype
   integer :: i,j,i2,j2
@@ -454,14 +456,30 @@ program gen_fixgrid
   
    call write_scripgrid('Ct',imask=int(wet4))
 
-   fname_in=trim(dirout)//'Ct.mx025_SCRIP.nc'
-   fname_out=trim(dirout)//'Ct.mx400_SCRIP.nc'
-   print *,trim(fname_in)
-   print *,trim(fname_out)
-   call ESMF_RegridWeightGen(srcFile=trim(fname_in),dstFile=trim(fname_out), &
+!---------------------------------------------------------------------
+! use ESMF regridding to produce mapped ocean mask
+! weights files for tripole:tripole
+! regridding and mapping of the ocean mask to the FV3 tiles
+!---------------------------------------------------------------------
+ 
+   src = trim(dirout)//'Ct.mx'//trim(res)//'_SCRIP_land.nc'
+   dst = trim(fv3dir)//trim(atmres)//'/'//trim(atmres)//'_mosaic.nc'
+   wgt = trim(dirout)//'Ct.mx'//trim(res)//'.to.'//trim(atmres)//'.nc'
+   logmsg = 'creating weight file '//trim(wgt)
+   print '(a)',trim(logmsg)
+   call ESMF_RegridWeightGen(srcFile=trim(src),dstFile=trim(dst),weightFile=trim(wgt), &
     unmappedaction=ESMF_UNMAPPEDACTION_IGNORE, &
+    regridmethod=ESMF_REGRIDMETHOD_CONSERVE, &
+    tileFilePath=trim(fv3dir)//trim(atmres)//'/', rc=rc)
+   call ESMF_LogWrite(trim(logmsg), ESMF_LOGMSG_INFO)
 
-    weightFile='test.nc',rc=rc)
+   !fname_in=trim(dirout)//'Ct.mx025_SCRIP.nc'
+   !fname_out=trim(dirout)//'Ct.mx400_SCRIP.nc'
+   !!print '(a)',trim(fname_in)
+   !!print '(a)',trim(fname_out)
+   !call ESMF_RegridWeightGen(srcFile=trim(fname_in),dstFile=trim(fname_out), &
+   ! unmappedaction=ESMF_UNMAPPEDACTION_IGNORE, &
+   ! weightFile='test.nc',rc=rc)
 
 !---------------------------------------------------------------------
 ! extract the kmt into a separate file
