@@ -133,6 +133,8 @@
 program gen_fixgrid
 
   use ESMF
+  ! temp fix until esmf updated
+  use ESMF_RegridWeightGenMod
 
   use netcdf
   use inputnml
@@ -460,7 +462,10 @@ program gen_fixgrid
 
    fname_in=trim(dirout)//'Ct.mx025_SCRIP_land.nc'
    fname_out=trim(dirout)//'Ct.mx400_SCRIP_land.nc'
-   !call ESMF_RegridWeightGen(trim(fname_in),trim(fname_out),rc=rc)
+   print *,trim(fname_in)
+   print *,trim(fname_out)
+   call ESMF_RegridWeightGen(srcFile=trim(fname_in),dstFile=trim(fname_out), &
+    weightFile='test.nc',rc=rc)
 
 !---------------------------------------------------------------------
 ! extract the kmt into a separate file

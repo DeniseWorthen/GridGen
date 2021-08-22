@@ -18,9 +18,9 @@ module cicegrid
   integer :: idimid,jdimid
 
   character(len=2)  :: vtype
-  character(len=12) :: vname
-  character(len=40) :: vlong
-  character(len=12) :: vunit
+  character(len=CM) :: vname
+  character(len=CM) :: vlong
+  character(len=CM) :: vunit
 
 !---------------------------------------------------------------------
 ! create the netcdf file

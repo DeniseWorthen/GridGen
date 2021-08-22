@@ -16,6 +16,10 @@ module tripolegrid
   integer :: ii,id,rc, ncid, dim2(2),dim3(3)
   integer :: idimid,jdimid,kdimid
 
+  !integer,parameter :: R8 = selected_real_kind(12) ! 8 byte real
+  !real(kind=8) :: spval_dbl = 1.0e30_R8
+  !real(kind=8) :: spval_dbl = 1.0e30
+
 !---------------------------------------------------------------------
 ! create the netcdf file
 !---------------------------------------------------------------------
@@ -42,6 +46,7 @@ module tripolegrid
   !area
    rc = nf90_def_var(ncid, 'area', nf90_double, dim2, id)
    rc = nf90_put_att(ncid, id,     'units',         'm2')
+   rc = nf90_put_att(ncid, id, '_FillValue',   nf90_fill_double)
   !angleT
    rc = nf90_def_var(ncid, 'anglet', nf90_double, dim2, id)
    rc = nf90_put_att(ncid, id,     'units',    'radians')

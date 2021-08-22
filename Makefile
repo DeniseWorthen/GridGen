@@ -75,7 +75,7 @@ gen_fixgrid.o: inputnml.o grdvars.o angles.o vertices.o fixgriddefs.o icegriddef
 dust:
 	rm -f PET*.ESMF_LogFile
 clean:
-	rm -f gengrid *.o *.mod *.so *.mk PET*.ESMF_LogFile
+	rm -f gengrid *.i *.o *.mod *.so *.mk PET*.ESMF_LogFile
 distclean: dust clean
 
 info:

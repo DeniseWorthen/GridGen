@@ -29,8 +29,8 @@ module scripgrid
   real(kind=8), dimension(ni,nj) :: tmp
 
   character(len=2)  :: vtype
-  character(len=24) :: vname
-  character(len=12) :: vunit
+  character(len=CM) :: vname
+  character(len=CM) :: vunit
 
 !---------------------------------------------------------------------
 !

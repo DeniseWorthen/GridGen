@@ -50,5 +50,5 @@ make
 ./gengrid
 
 # clean up
-make clean
+#make clean
 rm grid.nml
