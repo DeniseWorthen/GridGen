@@ -154,13 +154,16 @@ program gen_fixgrid
 
   character(len=CL) :: fname_out, fname_in
   character(len=CL) :: cmdstr
-  character(len=CL) :: src,dst,method,wgt
+  character(len=CL) :: src,dst,wgt
   character(len=CL) :: logmsg
+
+  type(ESMF_RegridMethod_Flag) :: method
 
   integer :: rc,ncid,id,xtype
   integer :: i,j,i2,j2
   integer :: ii,jj
   integer :: system
+  logical :: fexist = .false.
 
   type(ESMF_VM) :: vm
 
@@ -448,7 +451,6 @@ program gen_fixgrid
    call write_cicegrid
 
    ! write scrip grids
-
    call write_scripgrid('Ct')
    call write_scripgrid('Cu')
    call write_scripgrid('Cv')
@@ -458,31 +460,48 @@ program gen_fixgrid
 
 !---------------------------------------------------------------------
 ! use ESMF regridding to produce mapped ocean mask
-! weights files for tripole:tripole
-! regridding and mapping of the ocean mask to the FV3 tiles
 !---------------------------------------------------------------------
  
+   method=ESMF_REGRIDMETHOD_CONSERVE
    src = trim(dirout)//'Ct.mx'//trim(res)//'_SCRIP_land.nc'
    dst = trim(fv3dir)//trim(atmres)//'/'//trim(atmres)//'_mosaic.nc'
    wgt = trim(dirout)//'Ct.mx'//trim(res)//'.to.'//trim(atmres)//'.nc'
    logmsg = 'creating weight file '//trim(wgt)
    print '(a)',trim(logmsg)
-   call ESMF_RegridWeightGen(srcFile=trim(src),dstFile=trim(dst),weightFile=trim(wgt), &
+
+   call ESMF_RegridWeightGen(srcFile=trim(src),dstFile=trim(dst), &
+    weightFile=trim(wgt), regridmethod=method,&
     unmappedaction=ESMF_UNMAPPEDACTION_IGNORE, &
-    regridmethod=ESMF_REGRIDMETHOD_CONSERVE, &
     tileFilePath=trim(fv3dir)//trim(atmres)//'/', rc=rc)
    call ESMF_LogWrite(trim(logmsg), ESMF_LOGMSG_INFO)
 
-   !fname_in=trim(dirout)//'Ct.mx025_SCRIP.nc'
-   !fname_out=trim(dirout)//'Ct.mx400_SCRIP.nc'
-   !!print '(a)',trim(fname_in)
-   !!print '(a)',trim(fname_out)
-   !call ESMF_RegridWeightGen(srcFile=trim(fname_in),dstFile=trim(fname_out), &
-   ! unmappedaction=ESMF_UNMAPPEDACTION_IGNORE, &
-   ! weightFile='test.nc',rc=rc)
+   !make_frac_land.ncl here
 
 !---------------------------------------------------------------------
-! extract the kmt into a separate file
+! use ESMF regridding to tripole:tripole weights for creation
+! of CICE ICs; the source grid is always mx025
+!---------------------------------------------------------------------
+
+   src = trim(dirout)//'Ct.mx025_SCRIP.nc'
+   inquire(FILE=trim(src), EXIST=fexist)
+   if (fexist ) then
+     method=ESMF_REGRIDMETHOD_NEAREST_STOD
+     dst = trim(dirout)//'Ct.mx'//trim(res)//'_SCRIP.nc'
+     wgt = trim(dirout)//'tripole.mx025.Ct.to.mx'//trim(res)//'.Ct.neareststod.nc'
+     logmsg = 'creating weight file '//trim(wgt)
+     print '(a)',trim(logmsg)
+     
+     call ESMF_RegridWeightGen(srcFile=trim(src),dstFile=trim(dst), &
+      weightFile=trim(wgt), regridmethod=method,&
+      unmappedaction=ESMF_UNMAPPEDACTION_IGNORE, rc=rc)
+     call ESMF_LogWrite(trim(logmsg), ESMF_LOGMSG_INFO)
+   else
+    logmsg = 'ERROR: '//trim(src)//' is required to generate tripole:triple weights'
+    print '(a)',trim(logmsg)
+   end if
+
+!---------------------------------------------------------------------
+! extract the kmt for CICE into a separate file
 !---------------------------------------------------------------------
 
    fname_in =  trim(dirout)//'grid_cice_NEMS_mx'//trim(res)//'.nc'
