@@ -1,5 +1,6 @@
 module scripgrid
 
+  use physcon, only : R8,I4
   use grdvars
   use charstrings
   use vartypedefs, only: maxvars, scripvars, scripvars_typedefine
@@ -12,7 +13,7 @@ module scripgrid
   subroutine write_scripgrid(cstagger, imask)
 
    character(len=*), intent(in) :: cstagger
-   integer(kind=4), dimension(ni,nj), optional, intent(in) :: imask(:,:)
+   integer(I4), dimension(ni,nj), optional, intent(in) :: imask(:,:)
 
   ! local variables
   integer, parameter :: grid_rank = 2
@@ -22,11 +23,11 @@ module scripgrid
   integer :: idimid,jdimid,kdimid
 
   integer, dimension(grid_rank) :: gdims
-  integer(kind=4), dimension(ni*nj)    :: cnmask          !1-d mask
-  real(kind=8),    dimension(ni*nj)    :: cnlons, cnlats  !1-d center lats,lons
-  real(kind=8),    dimension(nv,ni*nj) :: crlons, crlats  !2-d corner lats,lons
+  integer(I4), dimension(ni*nj)    :: cnmask          !1-d mask
+  real(R8),    dimension(ni*nj)    :: cnlons, cnlats  !1-d center lats,lons
+  real(R8),    dimension(nv,ni*nj) :: crlons, crlats  !2-d corner lats,lons
 
-  real(kind=8), dimension(ni,nj) :: tmp
+  real(R8), dimension(ni,nj) :: tmp
 
   character(len=2)  :: vtype
   character(len=CM) :: vname

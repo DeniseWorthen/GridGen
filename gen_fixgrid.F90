@@ -146,7 +146,7 @@ program gen_fixgrid
 
   implicit none
 
-  real(kind=8) :: dxT, dyT
+  real(R8) :: dxT, dyT
 
   character(len=CL) :: fname_out, fname_in
   character(len=CL) :: cmdstr

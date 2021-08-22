@@ -1,5 +1,7 @@
 module vartypedefs
 
+  use charstrings, only : CL, CM, CS
+
   implicit none
 
   integer, parameter :: maxvars = 20

@@ -1,5 +1,6 @@
 module vertices
 
+  use physcon, only : R8
   use grdvars, only : ni,nj,nv
 
   implicit none
@@ -10,9 +11,9 @@ module vertices
 
                             integer, intent( in) :: jbeg,jend
                             integer, intent( in) :: iVert(nv), jVert(nv)
-  real(kind=8), dimension(ni,nj),    intent( in) ::  lat, lon
+  real(R8), dimension(ni,nj),    intent( in) ::  lat, lon
 
-  real(kind=8), dimension(ni,nj,nv), intent(out) :: latvert,lonvert
+  real(R8), dimension(ni,nj,nv), intent(out) :: latvert,lonvert
 
   integer :: i,j,n,ii,jj
 
@@ -32,10 +33,10 @@ module vertices
   subroutine fill_bottom(iVert,jVert,lat,lon,latvert,lonvert,dlat)
 
                             integer, intent( in) :: iVert(nv), jVert(nv)
-  real(kind=8), dimension(ni,nj),    intent( in) ::  lat, lon
-  real(kind=8), dimension(ni),       intent( in) ::  dlat
+  real(R8), dimension(ni,nj),    intent( in) ::  lat, lon
+  real(R8), dimension(ni),       intent( in) ::  dlat
 
-  real(kind=8), dimension(ni,nj,nv), intent(out) :: latvert,lonvert
+  real(R8), dimension(ni,nj,nv), intent(out) :: latvert,lonvert
 
   integer :: i,j,n,ii,jj
 
@@ -65,10 +66,10 @@ module vertices
    subroutine fill_top(iVert,jVert,lat,lon,latvert,lonvert,xlat,xlon)
 
                             integer, intent( in) :: iVert(nv), jVert(nv)
-  real(kind=8), dimension(ni,nj),    intent( in) ::  lat,  lon
-  real(kind=8), dimension(ni),       intent( in) :: xlat, xlon
+  real(R8), dimension(ni,nj),    intent( in) ::  lat,  lon
+  real(R8), dimension(ni),       intent( in) :: xlat, xlon
   
-  real(kind=8), dimension(ni,nj,nv), intent(out) :: latvert,lonvert
+  real(R8), dimension(ni,nj,nv), intent(out) :: latvert,lonvert
 
   integer :: i,j,n,ii,jj
 
