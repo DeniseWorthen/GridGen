@@ -454,11 +454,13 @@ program gen_fixgrid
   
    call write_scripgrid('Ct',imask=int(wet4))
 
-   fname_in=trim(dirout)//'Ct.mx025_SCRIP_land.nc'
-   fname_out=trim(dirout)//'Ct.mx400_SCRIP_land.nc'
+   fname_in=trim(dirout)//'Ct.mx025_SCRIP.nc'
+   fname_out=trim(dirout)//'Ct.mx400_SCRIP.nc'
    print *,trim(fname_in)
    print *,trim(fname_out)
    call ESMF_RegridWeightGen(srcFile=trim(fname_in),dstFile=trim(fname_out), &
+    unmappedaction=ESMF_UNMAPPEDACTION_IGNORE, &
+
     weightFile='test.nc',rc=rc)
 
 !---------------------------------------------------------------------

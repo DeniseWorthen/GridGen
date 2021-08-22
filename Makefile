@@ -38,15 +38,14 @@ localFopt = -C -O0 -fPIC
 %.o : %.C
 	$(ESMF_CXXCOMPILER) -c $(ESMF_CXXCOMPILEOPTS) $(ESMF_CXXCOMPILEPATHSLOCAL) $(ESMF_CXXCOMPILEPATHS) $(ESMF_CXXCOMPILECPPFLAGS) $<
 
-OBJs=scripdefs.o scripgrid.o inputnml.o vartypedefs.o tripolegrid.o cicegrid.o angles.o physcon.o debugprint.o vertices.o grdvars.o charstrings.o gen_fixgrid.o
+OBJs=scripgrid.o inputnml.o vartypedefs.o tripolegrid.o cicegrid.o angles.o physcon.o debugprint.o vertices.o grdvars.o charstrings.o gen_fixgrid.o
 
 gengrid: $(OBJs)
 	$(ESMF_F90LINKER) $(ESMF_F90LINKOPTS) $(ESMF_F90LINKPATHS) $(ESMF_F90LINKRPATHS) -o $@ $^ $(ESMF_F90ESMFLINKLIBS)
 
-grdvars.o:
+grdvars.o: physcon.o
 charstrings.o:
 vartypedefs.o:
-scripdefs.o:
 physcon.o:
 tripolegrid.o:
 angles.o : grdvars.o
