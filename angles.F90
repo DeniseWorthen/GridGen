@@ -1,5 +1,6 @@
 module angles
 
+  use physcon, only : R8, I4
   use grdvars, only : ni,nj,nx,ny
   use grdvars, only : x,y,xsgp1,ysgp1,sg_maxlat
   use grdvars, only : latBu,lonBu,lonCt
@@ -16,15 +17,15 @@ module angles
     integer :: i,j,i1,i2,m,n
   
     ! pole locations on SG
-    integer(kind=4) :: ipolesg(2)
+    integer(I4) :: ipolesg(2)
   
     ! from geolonB fix in MOM6
-    real(kind=8) :: len_lon ! The periodic range of longitudes, usually 360 degrees.
-    real(kind=8) :: pi_720deg ! One quarter the conversion factor from degrees to radians.
-    real(kind=8) :: lonB(2,2)  ! The longitude of a point, shifted to have about the same value.
-    real(kind=8) :: lon_scale
+    real(R8) :: len_lon ! The periodic range of longitudes, usually 360 degrees.
+    real(R8) :: pi_720deg ! One quarter the conversion factor from degrees to radians.
+    real(R8) :: lonB(2,2)  ! The longitude of a point, shifted to have about the same value.
+    real(R8) :: lon_scale
   
-    real(kind=8) :: modulo_around_point
+    real(R8) :: modulo_around_point
 !---------------------------------------------------------------------
 ! to find angleq on seam, replicate supergrid values across seam
 !---------------------------------------------------------------------
@@ -123,12 +124,12 @@ module angles
     integer :: ii,jj
   
     ! from geolonB fix in MOM6
-    real(kind=8) :: len_lon ! The periodic range of longitudes, usually 360 degrees.
-    real(kind=8) :: pi_720deg ! One quarter the conversion factor from degrees to radians.
-    real(kind=8) :: lonB(2,2)  ! The longitude of a point, shifted to have about the same value.
-    real(kind=8) :: lon_scale
+    real(R8) :: len_lon ! The periodic range of longitudes, usually 360 degrees.
+    real(R8) :: pi_720deg ! One quarter the conversion factor from degrees to radians.
+    real(R8) :: lonB(2,2)  ! The longitude of a point, shifted to have about the same value.
+    real(R8) :: lon_scale
   
-    real(kind=8) :: modulo_around_point
+    real(R8) :: modulo_around_point
 !---------------------------------------------------------------------
 ! rotation angle for "use_bugs" = false case from MOM6
 ! src/initialization/MOM_shared_initialization.F90 but allow for not
@@ -170,10 +171,12 @@ end module angles
 !> Return the modulo value of x in an interval [xc-(Lx/2) xc+(Lx/2)]
 !! If Lx<=0, then it returns x without applying modulo arithmetic.
 function modulo_around_point(x, xc, Lx) result(x_mod)
-  real(kind=8), intent(in) :: x  !< Value to which to apply modulo arithmetic
-  real(kind=8), intent(in) :: xc !< Center of modulo range
-  real(kind=8), intent(in) :: Lx !< Modulo range width
-  real(kind=8) :: x_mod          !< x shifted by an integer multiple of Lx to be close to xc.
+  use physcon, only : R8, I4
+
+  real(R8), intent(in) :: x  !< Value to which to apply modulo arithmetic
+  real(R8), intent(in) :: xc !< Center of modulo range
+  real(R8), intent(in) :: Lx !< Modulo range width
+  real(R8) :: x_mod          !< x shifted by an integer multiple of Lx to be close to xc.
 
   if (Lx > 0.0) then
     x_mod = modulo(x - (xc - 0.5*Lx), Lx) + (xc - 0.5*Lx)

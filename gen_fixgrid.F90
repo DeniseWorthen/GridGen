@@ -141,9 +141,6 @@ program gen_fixgrid
   use grdvars
   use angles
   use vertices
-  use fixgriddefs
-  use icegriddefs
-  use scripgriddefs
   use tripolegrid
   use cicegrid
   use scripgrid
@@ -153,7 +150,7 @@ program gen_fixgrid
 
   implicit none
 
-  real(kind=8) :: dxT, dyT
+  real(R8) :: dxT, dyT
 
   character(len=CL) :: fname_out, fname_in
   character(len=CL) :: cmdstr
@@ -442,16 +439,13 @@ program gen_fixgrid
    call date_and_time(date=cdate)
    history = 'created on '//trim(cdate)//' from '//trim(fname_in)
 
-   ! define the output variables and file name
-   call fixgrid_typedefine
+   ! write fix grid
    call write_tripolegrid
 
-   ! define the output variables and file name
-   call ice_typedefine
+   ! write cice grid
    call write_cicegrid
 
-   ! define the output variables and file name
-   call scripgrid_typedefine
+   ! write scrip grids
 
    call write_scripgrid('Ct')
    call write_scripgrid('Cu')

@@ -38,26 +38,25 @@ localFopt = -C -O0 -fPIC
 %.o : %.C
 	$(ESMF_CXXCOMPILER) -c $(ESMF_CXXCOMPILEOPTS) $(ESMF_CXXCOMPILEPATHSLOCAL) $(ESMF_CXXCOMPILEPATHS) $(ESMF_CXXCOMPILECPPFLAGS) $<
 
-OBJs=scripdefs.o scripgrid.o inputnml.o fixgriddefs.o tripolegrid.o icegriddefs.o cicegrid.o angles.o physcon.o debugprint.o vertices.o grdvars.o charstrings.o gen_fixgrid.o
+OBJs=scripdefs.o scripgrid.o inputnml.o vartypedefs.o tripolegrid.o cicegrid.o angles.o physcon.o debugprint.o vertices.o grdvars.o charstrings.o gen_fixgrid.o
 
 gengrid: $(OBJs)
 	$(ESMF_F90LINKER) $(ESMF_F90LINKOPTS) $(ESMF_F90LINKPATHS) $(ESMF_F90LINKRPATHS) -o $@ $^ $(ESMF_F90ESMFLINKLIBS)
 
 grdvars.o:
 charstrings.o:
-fixgriddefs.o:
+vartypedefs.o:
 scripdefs.o:
-icegriddefs.o:
 physcon.o:
 tripolegrid.o:
 angles.o : grdvars.o
 debugprint.o: grdvars.o
 inputnml.o: grdvars.o charstrings.o
-cicegrid.o: grdvars.o charstrings.o icegriddefs.o
-scripgrid.o: grdvars.o charstrings.o scripdefs.o
-tripolgrid.o: grdvars.o charstrings.o fixgriddefs.o
+cicegrid.o: grdvars.o charstrings.o vartypedefs.o
+scripgrid.o: grdvars.o charstrings.o vartypedefs.o
+tripolgrid.o: grdvars.o charstrings.o vartypedefs.o
 vertices.o: grdvars.o
-gen_fixgrid.o: inputnml.o grdvars.o angles.o vertices.o fixgriddefs.o icegriddefs.o scripdefs.o tripolgrid.o cicegrid.o scripgrid.o physcon.o charstrings.o debugprint.o
+gen_fixgrid.o: inputnml.o grdvars.o angles.o vertices.o vartypedefs.o tripolgrid.o cicegrid.o scripgrid.o physcon.o charstrings.o debugprint.o
 
 # -----------------------------------------------------------------------------
 #.PRECIOUS: %.so

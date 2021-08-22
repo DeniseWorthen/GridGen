@@ -16,7 +16,7 @@ export RESNAME=$1
 export DEBUG=.F.
 export MASKEDIT=.F.
 #export OUTDIR_PATH=/scratch2/NCEPDEV/climate/Denise.Worthen/grids-20210727/
-export OUTDIR_PATH=/scratch2/NCEPDEV/climate/Denise.Worthen/grids-ufs/
+export OUTDIR_PATH=/scratch2/NCEPDEV/climate/Denise.Worthen/grids-esmf-20210822/
 
 if [ $RESNAME = 400 ]; then
   export FIXDIR_PATH=/scratch2/NCEPDEV/climate/Denise.Worthen/soca/test/Data/72x35x25/INPUT/

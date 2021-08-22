@@ -2,7 +2,7 @@ module cicegrid
 
    use grdvars
    use charstrings
-   use icegriddefs
+   use vartypedefs, only: maxvars, cicevars, cicevars_typedefine
    use netcdf
 
    implicit none
@@ -26,7 +26,8 @@ module cicegrid
 ! create the netcdf file
 !---------------------------------------------------------------------
 
-  !call ice_typedefine
+  ! define the output variables and file name
+  call cicevars_typedefine
 
   fname_out= trim(dirout)//'grid_cice_NEMS_mx'//trim(res)//'.nc'
 
@@ -37,18 +38,20 @@ module cicegrid
   rc = nf90_def_dim(ncid, 'ni', ni, idimid)
   rc = nf90_def_dim(ncid, 'nj', nj, jdimid)
 
-  do ii = 1,ncicevars
-   vname = trim(icegrid(ii)%var_name)
-   vlong = trim(icegrid(ii)%long_name)
-   vunit = trim(icegrid(ii)%unit_name)
-   vtype = trim(icegrid(ii)%var_type)
+  do ii = 1,maxvars
+   if(len_trim(cicevars(ii)%var_name) .gt. 0)then
+     vname = trim(cicevars(ii)%var_name)
+     vlong = trim(cicevars(ii)%long_name)
+     vunit = trim(cicevars(ii)%unit_name)
+     vtype = trim(cicevars(ii)%var_type)
 
-   dim2(:) =  (/idimid, jdimid/)
-   if(vtype .eq. 'r8')rc = nf90_def_var(ncid, vname, nf90_double, dim2, id)
-   if(vtype .eq. 'r4')rc = nf90_def_var(ncid, vname, nf90_float,  dim2, id)
-   if(vtype .eq. 'i4')rc = nf90_def_var(ncid, vname, nf90_int,    dim2, id)
-   rc = nf90_put_att(ncid, id,     'units', vunit)
-   rc = nf90_put_att(ncid, id, 'long_name', vlong)
+     dim2(:) =  (/idimid, jdimid/)
+     if(vtype .eq. 'r8')rc = nf90_def_var(ncid, vname, nf90_double, dim2, id)
+     if(vtype .eq. 'r4')rc = nf90_def_var(ncid, vname, nf90_float,  dim2, id)
+     if(vtype .eq. 'i4')rc = nf90_def_var(ncid, vname, nf90_int,    dim2, id)
+     rc = nf90_put_att(ncid, id,     'units', vunit)
+     rc = nf90_put_att(ncid, id, 'long_name', vlong)
+   end if
   enddo
    rc = nf90_put_att(ncid, nf90_global, 'history', trim(history))
    rc = nf90_enddef(ncid)

@@ -2,7 +2,7 @@ module tripolegrid
 
    use grdvars
    use charstrings
-   use fixgriddefs
+   use vartypedefs, only: maxvars, fixvars, fixvars_typedefine
    use netcdf
 
    implicit none
@@ -16,16 +16,12 @@ module tripolegrid
   integer :: ii,id,rc, ncid, dim2(2),dim3(3)
   integer :: idimid,jdimid,kdimid
 
-  !integer,parameter :: R8 = selected_real_kind(12) ! 8 byte real
-  !real(kind=8) :: spval_dbl = 1.0e30_R8
-  !real(kind=8) :: spval_dbl = 1.0e30
-
 !---------------------------------------------------------------------
 ! create the netcdf file
 !---------------------------------------------------------------------
 
   ! define the output variables and file name
-  !call fixgrid_typedefine
+  call fixvars_typedefine
   fname_out= trim(dirout)//'tripole.mx'//trim(res)//'.nc'
 
   ! create the file
@@ -46,28 +42,27 @@ module tripolegrid
   !area
    rc = nf90_def_var(ncid, 'area', nf90_double, dim2, id)
    rc = nf90_put_att(ncid, id,     'units',         'm2')
-   rc = nf90_put_att(ncid, id, '_FillValue',   nf90_fill_double)
   !angleT
    rc = nf90_def_var(ncid, 'anglet', nf90_double, dim2, id)
    rc = nf90_put_att(ncid, id,     'units',    'radians')
 
   dim2(:) = (/idimid, jdimid/)
   do ii = 1,ncoord
-   rc = nf90_def_var(ncid, trim(fixgrid(ii)%var_name), nf90_double, dim2, id)
-   rc = nf90_put_att(ncid, id,     'units', trim(fixgrid(ii)%unit_name))
-   rc = nf90_put_att(ncid, id, 'long_name', trim(fixgrid(ii)%long_name))
-   if(trim(fixgrid(ii)%var_name(1:3)) .eq. "lon")then
-    rc = nf90_put_att(ncid, id,  'lon_bounds', trim(fixgrid(ii)%vertices))
+   rc = nf90_def_var(ncid, trim(fixvars(ii)%var_name), nf90_double, dim2, id)
+   rc = nf90_put_att(ncid, id,     'units', trim(fixvars(ii)%unit_name))
+   rc = nf90_put_att(ncid, id, 'long_name', trim(fixvars(ii)%long_name))
+   if(trim(fixvars(ii)%var_name(1:3)) .eq. "lon")then
+    rc = nf90_put_att(ncid, id,  'lon_bounds', trim(fixvars(ii)%vertices))
    else
-    rc = nf90_put_att(ncid, id,  'lat_bounds', trim(fixgrid(ii)%vertices))
+    rc = nf90_put_att(ncid, id,  'lat_bounds', trim(fixvars(ii)%vertices))
    endif
   enddo
 
   dim3(:) = (/idimid, jdimid, kdimid/)
   do ii = ncoord+1,ncoord+nverts
-   rc = nf90_def_var(ncid, trim(fixgrid(ii)%var_name), nf90_double, dim3, id)
-   rc = nf90_put_att(ncid, id,     'units', trim(fixgrid(ii)%unit_name))
-   rc = nf90_put_att(ncid, id, 'long_name', trim(fixgrid(ii)%long_name))
+   rc = nf90_def_var(ncid, trim(fixvars(ii)%var_name), nf90_double, dim3, id)
+   rc = nf90_put_att(ncid, id,     'units', trim(fixvars(ii)%unit_name))
+   rc = nf90_put_att(ncid, id, 'long_name', trim(fixvars(ii)%long_name))
   enddo
 
   rc = nf90_put_att(ncid, nf90_global, 'history', trim(history))

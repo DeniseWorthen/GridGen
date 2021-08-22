@@ -1,8 +1,9 @@
 module scripgrid
 
+  use physcon, only : R8,I4
   use grdvars
   use charstrings
-  use scripgriddefs
+  use vartypedefs, only: maxvars, scripvars, scripvars_typedefine
   use netcdf
 
   implicit none
@@ -12,7 +13,7 @@ module scripgrid
   subroutine write_scripgrid(cstagger, imask)
 
    character(len=*), intent(in) :: cstagger
-   integer(kind=4), dimension(ni,nj), optional, intent(in) :: imask(:,:)
+   integer(I4), dimension(ni,nj), optional, intent(in) :: imask(:,:)
 
   ! local variables
   integer, parameter :: grid_rank = 2
@@ -22,11 +23,11 @@ module scripgrid
   integer :: idimid,jdimid,kdimid
 
   integer, dimension(grid_rank) :: gdims
-  integer(kind=4), dimension(ni*nj)    :: cnmask          !1-d mask
-  real(kind=8),    dimension(ni*nj)    :: cnlons, cnlats  !1-d center lats,lons
-  real(kind=8),    dimension(nv,ni*nj) :: crlons, crlats  !2-d corner lats,lons
+  integer(I4), dimension(ni*nj)    :: cnmask          !1-d mask
+  real(R8),    dimension(ni*nj)    :: cnlons, cnlats  !1-d center lats,lons
+  real(R8),    dimension(nv,ni*nj) :: crlons, crlats  !2-d corner lats,lons
 
-  real(kind=8), dimension(ni,nj) :: tmp
+  real(R8), dimension(ni,nj) :: tmp
 
   character(len=2)  :: vtype
   character(len=CM) :: vname
@@ -94,6 +95,8 @@ module scripgrid
 ! create the netcdf file
 !---------------------------------------------------------------------
 
+  ! define the output variables and file name
+  call scripvars_typedefine
   ! create the file
   ! 64_bit offset reqd for 008 grid
   ! produces b4b results for smaller grids
@@ -115,9 +118,9 @@ module scripgrid
 
   ! centers
   do ii = 1,2
-   vname = trim(scgrid(ii)%var_name)
-   vunit = trim(scgrid(ii)%unit_name)
-   vtype = trim(scgrid(ii)%var_type)
+   vname = trim(scripvars(ii)%var_name)
+   vunit = trim(scripvars(ii)%unit_name)
+   vtype = trim(scripvars(ii)%var_type)
    dim1(:) =  (/idimid/)
    if(vtype .eq. 'r8')rc = nf90_def_var(ncid, vname, nf90_double, dim1, id)
    if(vtype .eq. 'r4')rc = nf90_def_var(ncid, vname, nf90_float,  dim1, id)
@@ -127,9 +130,9 @@ module scripgrid
 
   ! corners
   do ii = 3,4
-   vname = trim(scgrid(ii)%var_name)
-   vunit = trim(scgrid(ii)%unit_name)
-   vtype = trim(scgrid(ii)%var_type)
+   vname = trim(scripvars(ii)%var_name)
+   vunit = trim(scripvars(ii)%unit_name)
+   vtype = trim(scripvars(ii)%var_type)
    dim2(:) =  (/jdimid,idimid/)
    if(vtype .eq. 'r8')rc = nf90_def_var(ncid, vname, nf90_double, dim2, id)
    if(vtype .eq. 'r4')rc = nf90_def_var(ncid, vname, nf90_float,  dim2, id)
