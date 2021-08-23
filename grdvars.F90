@@ -1,7 +1,6 @@
 module grdvars
  
   use physcon, only : R8, R4, I4
-
   implicit none
 
   ! dimensions of output grid

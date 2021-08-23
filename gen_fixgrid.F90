@@ -440,7 +440,7 @@ program gen_fixgrid
    call write_scripgrid('Ct',imask=int(wet4))
 
 !---------------------------------------------------------------------
-! extract the kmt into a separate file
+! extract the kmt for CICE into a separate file
 !---------------------------------------------------------------------
 
    fname_in =  trim(dirout)//'grid_cice_NEMS_mx'//trim(res)//'.nc'
