@@ -28,7 +28,6 @@ module cicegrid
 
   ! define the output variables and file name
   call cicevars_typedefine
-
   fname_out= trim(dirout)//'grid_cice_NEMS_mx'//trim(res)//'.nc'
 
   rc = nf90_create(fname_out, nf90_write, ncid)
