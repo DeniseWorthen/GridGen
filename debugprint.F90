@@ -1,7 +1,6 @@
 module debugprint
 
   use esmf, only : ESMF_LogFoundError, ESMF_LOGERR_PASSTHRU
-
   use grdvars
 
   implicit none

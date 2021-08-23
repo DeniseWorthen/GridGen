@@ -141,6 +141,7 @@ program gen_fixgrid
   use grdvars
   use angles
   use vertices
+  use mapped_mask
   use tripolegrid
   use cicegrid
   use scripgrid
@@ -475,10 +476,10 @@ program gen_fixgrid
     tileFilePath=trim(fv3dir)//trim(atmres)//'/', rc=rc)
    call ESMF_LogWrite(trim(logmsg), ESMF_LOGMSG_INFO)
 
-   !make_frac_land.ncl here
+   call make_frac_land(trim(src), trim(wgt))
 
 !---------------------------------------------------------------------
-! use ESMF regridding to tripole:tripole weights for creation
+! use ESMF to fine the tripole:tripole weights for creation
 ! of CICE ICs; the source grid is always mx025
 !---------------------------------------------------------------------
 
@@ -499,6 +500,16 @@ program gen_fixgrid
     logmsg = 'ERROR: '//trim(src)//' is required to generate tripole:triple weights'
     print '(a)',trim(logmsg)
    end if
+
+!---------------------------------------------------------------------
+! create the mesh file used by the ocean and ice
+!---------------------------------------------------------------------
+
+   fname_in =  trim(dirout)//'Ct.mx'//trim(res)//'_SCRIP_land.nc'
+  fname_out = trim(dirout)//'mesh.mx'//trim(res)//'.nc'
+
+     cmdstr = 'ESMF_Scrip2Unstruct '//trim(fname_in)//'  '//trim(fname_out)//' 0 ESMF'
+     rc = system(trim(cmdstr))
 
 !---------------------------------------------------------------------
 ! extract the kmt for CICE into a separate file

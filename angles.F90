@@ -7,12 +7,12 @@ module angles
   use grdvars, only : angq,anglet
   use grdvars, only : debug
 
+  implicit none
+
   contains
 
   subroutine find_angq
 
-    implicit none
-  
     ! local variables
     integer :: i,j,i1,i2,m,n
   
@@ -117,8 +117,6 @@ module angles
 
   subroutine find_ang
 
-    implicit none
-  
     ! local variables
     integer :: i,j,m,n
     integer :: ii,jj

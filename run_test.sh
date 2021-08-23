@@ -18,7 +18,8 @@ export RESNAME=$1
 export DEBUG=.F.
 export MASKEDIT=.F.
 #export OUTDIR_PATH=/scratch2/NCEPDEV/climate/Denise.Worthen/grids-20210727/
-export OUTDIR_PATH=/scratch2/NCEPDEV/climate/Denise.Worthen/grids-esmf-20210822/
+#export OUTDIR_PATH=/scratch2/NCEPDEV/climate/Denise.Worthen/grids-esmf-20210822/
+export OUTDIR_PATH=/scratch2/NCEPDEV/climate/Denise.Worthen/test/
 export MOSAICDIR_PATH=/scratch1/NCEPDEV/global/glopara/fix/fix_fv3_gmted2010/
 
 if [ $RESNAME = 400 ]; then

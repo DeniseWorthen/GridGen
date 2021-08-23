@@ -6,6 +6,7 @@ module tripolegrid
    use netcdf
 
    implicit none
+
   contains
 
   subroutine write_tripolegrid
