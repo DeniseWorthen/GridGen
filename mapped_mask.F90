@@ -1,7 +1,7 @@
 module mapped_mask
 
-  use physcon, only : R8, I4
-  use grdvars, only : ni,nj,nx,ny
+  use gengrid_kinds, only : dbl_kind, int_kind
+  use grdvars,       only : ni,nj,nx,ny
   use charstrings
   use netcdf
 
@@ -16,16 +16,16 @@ module mapped_mask
   integer, parameter :: ntile = 6
   integer, parameter :: nres = 48
   ! local variables
-  integer(I4) :: n_a, n_b, n_s
+  integer(int_kind) :: n_a, n_b, n_s
 
-  integer(I4), allocatable, dimension(:) :: col, row
-     real(R8), allocatable, dimension(:) :: S
-     real(R8), allocatable, dimension(:) :: lat1d, lon1d
+  integer(int_kind), allocatable, dimension(:) :: col, row
+     real(dbl_kind), allocatable, dimension(:) :: S
+     real(dbl_kind), allocatable, dimension(:) :: lat1d, lon1d
 
-  integer(I4), allocatable, dimension(:) :: src_field
-     real(R8), allocatable, dimension(:) :: dst_field
+  integer(int_kind), allocatable, dimension(:) :: src_field
+     real(dbl_kind), allocatable, dimension(:) :: dst_field
 
-     real(R8), allocatable, dimension(:,:,:) :: dst3d
+     real(dbl_kind), allocatable, dimension(:,:,:) :: dst3d
 
   character(len=CL) :: fname_out
   integer :: i,ii,jj,id,rc,ncid, dim2(2),dim3(3)

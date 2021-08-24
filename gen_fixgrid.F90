@@ -136,7 +136,7 @@ program gen_fixgrid
   ! temp fix until esmf updated
   use ESMF_RegridWeightGenMod
 
-  use netcdf
+  use gengrid_kinds
   use inputnml
   use grdvars
   use angles
@@ -145,17 +145,19 @@ program gen_fixgrid
   use tripolegrid
   use cicegrid
   use scripgrid
-  use physcon
   use charstrings
   use debugprint
+  use netcdf
 
   implicit none
 
-  real(R8) :: dxT, dyT
+  real(dbl_kind) :: dxT, dyT
 
-  character(len=CL) :: fname_out, fname_in
+  real(kind=dbl_kind), parameter :: pi = 3.14159265358979323846_dbl_kind
+  real(kind=dbl_kind), parameter :: deg2rad = pi/180.0_dbl_kind
+
+  character(len=CL) :: fsrc, fdst, fwgt
   character(len=CL) :: cmdstr
-  character(len=CL) :: src,dst,wgt
   character(len=CL) :: logmsg
 
   type(ESMF_RegridMethod_Flag) :: method
@@ -183,9 +185,11 @@ program gen_fixgrid
 
   print *,'output grid requested ',ni,nj
   print *,'supergrid size used ', nx,ny
-  print *,'output grid tag ',trim(res)
-  print *,'supergrid source directory ',trim(dirsrc)
-  print *,'output grid directory ',trim(dirout)
+  print *,'output grid tag '//trim(res)
+  print '(a)','supergrid source directory '//trim(dirsrc)
+  print '(a)','output grid directory '//trim(dirout)
+  print '(a)','atm resolution '//trim(atmres)
+  print '(a)','atm mosaic directory '//trim(fv3dir)
   print *,'editmask flag ',editmask
   print *,'debug flag ',debug
   print *
@@ -223,10 +227,10 @@ program gen_fixgrid
 ! read the land mask
 !---------------------------------------------------------------------
 
-  fname_in = trim(dirsrc)//trim(maskfile)
+  fsrc = trim(dirsrc)//trim(maskfile)
 
-  rc = nf90_open(fname_in, nf90_nowrite, ncid)
-  print '(a)', 'reading ocean mask from '//trim(fname_in)
+  rc = nf90_open(fsrc, nf90_nowrite, ncid)
+  print '(a)', 'reading ocean mask from '//trim(fsrc)
   if(rc .ne. 0)print '(a)', 'nf90_open = '//trim(nf90_strerror(rc))
 
   rc = nf90_inq_varid(ncid,  trim(maskname), id)
@@ -255,10 +259,10 @@ program gen_fixgrid
 ! read supergrid file
 !---------------------------------------------------------------------
 
-  fname_in = trim(dirsrc)//'ocean_hgrid.nc'
+  fsrc = trim(dirsrc)//'ocean_hgrid.nc'
 
-  rc = nf90_open(fname_in, nf90_nowrite, ncid)
-  print '(a)', 'reading supergrid from '//trim(fname_in)
+  rc = nf90_open(fsrc, nf90_nowrite, ncid)
+  print '(a)', 'reading supergrid from '//trim(fsrc)
   if(rc .ne. 0)print '(a)', 'nf90_open = '//trim(nf90_strerror(rc))
   
   rc = nf90_inq_varid(ncid, 'x', id)  !lon
@@ -347,10 +351,10 @@ program gen_fixgrid
 !
 !---------------------------------------------------------------------
 
-  where(lonCt .lt. 0.0)lonCt = lonCt + 360.d0
-  where(lonCu .lt. 0.0)lonCu = lonCu + 360.d0
-  where(lonCv .lt. 0.0)lonCv = lonCv + 360.d0
-  where(lonBu .lt. 0.0)lonBu = lonBu + 360.d0
+  where(lonCt .lt. 0.0)lonCt = lonCt + 360._dbl_kind
+  where(lonCu .lt. 0.0)lonCu = lonCu + 360._dbl_kind
+  where(lonCv .lt. 0.0)lonCv = lonCv + 360._dbl_kind
+  where(lonBu .lt. 0.0)lonBu = lonBu + 360._dbl_kind
 
 !---------------------------------------------------------------------
 ! some basic error checking
@@ -443,7 +447,7 @@ program gen_fixgrid
 
   ! create a history attribute
    call date_and_time(date=cdate)
-   history = 'created on '//trim(cdate)//' from '//trim(fname_in)
+   history = 'created on '//trim(cdate)//' from '//trim(fsrc)
 
    ! write fix grid
    call write_tripolegrid
@@ -464,40 +468,42 @@ program gen_fixgrid
 !---------------------------------------------------------------------
  
    method=ESMF_REGRIDMETHOD_CONSERVE
-   src = trim(dirout)//'Ct.mx'//trim(res)//'_SCRIP_land.nc'
-   dst = trim(fv3dir)//trim(atmres)//'/'//trim(atmres)//'_mosaic.nc'
-   wgt = trim(dirout)//'Ct.mx'//trim(res)//'.to.'//trim(atmres)//'.nc'
-   logmsg = 'creating weight file '//trim(wgt)
+   fsrc = trim(dirout)//'Ct.mx'//trim(res)//'_SCRIP_land.nc'
+   fdst = trim(fv3dir)//trim(atmres)//'/'//trim(atmres)//'_mosaic.nc'
+   fwgt = trim(dirout)//'Ct.mx'//trim(res)//'.to.'//trim(atmres)//'.nc'
+   logmsg = 'creating weight file '//trim(fwgt)
    print '(a)',trim(logmsg)
 
-   call ESMF_RegridWeightGen(srcFile=trim(src),dstFile=trim(dst), &
-    weightFile=trim(wgt), regridmethod=method,&
+   call ESMF_RegridWeightGen(srcFile=trim(fsrc),dstFile=trim(fdst), &
+    weightFile=trim(fwgt), regridmethod=method,&
     unmappedaction=ESMF_UNMAPPEDACTION_IGNORE, &
     tileFilePath=trim(fv3dir)//trim(atmres)//'/', rc=rc)
-   call ESMF_LogWrite(trim(logmsg), ESMF_LOGMSG_INFO)
+    if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, &
+      line=__LINE__, file=__FILE__)) call ESMF_Finalize(endflag=ESMF_END_ABORT)
 
-   call make_frac_land(trim(src), trim(wgt))
+    call make_frac_land(trim(fsrc), trim(fwgt))
 
 !---------------------------------------------------------------------
 ! use ESMF to fine the tripole:tripole weights for creation
 ! of CICE ICs; the source grid is always mx025
 !---------------------------------------------------------------------
 
-   src = trim(dirout)//'Ct.mx025_SCRIP.nc'
-   inquire(FILE=trim(src), EXIST=fexist)
+   fsrc = trim(dirout)//'Ct.mx025_SCRIP.nc'
+   inquire(FILE=trim(fsrc), EXIST=fexist)
    if (fexist ) then
      method=ESMF_REGRIDMETHOD_NEAREST_STOD
-     dst = trim(dirout)//'Ct.mx'//trim(res)//'_SCRIP.nc'
-     wgt = trim(dirout)//'tripole.mx025.Ct.to.mx'//trim(res)//'.Ct.neareststod.nc'
-     logmsg = 'creating weight file '//trim(wgt)
+     fdst = trim(dirout)//'Ct.mx'//trim(res)//'_SCRIP.nc'
+     fwgt = trim(dirout)//'tripole.mx025.Ct.to.mx'//trim(res)//'.Ct.neareststod.nc'
+     logmsg = 'creating weight file '//trim(fwgt)
      print '(a)',trim(logmsg)
      
-     call ESMF_RegridWeightGen(srcFile=trim(src),dstFile=trim(dst), &
-      weightFile=trim(wgt), regridmethod=method,&
+     call ESMF_RegridWeightGen(srcFile=trim(fsrc),dstFile=trim(fdst), &
+      weightFile=trim(fwgt), regridmethod=method,&
       unmappedaction=ESMF_UNMAPPEDACTION_IGNORE, rc=rc)
-     call ESMF_LogWrite(trim(logmsg), ESMF_LOGMSG_INFO)
+     if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, &
+       line=__LINE__, file=__FILE__)) call ESMF_Finalize(endflag=ESMF_END_ABORT)
    else
-    logmsg = 'ERROR: '//trim(src)//' is required to generate tripole:triple weights'
+    logmsg = 'ERROR: '//trim(fsrc)//' is required to generate tripole:triple weights'
     print '(a)',trim(logmsg)
    end if
 
@@ -505,20 +511,20 @@ program gen_fixgrid
 ! create the mesh file used by the ocean and ice
 !---------------------------------------------------------------------
 
-   fname_in =  trim(dirout)//'Ct.mx'//trim(res)//'_SCRIP_land.nc'
-  fname_out = trim(dirout)//'mesh.mx'//trim(res)//'.nc'
+   fsrc =  trim(dirout)//'Ct.mx'//trim(res)//'_SCRIP_land.nc'
+   fdst = trim(dirout)//'mesh.mx'//trim(res)//'.nc'
 
-     cmdstr = 'ESMF_Scrip2Unstruct '//trim(fname_in)//'  '//trim(fname_out)//' 0 ESMF'
+     cmdstr = 'ESMF_Scrip2Unstruct '//trim(fsrc)//'  '//trim(fdst)//' 0 ESMF'
      rc = system(trim(cmdstr))
 
 !---------------------------------------------------------------------
 ! extract the kmt for CICE into a separate file
 !---------------------------------------------------------------------
 
-   fname_in =  trim(dirout)//'grid_cice_NEMS_mx'//trim(res)//'.nc'
-  fname_out = trim(dirout)//'kmtu_cice_NEMS_mx'//trim(res)//'.nc'
+   fsrc =  trim(dirout)//'grid_cice_NEMS_mx'//trim(res)//'.nc'
+   fdst = trim(dirout)//'kmtu_cice_NEMS_mx'//trim(res)//'.nc'
 
-     cmdstr = 'ncks -O -v kmt '//trim(fname_in)//'  '//trim(fname_out)
+     cmdstr = 'ncks -O -v kmt '//trim(fsrc)//'  '//trim(fdst)
      rc = system(trim(cmdstr))
 
 !---------------------------------------------------------------------

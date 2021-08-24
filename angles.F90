@@ -1,11 +1,11 @@
 module angles
 
-  use physcon, only : R8, I4
-  use grdvars, only : ni,nj,nx,ny
-  use grdvars, only : x,y,xsgp1,ysgp1,sg_maxlat
-  use grdvars, only : latBu,lonBu,lonCt
-  use grdvars, only : angq,anglet
-  use grdvars, only : debug
+  use gengrid_kinds, only : dbl_kind, int_kind
+  use grdvars,       only : ni,nj,nx,ny
+  use grdvars,       only : x,y,xsgp1,ysgp1,sg_maxlat
+  use grdvars,       only : latBu,lonBu,lonCt
+  use grdvars,       only : angq,anglet
+  use grdvars,       only : debug
 
   implicit none
 
@@ -17,15 +17,15 @@ module angles
     integer :: i,j,i1,i2,m,n
   
     ! pole locations on SG
-    integer(I4) :: ipolesg(2)
+    integer(int_kind) :: ipolesg(2)
   
     ! from geolonB fix in MOM6
-    real(R8) :: len_lon ! The periodic range of longitudes, usually 360 degrees.
-    real(R8) :: pi_720deg ! One quarter the conversion factor from degrees to radians.
-    real(R8) :: lonB(2,2)  ! The longitude of a point, shifted to have about the same value.
-    real(R8) :: lon_scale
+    real(dbl_kind) :: len_lon ! The periodic range of longitudes, usually 360 degrees.
+    real(dbl_kind) :: pi_720deg ! One quarter the conversion factor from degrees to radians.
+    real(dbl_kind) :: lonB(2,2)  ! The longitude of a point, shifted to have about the same value.
+    real(dbl_kind) :: lon_scale
   
-    real(R8) :: modulo_around_point
+    real(dbl_kind) :: modulo_around_point
 !---------------------------------------------------------------------
 ! to find angleq on seam, replicate supergrid values across seam
 !---------------------------------------------------------------------
@@ -87,6 +87,7 @@ module angles
 !       geolonT(i,j) has to geolonBu(i,j) on the reduced grid
 !---------------------------------------------------------------------
   
+     ! constants as defined in MOM
      pi_720deg = atan(1.0) / 180.0
        len_lon = 360.0
     do j=1,ny ; do i=1,nx-1
@@ -122,12 +123,12 @@ module angles
     integer :: ii,jj
   
     ! from geolonB fix in MOM6
-    real(R8) :: len_lon ! The periodic range of longitudes, usually 360 degrees.
-    real(R8) :: pi_720deg ! One quarter the conversion factor from degrees to radians.
-    real(R8) :: lonB(2,2)  ! The longitude of a point, shifted to have about the same value.
-    real(R8) :: lon_scale
+    real(dbl_kind) :: len_lon ! The periodic range of longitudes, usually 360 degrees.
+    real(dbl_kind) :: pi_720deg ! One quarter the conversion factor from degrees to radians.
+    real(dbl_kind) :: lonB(2,2)  ! The longitude of a point, shifted to have about the same value.
+    real(dbl_kind) :: lon_scale
   
-    real(R8) :: modulo_around_point
+    real(dbl_kind) :: modulo_around_point
 !---------------------------------------------------------------------
 ! rotation angle for "use_bugs" = false case from MOM6
 ! src/initialization/MOM_shared_initialization.F90 but allow for not
@@ -169,12 +170,12 @@ end module angles
 !> Return the modulo value of x in an interval [xc-(Lx/2) xc+(Lx/2)]
 !! If Lx<=0, then it returns x without applying modulo arithmetic.
 function modulo_around_point(x, xc, Lx) result(x_mod)
-  use physcon, only : R8, I4
+  use gengrid_kinds, only : dbl_kind
 
-  real(R8), intent(in) :: x  !< Value to which to apply modulo arithmetic
-  real(R8), intent(in) :: xc !< Center of modulo range
-  real(R8), intent(in) :: Lx !< Modulo range width
-  real(R8) :: x_mod          !< x shifted by an integer multiple of Lx to be close to xc.
+  real(dbl_kind), intent(in) :: x  !< Value to which to apply modulo arithmetic
+  real(dbl_kind), intent(in) :: xc !< Center of modulo range
+  real(dbl_kind), intent(in) :: Lx !< Modulo range width
+  real(dbl_kind) :: x_mod          !< x shifted by an integer multiple of Lx to be close to xc.
 
   if (Lx > 0.0) then
     x_mod = modulo(x - (xc - 0.5*Lx), Lx) + (xc - 0.5*Lx)

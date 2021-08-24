@@ -1,10 +1,8 @@
 module charstrings
 
-  implicit none
+  use gengrid_kinds, only : CL,CM,CS
 
-  integer, parameter :: CL = 256
-  integer, parameter :: CM =  64
-  integer, parameter :: CS =  24
+  implicit none
 
   character(len=CL) :: dirsrc, dirout, fv3dir
   character(len=CS) :: res, atmres

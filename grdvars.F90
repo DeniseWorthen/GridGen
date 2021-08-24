@@ -1,6 +1,7 @@
 module grdvars
  
-  use physcon, only : R8, R4, I4
+  use gengrid_kinds, only : dbl_kind, real_kind, int_kind
+ 
   implicit none
 
   ! dimensions of output grid
@@ -14,9 +15,9 @@ module grdvars
   logical :: debug
 
   !super-grid maximum latitude
-     real(R8) :: sg_maxlat
+     real(dbl_kind) :: sg_maxlat
   ! pole locations
-  integer(I4) :: ipole(2)
+  integer(int_kind) :: ipole(2)
 
   ! number of vertices
   integer, parameter :: nv = 4
@@ -31,45 +32,45 @@ module grdvars
   integer, parameter ::  nvars = ncoord + nverts
 
   ! super-grid source grid variables
-  real(R8), allocatable, dimension(:,:)   :: x, y, angq
-  real(R8), allocatable, dimension(:,:)   :: dx
-  real(R8), allocatable, dimension(:,:)   :: dy
+  real(dbl_kind), allocatable, dimension(:,:)   :: x, y, angq
+  real(dbl_kind), allocatable, dimension(:,:)   :: dx
+  real(dbl_kind), allocatable, dimension(:,:)   :: dy
  
   !super-grid replicate row
-  real(R8), allocatable, dimension(:,:) :: xsgp1, ysgp1
+  real(dbl_kind), allocatable, dimension(:,:) :: xsgp1, ysgp1
  
   ! grid stagger locations
-  real(R8), allocatable, dimension(:,:) :: latCt, lonCt ! lat and lon of T on C-grid
-  real(R8), allocatable, dimension(:,:) :: latCv, lonCv ! lat and lon of V on C-grid
-  real(R8), allocatable, dimension(:,:) :: latCu, lonCu ! lat and lon of U on C-grid
-  real(R8), allocatable, dimension(:,:) :: latBu, lonBu ! lat and lon of corners on C-grid
+  real(dbl_kind), allocatable, dimension(:,:) :: latCt, lonCt ! lat and lon of T on C-grid
+  real(dbl_kind), allocatable, dimension(:,:) :: latCv, lonCv ! lat and lon of V on C-grid
+  real(dbl_kind), allocatable, dimension(:,:) :: latCu, lonCu ! lat and lon of U on C-grid
+  real(dbl_kind), allocatable, dimension(:,:) :: latBu, lonBu ! lat and lon of corners on C-grid
 
   ! areas of Ct grid cell
-  real(R8), allocatable, dimension(:,:) :: areaCt
+  real(dbl_kind), allocatable, dimension(:,:) :: areaCt
   ! rotation angle on Ct (opposite sense from angle)
-  real(R8), allocatable, dimension(:,:) :: anglet
+  real(dbl_kind), allocatable, dimension(:,:) :: anglet
   ! rotation angle on Bu
-  real(R8), allocatable, dimension(:,:) :: angle
+  real(dbl_kind), allocatable, dimension(:,:) :: angle
 
   ! vertices of each stagger location
-  real(R8), allocatable, dimension(:,:,:) :: latCt_vert, lonCt_vert
-  real(R8), allocatable, dimension(:,:,:) :: latCu_vert, lonCu_vert
-  real(R8), allocatable, dimension(:,:,:) :: latCv_vert, lonCv_vert
-  real(R8), allocatable, dimension(:,:,:) :: latBu_vert, lonBu_vert
+  real(dbl_kind), allocatable, dimension(:,:,:) :: latCt_vert, lonCt_vert
+  real(dbl_kind), allocatable, dimension(:,:,:) :: latCu_vert, lonCu_vert
+  real(dbl_kind), allocatable, dimension(:,:,:) :: latCv_vert, lonCv_vert
+  real(dbl_kind), allocatable, dimension(:,:,:) :: latBu_vert, lonBu_vert
 
   ! need across seam values of Ct,Cu points to retrieve vertices of Bu and Cv grids
-  real(R8), allocatable, dimension(:) :: xlonCt, xlatCt
-  real(R8), allocatable, dimension(:) :: xlonCu, xlatCu
+  real(dbl_kind), allocatable, dimension(:) :: xlonCt, xlatCt
+  real(dbl_kind), allocatable, dimension(:) :: xlonCu, xlatCu
   ! latitude spacing at bottom of grid
-  real(R8), allocatable, dimension(:) :: dlatBu, dlatCv
+  real(dbl_kind), allocatable, dimension(:) :: dlatBu, dlatCv
 
   ! ocean mask from fixed file, stored as either r4 or r8
-     real(R4), allocatable, dimension(:,:) :: wet4
-     real(R8), allocatable, dimension(:,:) :: wet8
+     real(real_kind), allocatable, dimension(:,:) :: wet4
+     real(dbl_kind),  allocatable, dimension(:,:) :: wet8
 
   ! ice grid variables
-  real(R8), allocatable, dimension(:,:) :: ulon, ulat
-  real(R8), allocatable, dimension(:,:) ::  htn, hte
+  real(dbl_kind), allocatable, dimension(:,:) :: ulon, ulat
+  real(dbl_kind), allocatable, dimension(:,:) ::  htn, hte
 
   contains
 
