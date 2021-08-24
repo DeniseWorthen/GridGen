@@ -381,31 +381,14 @@ program gen_fixgrid
       xlatCt(i) = latCt(i2,nj)
     enddo
 
-    !do i = 1,10
-    !  i2 = ipole(2)+(ipole(1)-i)
-    !  print *,i,i2,lonCu(i,nj)
-    !enddo
-    !do i = 1430,1440
-    !  i2 = ipole(2)+(ipole(1)-i)
-    !  if(i2 .lt. 1)i2 = ni
-    !  print *,i,i2,lonCu(i,nj)
-    !enddo
- 
     do i = 1,ni
       i2 = ipole(2)+(ipole(1)-i)
       if(i2 .lt. 1)i2 = ni
      xlonCu(i) = lonCu(i2,nj)
      xlatCu(i) = latCu(i2,nj)
-     !print *,i,xlonCu(i),lonCu(i2,nj)
     enddo
  
     if(debug)call checkxlatlon
-
-    !do i = 1,ni
-    !  i2 = ipole(2)+(ipole(1)-i)
-    !  if(i2 .lt. 1)i2 = ni
-    ! print *,i,xlonCu(i),lonCu(i2,nj)
-    !enddo
 
     !approx lat at grid bottom
     do i = 1,ni
@@ -485,7 +468,7 @@ program gen_fixgrid
     call make_frac_land(trim(fsrc), trim(fwgt))
 
 !---------------------------------------------------------------------
-! use ESMF to fine the tripole:tripole weights for creation
+! use ESMF to find the tripole:tripole weights for creation
 ! of CICE ICs; the source grid is always mx025
 !---------------------------------------------------------------------
 
@@ -506,10 +489,11 @@ program gen_fixgrid
    else
     logmsg = 'ERROR: '//trim(fsrc)//' is required to generate tripole:triple weights'
     print '(a)',trim(logmsg)
+    stop
    end if
 
 !---------------------------------------------------------------------
-! create the mesh file used by the ocean and ice
+! use ESMF to create the mesh file used by the ocean and ice
 !---------------------------------------------------------------------
 
    fsrc =  trim(dirout)//'Ct.mx'//trim(res)//'_SCRIP_land.nc'
@@ -519,7 +503,7 @@ program gen_fixgrid
      rc = system(trim(cmdstr))
 
 !---------------------------------------------------------------------
-! extract the kmt for CICE into a separate file
+! use NCO to extract the kmt for CICE into a separate file
 !---------------------------------------------------------------------
 
    fsrc =  trim(dirout)//'grid_cice_NEMS_mx'//trim(res)//'.nc'

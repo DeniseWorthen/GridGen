@@ -26,6 +26,7 @@ module mapped_mask
 
      real(dbl_kind), allocatable, dimension(:,:,:) :: dst3d
      real(dbl_kind), allocatable, dimension(:,:,:) :: lat3d,lon3d
+
      real(dbl_kind), allocatable, dimension(:,:)   :: dst2d
      real(dbl_kind), allocatable, dimension(:,:)   :: lat2d,lon2d
 
