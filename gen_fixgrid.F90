@@ -189,6 +189,7 @@ program gen_fixgrid
   print '(a)','supergrid source directory '//trim(dirsrc)
   print '(a)','output grid directory '//trim(dirout)
   print '(a)','atm resolution '//trim(atmres)
+  print *,'fv3 tile grid size ',npx
   print '(a)','atm mosaic directory '//trim(fv3dir)
   print *,'editmask flag ',editmask
   print *,'debug flag ',debug

@@ -1,7 +1,7 @@
 module mapped_mask
 
   use gengrid_kinds, only : dbl_kind, int_kind
-  use grdvars,       only : ni,nj,nx,ny
+  use grdvars,       only : ni,nj,npx
   use charstrings
   use netcdf
 
@@ -14,7 +14,6 @@ module mapped_mask
   character(len=*), intent(in) :: src, wgt
 
   integer, parameter :: ntile = 6
-  integer, parameter :: nres = 48
   ! local variables
   integer(int_kind) :: n_a, n_b, n_s
 
@@ -26,12 +25,17 @@ module mapped_mask
      real(dbl_kind), allocatable, dimension(:) :: dst_field
 
      real(dbl_kind), allocatable, dimension(:,:,:) :: dst3d
+     real(dbl_kind), allocatable, dimension(:,:,:) :: lat3d,lon3d
+     real(dbl_kind), allocatable, dimension(:,:)   :: dst2d
+     real(dbl_kind), allocatable, dimension(:,:)   :: lat2d,lon2d
 
-  character(len=CL) :: fname_out
+  character(len=CS) :: ctile
+  character(len=CL) :: fdst
   integer :: i,ii,jj,id,rc,ncid, dim2(2),dim3(3)
   integer :: istr,iend
   integer :: idimid,jdimid,kdimid
 
+  character(len=CM) :: vname
 !---------------------------------------------------------------------
 ! retrieve the weights
 !---------------------------------------------------------------------
@@ -69,7 +73,7 @@ module mapped_mask
 ! retrieve 1-d land mask from the SCRIP file and map it
 !---------------------------------------------------------------------
 
-    allocate(src_field(1:n_b))
+    allocate(src_field(1:n_a))
     allocate(dst_field(1:n_b))
 
     rc = nf90_open(trim(src), nf90_nowrite, ncid)
@@ -81,14 +85,54 @@ module mapped_mask
 
     do i = 1,n_s
       ii = row(i); jj = col(i)
-      dst_field(ii) = dst_field(ii) + S(i)*real(src_field(jj),8)
+      dst_field(ii) = dst_field(ii) + S(i)*real(src_field(jj),dbl_kind)
     enddo
 
-    allocate(dst3d(nres,nres,ntile))
+!---------------------------------------------------------------------
+!
+!---------------------------------------------------------------------
+
+    allocate(dst3d(npx,npx,ntile))
+    allocate(lon3d(npx,npx,ntile)); allocate(lat3d(npx,npx,ntile))
+    allocate(dst2d(npx,npx))
+    allocate(lon2d(npx,npx)); allocate(lat2d(npx,npx))
+
+    do i = 0,ntile-1
+     istr = i*npx*npx+1
+     iend = istr+npx*npx-1
+     !print *,i,istr,iend
+     dst3d(:,:,i+1) = reshape(dst_field(istr:iend), (/npx,npx/))
+     lat3d(:,:,i+1) = reshape(    lat1d(istr:iend), (/npx,npx/))
+     lon3d(:,:,i+1) = reshape(    lon1d(istr:iend), (/npx,npx/))
+    end do
+
     do i = 1,ntile
-     istr = i*nres*nres+1
-     iend = istr+nres*nres
-     dst3d(:,:,i) = reshape(dst_field(istr:iend), (/nres,nres/))
+     write(ctile,'(a5,i1)')'.tile',i
+     fdst = trim(dirout)//trim(atmres)//'.mx'//trim(res)//trim(ctile)//'.nc'
+     dst2d(:,:) = dst3d(:,:,i)
+     lat2d(:,:) = lat3d(:,:,i)
+     lon2d(:,:) = lon3d(:,:,i)
+   
+     rc = nf90_create(trim(fdst), nf90_64bit_offset, ncid)
+     rc = nf90_def_dim(ncid, 'grid_xt', npx, idimid)
+     rc = nf90_def_dim(ncid, 'grid_yt', npx, jdimid)
+
+     dim2(:) =  (/idimid, jdimid/)
+     vname = 'grid_xt'
+     rc = nf90_def_var(ncid, vname, nf90_double, dim2, id)
+     vname = 'grid_yt'
+     rc = nf90_def_var(ncid, vname, nf90_double, dim2, id)
+     vname = 'land_frac'
+     rc = nf90_def_var(ncid, vname, nf90_double, dim2, id)
+     rc = nf90_enddef(ncid)
+
+     rc = nf90_inq_varid(ncid,    'grid_xt',      id)
+     rc = nf90_put_var(ncid,             id,   lon2d)
+     rc = nf90_inq_varid(ncid,    'grid_yt',      id)
+     rc = nf90_put_var(ncid,             id,   lat2d)
+     rc = nf90_inq_varid(ncid,  'land_frac',      id)
+     rc = nf90_put_var(ncid,             id,   dst2d)
+     rc = nf90_close(ncid)
     end do
 
 !---------------------------------------------------------------------
@@ -96,6 +140,8 @@ module mapped_mask
 !---------------------------------------------------------------------
 
   deallocate(col, row, S, lat1d, lon1d, src_field, dst_field)
+  deallocate(dst3d,lon3d,lat3d)
+  deallocate(dst2d,lon2d,lat2d)
 
   end subroutine make_frac_land
 end module mapped_mask

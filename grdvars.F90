@@ -6,6 +6,8 @@ module grdvars
 
   ! dimensions of output grid
   integer :: ni,nj
+  ! dimensions of fv3 tile
+  integer :: npx
   ! dimensions of supergrid
   integer :: nx,ny
 

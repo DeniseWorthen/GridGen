@@ -1,6 +1,6 @@
 module inputnml
 
- use grdvars,     only : nx,ny,ni,nj
+ use grdvars,     only : nx,ny,ni,nj,npx
  use grdvars,     only : editmask, debug
  use charstrings, only : dirsrc, dirout, fv3dir, res, atmres
 
@@ -14,7 +14,7 @@ module inputnml
 
   integer :: stderr, iounit, rc
 
-  namelist /grid_nml/ ni, nj, dirsrc, dirout, fv3dir,  res, atmres, editmask, debug
+  namelist /grid_nml/ ni, nj, dirsrc, dirout, fv3dir,  res, atmres, npx, editmask, debug
 
   ! Check whether file exists.
   inquire (file=trim(fname), iostat=rc)

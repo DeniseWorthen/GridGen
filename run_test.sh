@@ -10,6 +10,7 @@ function edit_namelist {
       -e "s|MOSAICDIR|$MOSAICDIR_PATH|g" \
       -e "s/RESNAME/$RESNAME/g" \
       -e "s/MOSAICRES/$MOSAICRES/g" \
+      -e "s/NPX/$NPX/g" \
       -e "s/DO_MASKEDIT/$MASKEDIT/g" \
       -e "s/DO_DEBUG/$DEBUG/g"
 }
@@ -32,6 +33,7 @@ if [ $RESNAME = 400 ]; then
   export NI=72
   export NJ=35
   export MOSAICRES=C48
+  export NPX=48
 fi
 
 if [ $RESNAME = 100 ]; then
@@ -39,18 +41,21 @@ if [ $RESNAME = 100 ]; then
   export NJ=320
   export MASKEDIT=.T.
   export MOSAICRES=C96
+  export NPX=96
 fi
 
 if [ $RESNAME = 050 ]; then
   export NI=720
   export NJ=576
   export MOSAICRES=C192
+  export NPX=192
 fi
 
 if [ $RESNAME = 025 ]; then
   export NI=1440
   export NJ=1080
   export MOSAICRES=C384
+  export NPX=384
 fi
 
 edit_namelist < grid.nml.IN > grid.nml
@@ -59,4 +64,4 @@ make
 
 # clean up
 make clean
-rm grid.nml
+#rm grid.nml
