@@ -435,18 +435,24 @@ program gen_fixgrid
    history = 'created on '//trim(cdate)//' from '//trim(fsrc)
 
    ! write fix grid
-   call write_tripolegrid
+   fdst = trim(dirout)//'tripole.mx'//trim(res)//'.nc'
+   call write_tripolegrid(trim(fdst))
 
    ! write cice grid
-   call write_cicegrid
+   fdst = trim(dirout)//'grid_cice_NEMS_mx'//trim(res)//'.nc'
+   call write_cicegrid(trim(fdst))
 
    ! write scrip grids
-   call write_scripgrid('Ct')
-   call write_scripgrid('Cu')
-   call write_scripgrid('Cv')
-   call write_scripgrid('Bu')
-  
-   call write_scripgrid('Ct',imask=int(wet4))
+   do k = 1,nv
+    cstagger = trim(staggerlocs(k))
+    fdst = trim(dirout)//trim(cstagger)//'.mx'//trim(res)//'_SCRIP.nc'
+    call write_scripgrid(trim(fdst),trim(cstagger))
+   end do
+
+   !used for mesh creation
+   cstagger = trim(staggerlocs(1))
+   fdst= trim(dirout)//trim(cstagger)//'.mx'//trim(res)//'_SCRIP_land.nc'
+   call write_scripgrid(trim(fdst),trim(cstagger),imask=int(wet4))
 
 !---------------------------------------------------------------------
 ! use ESMF regridding to produce mapped ocean mask
@@ -518,7 +524,7 @@ program gen_fixgrid
 ! use ESMF to create the mesh file used by the ocean and ice
 !---------------------------------------------------------------------
 
-   fsrc =  trim(dirout)//'Ct.mx'//trim(res)//'_SCRIP_land.nc'
+   fsrc = trim(dirout)//'Ct.mx'//trim(res)//'_SCRIP_land.nc'
    fdst = trim(dirout)//'mesh.mx'//trim(res)//'.nc'
 
      cmdstr = 'ESMF_Scrip2Unstruct '//trim(fsrc)//'  '//trim(fdst)//' 0 ESMF'
@@ -528,7 +534,7 @@ program gen_fixgrid
 ! use NCO to extract the kmt for CICE into a separate file
 !---------------------------------------------------------------------
 
-   fsrc =  trim(dirout)//'grid_cice_NEMS_mx'//trim(res)//'.nc'
+   fsrc = trim(dirout)//'grid_cice_NEMS_mx'//trim(res)//'.nc'
    fdst = trim(dirout)//'kmtu_cice_NEMS_mx'//trim(res)//'.nc'
 
      cmdstr = 'ncks -O -v kmt '//trim(fsrc)//'  '//trim(fdst)

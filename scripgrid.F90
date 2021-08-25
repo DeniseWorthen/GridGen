@@ -10,15 +10,15 @@ module scripgrid
 
   contains
 
-  subroutine write_scripgrid(cstagger, imask)
+  subroutine write_scripgrid(fname,cstagger, imask)
 
+   character(len=*), intent(in) :: fname
    character(len=*), intent(in) :: cstagger
    integer(int_kind), dimension(ni,nj), optional, intent(in) :: imask(:,:)
 
   ! local variables
   integer, parameter :: grid_rank = 2
 
-  character(len=CL) :: fname_out
   integer :: ii,n,id,rc, ncid, dim2(2),dim1(1)
   integer :: idimid,jdimid,kdimid
 
@@ -84,11 +84,8 @@ module scripgrid
 
   if(present(imask))then
    cnmask = reshape(imask, (/ni*nj/))
-   !used for mesh creation
-   fname_out= trim(dirout)//trim(cstagger)//'.mx'//trim(res)//'_SCRIP_land.nc'
   else
-   cnmask  = 1
-   fname_out= trim(dirout)//trim(cstagger)//'.mx'//trim(res)//'_SCRIP.nc'
+   cnmask = 1
   end if
 
 !---------------------------------------------------------------------
@@ -100,8 +97,8 @@ module scripgrid
   ! create the file
   ! 64_bit offset reqd for 008 grid
   ! produces b4b results for smaller grids
-  rc = nf90_create(trim(fname_out), nf90_64bit_offset, ncid)
-  print '(a)', 'writing grid to '//trim(fname_out)
+  rc = nf90_create(trim(fname), nf90_64bit_offset, ncid)
+  print '(a)', 'writing grid to '//trim(fname)
   if(rc .ne. 0)print '(a)', 'nf90_create = '//trim(nf90_strerror(rc))
 
   rc = nf90_def_dim(ncid, 'grid_size',     ni*nj, idimid)

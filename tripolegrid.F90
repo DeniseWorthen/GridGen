@@ -9,11 +9,12 @@ module tripolegrid
 
   contains
 
-  subroutine write_tripolegrid
+  subroutine write_tripolegrid(fname)
+
+  character(len=*), intent(in) :: fname
 
   ! local variables
 
-  character(len=CL) :: fname_out
   integer :: ii,id,rc, ncid, dim2(2),dim3(3)
   integer :: idimid,jdimid,kdimid
 
@@ -23,13 +24,12 @@ module tripolegrid
 
   ! define the output variables and file name
   call fixvars_typedefine
-  fname_out= trim(dirout)//'tripole.mx'//trim(res)//'.nc'
 
   ! create the file
   ! 64_bit offset reqd for 008 grid
   ! produces b4b results for smaller grids
-  rc = nf90_create(trim(fname_out), nf90_64bit_offset, ncid)
-  print '(a)', 'writing grid to '//trim(fname_out)
+  rc = nf90_create(trim(fname), nf90_64bit_offset, ncid)
+  print '(a)', 'writing grid to '//trim(fname)
   if(rc .ne. 0)print '(a)', 'nf90_create = '//trim(nf90_strerror(rc))
 
   rc = nf90_def_dim(ncid, 'ni', ni, idimid)
