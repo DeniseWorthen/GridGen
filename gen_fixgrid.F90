@@ -159,11 +159,12 @@ program gen_fixgrid
   character(len=CL) :: fsrc, fdst, fwgt
   character(len=CL) :: cmdstr
   character(len=CL) :: logmsg
+  character(len= 2) :: cstagger
 
   type(ESMF_RegridMethod_Flag) :: method
 
   integer :: rc,ncid,id,xtype
-  integer :: i,j,i2,j2
+  integer :: i,j,k,i2,j2
   integer :: ii,jj
   integer :: system
   logical :: fexist = .false.
@@ -302,8 +303,8 @@ program gen_fixgrid
     !in rad already
      angle(i,j) = -angq(i2,j2)
     !m->cm
-       htn(i,j) = (dx(i2-1,j2) + dx(i2,j2))*100.0
-       hte(i,j) = (dy(i2,j2-1) + dy(i2,j2))*100.0
+       htn(i,j) = (dx(i2-1,j2) + dx(i2,j2))*100._dbl_kind
+       hte(i,j) = (dy(i2,j2-1) + dy(i2,j2))*100._dbl_kind
     !deg
      lonBu(i,j) =     x(i2,j2)
      latBu(i,j) =     y(i2,j2)
@@ -491,6 +492,27 @@ program gen_fixgrid
     print '(a)',trim(logmsg)
     stop
    end if
+
+!---------------------------------------------------------------------
+! use ESMF to create the weights for unstaggering the points onto
+! the Ct staggers for post; the destination is always Ct
+!---------------------------------------------------------------------
+
+   method=ESMF_REGRIDMETHOD_BILINEAR
+   fdst = trim(dirout)//'Ct.mx'//trim(res)//'_SCRIP.nc'
+   do k = 2,nv
+    cstagger = trim(staggerlocs(k))
+    fsrc = trim(dirout)//trim(cstagger)//'.mx'//trim(res)//'_SCRIP.nc'
+    fwgt = trim(dirout)//'tripole.mx'//trim(res)//'.'//trim(cstagger)//'.to.Ct.bilinear.nc'
+    logmsg = 'creating weight file '//trim(fwgt)
+    print '(a)',trim(logmsg)
+
+     call ESMF_RegridWeightGen(srcFile=trim(fsrc),dstFile=trim(fdst), &
+      weightFile=trim(fwgt), regridmethod=method,&
+      unmappedaction=ESMF_UNMAPPEDACTION_IGNORE, rc=rc)
+     if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, &
+       line=__LINE__, file=__FILE__)) call ESMF_Finalize(endflag=ESMF_END_ABORT)
+   end do
 
 !---------------------------------------------------------------------
 ! use ESMF to create the mesh file used by the ocean and ice

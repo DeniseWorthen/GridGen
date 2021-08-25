@@ -13,4 +13,6 @@ module charstrings
   character(len=CL) :: history
   character(len=CS) :: cdate
 
+  character(len= 2), dimension(4) :: staggerlocs = (/'Ct','Cu','Cv','Bu'/)
+
 end module charstrings
