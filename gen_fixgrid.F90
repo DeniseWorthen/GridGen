@@ -188,11 +188,11 @@ program gen_fixgrid
   print *,'output grid requested ',ni,nj
   print *,'supergrid size used ', nx,ny
   print *,'output grid tag '//trim(res)
-  print '(a)','supergrid source directory '//trim(dirsrc)
-  print '(a)','output grid directory '//trim(dirout)
-  print '(a)','atm resolution '//trim(atmres)
+  print '(a)',' supergrid source directory '//trim(dirsrc)
+  print '(a)',' output grid directory '//trim(dirout)
+  print '(a)',' atm resolution '//trim(atmres)
   print *,'fv3 tile grid size ',npx
-  print '(a)','atm mosaic directory '//trim(fv3dir)
+  print '(a)',' atm mosaic directory '//trim(fv3dir)
   print *,'editmask flag ',editmask
   print *,'debug flag ',debug
   print *,'do_postwgts flag ',do_postwgts
@@ -481,27 +481,30 @@ program gen_fixgrid
 
 !---------------------------------------------------------------------
 ! use ESMF to find the tripole:tripole weights for creation
-! of CICE ICs; the source grid is always mx025
+! of CICE ICs; the source grid is always mx025; don't create this
+! file if destination is also mx025
 !---------------------------------------------------------------------
 
-   fsrc = trim(dirout)//'/'//'Ct.mx025_SCRIP.nc'
-   inquire(FILE=trim(fsrc), EXIST=fexist)
-   if (fexist ) then
-     method=ESMF_REGRIDMETHOD_NEAREST_STOD
-     fdst = trim(dirout)//'/'//'Ct.mx'//trim(res)//'_SCRIP.nc'
-     fwgt = trim(dirout)//'/'//'tripole.mx025.Ct.to.mx'//trim(res)//'.Ct.neareststod.nc'
-     logmsg = 'creating weight file '//trim(fwgt)
-     print '(a)',trim(logmsg)
-     
-     call ESMF_RegridWeightGen(srcFile=trim(fsrc),dstFile=trim(fdst), &
-                          weightFile=trim(fwgt), regridmethod=method, &
-                          unmappedaction=ESMF_UNMAPPEDACTION_IGNORE, rc=rc)
-     if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, &
-       line=__LINE__, file=__FILE__)) call ESMF_Finalize(endflag=ESMF_END_ABORT)
-   else
-     logmsg = 'ERROR: '//trim(fsrc)//' is required to generate tripole:triple weights'
-     print '(a)',trim(logmsg)
-     stop
+   if(trim(res) .ne. '025') then
+     fsrc = trim(dirout)//'/'//'Ct.mx025_SCRIP.nc'
+     inquire(FILE=trim(fsrc), EXIST=fexist)
+     if (fexist ) then
+       method=ESMF_REGRIDMETHOD_NEAREST_STOD
+       fdst = trim(dirout)//'/'//'Ct.mx'//trim(res)//'_SCRIP.nc'
+       fwgt = trim(dirout)//'/'//'tripole.mx025.Ct.to.mx'//trim(res)//'.Ct.neareststod.nc'
+       logmsg = 'creating weight file '//trim(fwgt)
+       print '(a)',trim(logmsg)
+       
+       call ESMF_RegridWeightGen(srcFile=trim(fsrc),dstFile=trim(fdst), &
+                            weightFile=trim(fwgt), regridmethod=method, &
+                            unmappedaction=ESMF_UNMAPPEDACTION_IGNORE, rc=rc)
+       if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, &
+         line=__LINE__, file=__FILE__)) call ESMF_Finalize(endflag=ESMF_END_ABORT)
+     else
+       logmsg = 'ERROR: '//trim(fsrc)//' is required to generate tripole:triple weights'
+       print '(a)',trim(logmsg)
+       stop
+     end if
    end if
 
 !---------------------------------------------------------------------

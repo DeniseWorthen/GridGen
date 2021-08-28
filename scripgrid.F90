@@ -98,7 +98,7 @@ module scripgrid
   ! 64_bit offset reqd for 008 grid
   ! produces b4b results for smaller grids
   rc = nf90_create(trim(fname), nf90_64bit_offset, ncid)
-  print '(a)', 'writing grid to '//trim(fname)
+  print '(a)', 'writing SCRIP grid to '//trim(fname)
   if(rc .ne. 0)print '(a)', 'nf90_create = '//trim(nf90_strerror(rc))
 
   rc = nf90_def_dim(ncid, 'grid_size',     ni*nj, idimid)

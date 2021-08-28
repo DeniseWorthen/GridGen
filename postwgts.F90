@@ -4,7 +4,9 @@ module postwgts
   ! temp fix until esmf updated
   use ESMF_RegridWeightGenMod
 
-  use charstrings
+  use gengrid_kinds, only : CL,CM,CS
+  use grdvars,       only : nv
+  use charstrings,   only : dirout, res, staggerlocs
   use netcdf
 
   implicit none
@@ -21,12 +23,14 @@ module postwgts
 
   type(ESMF_RegridMethod_Flag) :: method
   ! the number of possible destination grids depends on the source grid resolution
-  integer :: k,nv,rc,nd,ndest
+  integer :: k,rc,nd,ndest
   character(len=CS), allocatable, dimension(:) :: destgrds
  
 !---------------------------------------------------------------------
 ! set the destination grids
 !---------------------------------------------------------------------
+
+  if(trim(res) .eq. '400')return
 
   if(trim(res) .eq. '100')then
    ndest = 1
@@ -59,8 +63,8 @@ module postwgts
    print '(a)',trim(logmsg)
 
    call ESMF_RegridWeightGen(srcFile=trim(fsrc),dstFile=trim(fdst), &
-    weightFile=trim(fwgt), regridmethod=method,&
-    unmappedaction=ESMF_UNMAPPEDACTION_IGNORE, rc=rc)
+                        weightFile=trim(fwgt), regridmethod=method, &
+                        unmappedaction=ESMF_UNMAPPEDACTION_IGNORE, rc=rc)
    if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, &
      line=__LINE__, file=__FILE__)) call ESMF_Finalize(endflag=ESMF_END_ABORT)
   end do
@@ -81,16 +85,18 @@ module postwgts
 
       fwgt = trim(dirout)//'/'//'tripole.mx'//trim(res)//'.Ct.to.rect.'//trim(destgrds(nd)) &
              //'.'//trim(methodname(k))//'.nc'
-     logmsg = 'creating weight file '//trim(fwgt)
-     print '(a)',trim(logmsg)
+      logmsg = 'creating weight file '//trim(fwgt)
+      print '(a)',trim(logmsg)
      
-     call ESMF_RegridWeightGen(srcFile=trim(fsrc),dstFile=trim(fdst), &
-      weightFile=trim(fwgt), regridmethod=method,&
-      unmappedaction=ESMF_UNMAPPEDACTION_IGNORE, rc=rc)
-     if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, &
-       line=__LINE__, file=__FILE__)) call ESMF_Finalize(endflag=ESMF_END_ABORT)
+      call ESMF_RegridWeightGen(srcFile=trim(fsrc),dstFile=trim(fdst), &
+                           weightFile=trim(fwgt), regridmethod=method, &
+                           unmappedaction=ESMF_UNMAPPEDACTION_IGNORE, rc=rc)
+      if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, &
+        line=__LINE__, file=__FILE__)) call ESMF_Finalize(endflag=ESMF_END_ABORT)
      end do
   end do
+
+  deallocate(destgrds)
 
   end subroutine make_postwgts
 end module postwgts

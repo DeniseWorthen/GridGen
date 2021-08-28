@@ -49,7 +49,7 @@ gengrid_kinds.o:
 tripolegrid.o:
 grdvars.o: gengrid_kinds.o
 charstrings.o: gengrid_kinds.o
-postwgts.o: charstrings.o
+postwgts.o: charstrings.o grdvars.o
 mapped_mask.o: gengrid_kinds.o grdvars.o charstrings.o
 angles.o : grdvars.o
 debugprint.o: grdvars.o
