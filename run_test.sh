@@ -12,21 +12,23 @@ function edit_namelist {
       -e "s/MOSAICRES/$MOSAICRES/g" \
       -e "s/NPX/$NPX/g" \
       -e "s/DO_MASKEDIT/$MASKEDIT/g" \
-      -e "s/DO_DEBUG/$DEBUG/g"
+      -e "s/DO_DEBUG/$DEBUG/g" \
+      -e "s/DO_POSTWGTS/$DO_POSTWGTS/g"
 }
 
 export RESNAME=$1
-export DEBUG=.F.
-export MASKEDIT=.F.
+export DEBUG=.false.
+export MASKEDIT=.false.
+export DO_POSTWGTS=.true.
 #export OUTDIR_PATH=/scratch2/NCEPDEV/climate/Denise.Worthen/grids-20210727/
 #export OUTDIR_PATH=/scratch2/NCEPDEV/climate/Denise.Worthen/grids-esmf-20210822/
-export OUTDIR_PATH=/scratch2/NCEPDEV/climate/Denise.Worthen/test/
-export MOSAICDIR_PATH=/scratch1/NCEPDEV/global/glopara/fix/fix_fv3_gmted2010/
+export OUTDIR_PATH=/scratch2/NCEPDEV/climate/Denise.Worthen/test
+export MOSAICDIR_PATH=/scratch1/NCEPDEV/global/glopara/fix/fix_fv3_gmted2010
 
 if [ $RESNAME = 400 ]; then
-  export FIXDIR_PATH=/scratch2/NCEPDEV/climate/Denise.Worthen/soca/test/Data/72x35x25/INPUT/
+  export FIXDIR_PATH=/scratch2/NCEPDEV/climate/Denise.Worthen/soca/test/Data/72x35x25/INPUT
 else
-  export FIXDIR_PATH=/scratch2/NCEPDEV/climate/climpara/S2S/FIX/fix_UFSp4/fix_mom6/${RESNAME}/
+  export FIXDIR_PATH=/scratch2/NCEPDEV/climate/climpara/S2S/FIX/fix_UFSp4/fix_mom6/${RESNAME}
 fi
 
 if [ $RESNAME = 400 ]; then
@@ -42,6 +44,11 @@ if [ $RESNAME = 100 ]; then
   export MASKEDIT=.T.
   export MOSAICRES=C96
   export NPX=96
+  if [ $DO_POSTWGTS == .true. ]; then
+   #pre-generate SCRIP files for dst rectilinear grids using NCO
+   # is the stagger really correct? The first pt is at 0.0E?
+   ncremap -g ${OUTDIR_PATH}/rect.1p0_SCRIP.nc -G latlon=181,360#lon_typ=grn_ctr
+ fi
 fi
 
 if [ $RESNAME = 050 ]; then
@@ -49,6 +56,12 @@ if [ $RESNAME = 050 ]; then
   export NJ=576
   export MOSAICRES=C192
   export NPX=192
+  if [ $DO_POSTWGTS == .true. ]; then
+   #pre-generate SCRIP files for dst rectilinear grids using NCO
+   # is the stagger really correct? The first pt is at 0.0E?
+   ncremap -g ${OUTDIR_PATH}/rect.1p0_SCRIP.nc -G latlon=181,360#lon_typ=grn_ctr
+   ncremap -g ${OUTDIR_PATH}/rect.0p5_SCRIP.nc -G latlon=361,720#lon_typ=grn_ctr
+ fi
 fi
 
 if [ $RESNAME = 025 ]; then
@@ -56,6 +69,13 @@ if [ $RESNAME = 025 ]; then
   export NJ=1080
   export MOSAICRES=C384
   export NPX=384
+  if [ $DO_POSTWGTS == .true. ]; then
+   #pre-generate SCRIP files for dst rectilinear grids using NCO
+   # is the stagger really correct? The first pt is at 0.0E?
+   ncremap -g ${OUTDIR_PATH}/rect.1p0_SCRIP.nc -G latlon=181,360#lon_typ=grn_ctr
+   ncremap -g ${OUTDIR_PATH}/rect.0p5_SCRIP.nc -G latlon=361,720#lon_typ=grn_ctr
+   ncremap -g ${OUTDIR_PATH}/rect.0p25_SCRIP.nc -G latlon=721,1440#lon_typ=grn_ctr
+ fi
 fi
 
 edit_namelist < grid.nml.IN > grid.nml

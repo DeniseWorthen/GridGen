@@ -9,4 +9,5 @@ atmres=MOSAICRES
 npx=NPX
 editmask=DO_MASKEDIT
 debug=DO_DEBUG
+do_postwgts=DO_POSTWGTS
 /

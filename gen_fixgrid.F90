@@ -142,6 +142,7 @@ program gen_fixgrid
   use angles
   use vertices
   use mapped_mask
+  use postwgts
   use tripolegrid
   use cicegrid
   use scripgrid
@@ -194,6 +195,7 @@ program gen_fixgrid
   print '(a)','atm mosaic directory '//trim(fv3dir)
   print *,'editmask flag ',editmask
   print *,'debug flag ',debug
+  print *,'do_postwgts flag ',do_postwgts
   print *
 
   call allocate_all
@@ -229,7 +231,7 @@ program gen_fixgrid
 ! read the land mask
 !---------------------------------------------------------------------
 
-  fsrc = trim(dirsrc)//trim(maskfile)
+  fsrc = trim(dirsrc)//'/'//trim(maskfile)
 
   rc = nf90_open(fsrc, nf90_nowrite, ncid)
   print '(a)', 'reading ocean mask from '//trim(fsrc)
@@ -261,7 +263,7 @@ program gen_fixgrid
 ! read supergrid file
 !---------------------------------------------------------------------
 
-  fsrc = trim(dirsrc)//'ocean_hgrid.nc'
+  fsrc = trim(dirsrc)//'/'//'ocean_hgrid.nc'
 
   rc = nf90_open(fsrc, nf90_nowrite, ncid)
   print '(a)', 'reading supergrid from '//trim(fsrc)
@@ -435,23 +437,23 @@ program gen_fixgrid
    history = 'created on '//trim(cdate)//' from '//trim(fsrc)
 
    ! write fix grid
-   fdst = trim(dirout)//'tripole.mx'//trim(res)//'.nc'
+   fdst = trim(dirout)//'/'//'tripole.mx'//trim(res)//'.nc'
    call write_tripolegrid(trim(fdst))
 
    ! write cice grid
-   fdst = trim(dirout)//'grid_cice_NEMS_mx'//trim(res)//'.nc'
+   fdst = trim(dirout)//'/'//'grid_cice_NEMS_mx'//trim(res)//'.nc'
    call write_cicegrid(trim(fdst))
 
    ! write scrip grids
    do k = 1,nv
     cstagger = trim(staggerlocs(k))
-    fdst = trim(dirout)//trim(cstagger)//'.mx'//trim(res)//'_SCRIP.nc'
+    fdst = trim(dirout)//'/'//trim(cstagger)//'.mx'//trim(res)//'_SCRIP.nc'
     call write_scripgrid(trim(fdst),trim(cstagger))
    end do
 
    !used for mesh creation
    cstagger = trim(staggerlocs(1))
-   fdst= trim(dirout)//trim(cstagger)//'.mx'//trim(res)//'_SCRIP_land.nc'
+   fdst= trim(dirout)//'/'//trim(cstagger)//'.mx'//trim(res)//'_SCRIP_land.nc'
    call write_scripgrid(trim(fdst),trim(cstagger),imask=int(wet4))
 
 !---------------------------------------------------------------------
@@ -459,16 +461,16 @@ program gen_fixgrid
 !---------------------------------------------------------------------
  
    method=ESMF_REGRIDMETHOD_CONSERVE
-   fsrc = trim(dirout)//'Ct.mx'//trim(res)//'_SCRIP_land.nc'
-   fdst = trim(fv3dir)//trim(atmres)//'/'//trim(atmres)//'_mosaic.nc'
-   fwgt = trim(dirout)//'Ct.mx'//trim(res)//'.to.'//trim(atmres)//'.nc'
+   fsrc = trim(dirout)//'/'//'Ct.mx'//trim(res)//'_SCRIP_land.nc'
+   fdst = trim(fv3dir)//'/'//trim(atmres)//'/'//trim(atmres)//'_mosaic.nc'
+   fwgt = trim(dirout)//'/'//'Ct.mx'//trim(res)//'.to.'//trim(atmres)//'.nc'
    logmsg = 'creating weight file '//trim(fwgt)
    print '(a)',trim(logmsg)
 
    call ESMF_RegridWeightGen(srcFile=trim(fsrc),dstFile=trim(fdst), &
     weightFile=trim(fwgt), regridmethod=method,&
     unmappedaction=ESMF_UNMAPPEDACTION_IGNORE, &
-    tileFilePath=trim(fv3dir)//trim(atmres)//'/', rc=rc)
+    tileFilePath=trim(fv3dir)//'/'//trim(atmres)//'/', rc=rc)
     if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, &
       line=__LINE__, file=__FILE__)) call ESMF_Finalize(endflag=ESMF_END_ABORT)
 
@@ -479,12 +481,12 @@ program gen_fixgrid
 ! of CICE ICs; the source grid is always mx025
 !---------------------------------------------------------------------
 
-   fsrc = trim(dirout)//'Ct.mx025_SCRIP.nc'
+   fsrc = trim(dirout)//'/'//'Ct.mx025_SCRIP.nc'
    inquire(FILE=trim(fsrc), EXIST=fexist)
    if (fexist ) then
      method=ESMF_REGRIDMETHOD_NEAREST_STOD
-     fdst = trim(dirout)//'Ct.mx'//trim(res)//'_SCRIP.nc'
-     fwgt = trim(dirout)//'tripole.mx025.Ct.to.mx'//trim(res)//'.Ct.neareststod.nc'
+     fdst = trim(dirout)//'/'//'Ct.mx'//trim(res)//'_SCRIP.nc'
+     fwgt = trim(dirout)//'/'//'tripole.mx025.Ct.to.mx'//trim(res)//'.Ct.neareststod.nc'
      logmsg = 'creating weight file '//trim(fwgt)
      print '(a)',trim(logmsg)
      
@@ -500,32 +502,11 @@ program gen_fixgrid
    end if
 
 !---------------------------------------------------------------------
-! use ESMF to create the weights for unstaggering the points onto
-! the Ct staggers for post; the destination is always Ct
-!---------------------------------------------------------------------
-
-   method=ESMF_REGRIDMETHOD_BILINEAR
-   fdst = trim(dirout)//'Ct.mx'//trim(res)//'_SCRIP.nc'
-   do k = 2,nv
-    cstagger = trim(staggerlocs(k))
-    fsrc = trim(dirout)//trim(cstagger)//'.mx'//trim(res)//'_SCRIP.nc'
-    fwgt = trim(dirout)//'tripole.mx'//trim(res)//'.'//trim(cstagger)//'.to.Ct.bilinear.nc'
-    logmsg = 'creating weight file '//trim(fwgt)
-    print '(a)',trim(logmsg)
-
-     call ESMF_RegridWeightGen(srcFile=trim(fsrc),dstFile=trim(fdst), &
-      weightFile=trim(fwgt), regridmethod=method,&
-      unmappedaction=ESMF_UNMAPPEDACTION_IGNORE, rc=rc)
-     if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, &
-       line=__LINE__, file=__FILE__)) call ESMF_Finalize(endflag=ESMF_END_ABORT)
-   end do
-
-!---------------------------------------------------------------------
 ! use ESMF to create the mesh file used by the ocean and ice
 !---------------------------------------------------------------------
 
-   fsrc = trim(dirout)//'Ct.mx'//trim(res)//'_SCRIP_land.nc'
-   fdst = trim(dirout)//'mesh.mx'//trim(res)//'.nc'
+   fsrc = trim(dirout)//'/'//'Ct.mx'//trim(res)//'_SCRIP_land.nc'
+   fdst = trim(dirout)//'/'//'mesh.mx'//trim(res)//'.nc'
 
      cmdstr = 'ESMF_Scrip2Unstruct '//trim(fsrc)//'  '//trim(fdst)//' 0 ESMF'
      rc = system(trim(cmdstr))
@@ -534,11 +515,17 @@ program gen_fixgrid
 ! use NCO to extract the kmt for CICE into a separate file
 !---------------------------------------------------------------------
 
-   fsrc = trim(dirout)//'grid_cice_NEMS_mx'//trim(res)//'.nc'
-   fdst = trim(dirout)//'kmtu_cice_NEMS_mx'//trim(res)//'.nc'
+   fsrc = trim(dirout)//'/'//'grid_cice_NEMS_mx'//trim(res)//'.nc'
+   fdst = trim(dirout)//'/'//'kmtu_cice_NEMS_mx'//trim(res)//'.nc'
 
      cmdstr = 'ncks -O -v kmt '//trim(fsrc)//'  '//trim(fdst)
      rc = system(trim(cmdstr))
+
+!---------------------------------------------------------------------
+!
+!---------------------------------------------------------------------
+
+   if(do_postwgts)call make_postwgts
 
 !---------------------------------------------------------------------
 ! clean up

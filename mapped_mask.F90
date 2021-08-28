@@ -109,7 +109,7 @@ module mapped_mask
 
     do i = 1,ntile
      write(ctile,'(a5,i1)')'.tile',i
-     fdst = trim(dirout)//trim(atmres)//'.mx'//trim(res)//trim(ctile)//'.nc'
+     fdst = trim(dirout)//'/'//trim(atmres)//'.mx'//trim(res)//trim(ctile)//'.nc'
      dst2d(:,:) = dst3d(:,:,i)
      lat2d(:,:) = lat3d(:,:,i)
      lon2d(:,:) = lon3d(:,:,i)
