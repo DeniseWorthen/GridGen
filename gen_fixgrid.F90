@@ -471,6 +471,7 @@ program gen_fixgrid
    call ESMF_RegridWeightGen(srcFile=trim(fsrc),dstFile=trim(fdst), &
                         weightFile=trim(fwgt), regridmethod=method, &
                         unmappedaction=ESMF_UNMAPPEDACTION_IGNORE, &
+                        ignoreDegenerate=.true., &
                         tileFilePath=trim(fv3dir)//'/'//trim(atmres)//'/', rc=rc)
    if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, &
      line=__LINE__, file=__FILE__)) call ESMF_Finalize(endflag=ESMF_END_ABORT)
@@ -497,6 +498,7 @@ program gen_fixgrid
        
        call ESMF_RegridWeightGen(srcFile=trim(fsrc),dstFile=trim(fdst), &
                             weightFile=trim(fwgt), regridmethod=method, &
+                            ignoreDegenerate=.true., &
                             unmappedaction=ESMF_UNMAPPEDACTION_IGNORE, rc=rc)
        if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, &
          line=__LINE__, file=__FILE__)) call ESMF_Finalize(endflag=ESMF_END_ABORT)
@@ -515,7 +517,7 @@ program gen_fixgrid
    fdst = trim(dirout)//'/'//'mesh.mx'//trim(res)//'.nc'
 
    cmdstr = 'ESMF_Scrip2Unstruct '//trim(fsrc)//'  '//trim(fdst)//' 0 ESMF'
-   rc = system(trim(cmdstr))
+   !rc = system(trim(cmdstr))
 
 !---------------------------------------------------------------------
 ! use NCO to extract the kmt for CICE into a separate file
@@ -525,7 +527,7 @@ program gen_fixgrid
    fdst = trim(dirout)//'/'//'kmtu_cice_NEMS_mx'//trim(res)//'.nc'
 
    cmdstr = 'ncks -O -v kmt '//trim(fsrc)//'  '//trim(fdst)
-   rc = system(trim(cmdstr))
+   !rc = system(trim(cmdstr))
 
 !---------------------------------------------------------------------
 !

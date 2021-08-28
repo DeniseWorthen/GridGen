@@ -7,9 +7,13 @@ module postwgts
   use gengrid_kinds, only : CL,CM,CS
   use grdvars,       only : nv
   use charstrings,   only : dirout, res, staggerlocs
+  use debugprint,    only : ChkErr
   use netcdf
 
   implicit none
+
+  character(*), parameter :: u_FILE_u  = &
+       __FILE__
 
   contains
 
@@ -19,7 +23,7 @@ module postwgts
   character(len=CL) :: logmsg
   character(len= 2) :: cstagger
 
-  character(len=CM), dimension(2) :: methodname = (/'bilinear', 'conserve'/)
+  character(len=CM), dimension(2) :: methodname = (/'conserve', 'bilinear'/)
 
   type(ESMF_RegridMethod_Flag) :: method
   ! the number of possible destination grids depends on the source grid resolution
@@ -40,12 +44,12 @@ module postwgts
   if(trim(res) .eq. '050')then
    ndest = 2
    allocate(destgrds(ndest))
-   destgrds = (/'0p5 ', '1p0 '/)
+   destgrds = (/'1p0 ', '0p5 '/)
   end if
   if(trim(res) .eq. '025')then
    ndest = 3
    allocate(destgrds(ndest))
-   destgrds = (/'0p25', '0p5 ', '1p0 '/)
+   destgrds = (/'1p0 ', '0p5 ', '0p25'/)
   end if
 
 !---------------------------------------------------------------------
@@ -64,9 +68,9 @@ module postwgts
 
    call ESMF_RegridWeightGen(srcFile=trim(fsrc),dstFile=trim(fdst), &
                         weightFile=trim(fwgt), regridmethod=method, &
+                        ignoreDegenerate=.true., &
                         unmappedaction=ESMF_UNMAPPEDACTION_IGNORE, rc=rc)
-   if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, &
-     line=__LINE__, file=__FILE__)) call ESMF_Finalize(endflag=ESMF_END_ABORT)
+   if (chkerr(rc,__LINE__,u_FILE_u)) return
   end do
 
 !---------------------------------------------------------------------
@@ -90,9 +94,9 @@ module postwgts
      
       call ESMF_RegridWeightGen(srcFile=trim(fsrc),dstFile=trim(fdst), &
                            weightFile=trim(fwgt), regridmethod=method, &
+                           ignoreDegenerate=.true., &
                            unmappedaction=ESMF_UNMAPPEDACTION_IGNORE, rc=rc)
-      if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, &
-        line=__LINE__, file=__FILE__)) call ESMF_Finalize(endflag=ESMF_END_ABORT)
+      if (chkerr(rc,__LINE__,u_FILE_u)) return
      end do
   end do
 

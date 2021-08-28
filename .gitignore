@@ -35,3 +35,6 @@ gengrid
 
 # Generated namelist
 grid.nml
+
+# Logs
+PET*

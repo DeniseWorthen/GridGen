@@ -80,8 +80,9 @@ fi
 
 edit_namelist < grid.nml.IN > grid.nml
 make
-./gengrid
+#./gengrid
+srun --label -n 4 ./gengrid
 
 # clean up
 make clean
-#rm grid.nml
+rm grid.nml
