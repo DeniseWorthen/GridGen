@@ -228,7 +228,7 @@ program gen_fixgrid
   latBu_vert = -9999.0 ; lonBu_vert = -9999.0
 
 !---------------------------------------------------------------------
-! read the land mask
+! read the MOM6 land mask
 !---------------------------------------------------------------------
 
   fsrc = trim(dirsrc)//'/'//trim(maskfile)
@@ -260,7 +260,7 @@ program gen_fixgrid
   endif
 
 !---------------------------------------------------------------------
-! read supergrid file
+! read MOM6 supergrid file
 !---------------------------------------------------------------------
 
   fsrc = trim(dirsrc)//'/'//'ocean_hgrid.nc'
@@ -374,7 +374,7 @@ program gen_fixgrid
     do i = ni/2+1,ni
      if(latBu(i,j) .eq. sg_maxlat)ipole(2) = i
     enddo
-    print *,'poles found at ',ipole,latBu(ipole(1),nj),latBu(ipole(2),nj)
+    print '(a,2i6,2f12.2)','poles found at i = ',ipole,latBu(ipole(1),nj),latBu(ipole(2),nj)
 
     if(debug)call checkseam
 
@@ -451,7 +451,8 @@ program gen_fixgrid
     call write_scripgrid(trim(fdst),trim(cstagger))
    end do
 
-   !used for mesh creation
+   ! write SCRIP file with land mask, used for mapped ocean mask
+   ! and  mesh creation
    cstagger = trim(staggerlocs(1))
    fdst= trim(dirout)//'/'//trim(cstagger)//'.mx'//trim(res)//'_SCRIP_land.nc'
    call write_scripgrid(trim(fdst),trim(cstagger),imask=int(wet4))
@@ -468,13 +469,15 @@ program gen_fixgrid
    print '(a)',trim(logmsg)
 
    call ESMF_RegridWeightGen(srcFile=trim(fsrc),dstFile=trim(fdst), &
-    weightFile=trim(fwgt), regridmethod=method,&
-    unmappedaction=ESMF_UNMAPPEDACTION_IGNORE, &
-    tileFilePath=trim(fv3dir)//'/'//trim(atmres)//'/', rc=rc)
-    if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, &
-      line=__LINE__, file=__FILE__)) call ESMF_Finalize(endflag=ESMF_END_ABORT)
+                        weightFile=trim(fwgt), regridmethod=method, &
+                        unmappedaction=ESMF_UNMAPPEDACTION_IGNORE, &
+                        tileFilePath=trim(fv3dir)//'/'//trim(atmres)//'/', rc=rc)
+   if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, &
+     line=__LINE__, file=__FILE__)) call ESMF_Finalize(endflag=ESMF_END_ABORT)
 
-    call make_frac_land(trim(fsrc), trim(fwgt))
+   logmsg = 'creating mapped ocean mask for '//trim(atmres)
+   print '(a)',trim(logmsg)
+   call make_frac_land(trim(fsrc), trim(fwgt))
 
 !---------------------------------------------------------------------
 ! use ESMF to find the tripole:tripole weights for creation
@@ -491,14 +494,14 @@ program gen_fixgrid
      print '(a)',trim(logmsg)
      
      call ESMF_RegridWeightGen(srcFile=trim(fsrc),dstFile=trim(fdst), &
-      weightFile=trim(fwgt), regridmethod=method,&
-      unmappedaction=ESMF_UNMAPPEDACTION_IGNORE, rc=rc)
+                          weightFile=trim(fwgt), regridmethod=method, &
+                          unmappedaction=ESMF_UNMAPPEDACTION_IGNORE, rc=rc)
      if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, &
        line=__LINE__, file=__FILE__)) call ESMF_Finalize(endflag=ESMF_END_ABORT)
    else
-    logmsg = 'ERROR: '//trim(fsrc)//' is required to generate tripole:triple weights'
-    print '(a)',trim(logmsg)
-    stop
+     logmsg = 'ERROR: '//trim(fsrc)//' is required to generate tripole:triple weights'
+     print '(a)',trim(logmsg)
+     stop
    end if
 
 !---------------------------------------------------------------------
@@ -508,8 +511,8 @@ program gen_fixgrid
    fsrc = trim(dirout)//'/'//'Ct.mx'//trim(res)//'_SCRIP_land.nc'
    fdst = trim(dirout)//'/'//'mesh.mx'//trim(res)//'.nc'
 
-     cmdstr = 'ESMF_Scrip2Unstruct '//trim(fsrc)//'  '//trim(fdst)//' 0 ESMF'
-     rc = system(trim(cmdstr))
+   cmdstr = 'ESMF_Scrip2Unstruct '//trim(fsrc)//'  '//trim(fdst)//' 0 ESMF'
+   rc = system(trim(cmdstr))
 
 !---------------------------------------------------------------------
 ! use NCO to extract the kmt for CICE into a separate file
@@ -518,8 +521,8 @@ program gen_fixgrid
    fsrc = trim(dirout)//'/'//'grid_cice_NEMS_mx'//trim(res)//'.nc'
    fdst = trim(dirout)//'/'//'kmtu_cice_NEMS_mx'//trim(res)//'.nc'
 
-     cmdstr = 'ncks -O -v kmt '//trim(fsrc)//'  '//trim(fdst)
-     rc = system(trim(cmdstr))
+   cmdstr = 'ncks -O -v kmt '//trim(fsrc)//'  '//trim(fdst)
+   rc = system(trim(cmdstr))
 
 !---------------------------------------------------------------------
 !
@@ -531,14 +534,14 @@ program gen_fixgrid
 ! clean up
 !---------------------------------------------------------------------
 
-  deallocate(x,y, angq, dx, dy, xsgp1, ysgp1)
-  deallocate(areaCt, anglet, angle)
-  deallocate(latCt, lonCt, latCt_vert, lonCt_vert)
-  deallocate(latCv, lonCv, latCv_vert, lonCv_vert)
-  deallocate(latCu, lonCu, latCu_vert, lonCu_vert)
-  deallocate(latBu, lonBu, latBu_vert, lonBu_vert)
-  deallocate(xlonCt, xlatCt, xlonCu, xlatCu, dlatBu, dlatCv)
-  deallocate(wet4, wet8)
-  deallocate(ulon, ulat, htn, hte)
+   deallocate(x,y, angq, dx, dy, xsgp1, ysgp1)
+   deallocate(areaCt, anglet, angle)
+   deallocate(latCt, lonCt, latCt_vert, lonCt_vert)
+   deallocate(latCv, lonCv, latCv_vert, lonCv_vert)
+   deallocate(latCu, lonCu, latCu_vert, lonCu_vert)
+   deallocate(latBu, lonBu, latBu_vert, lonBu_vert)
+   deallocate(xlonCt, xlatCt, xlonCu, xlatCu, dlatBu, dlatCv)
+   deallocate(wet4, wet8)
+   deallocate(ulon, ulat, htn, hte)
 
 end program gen_fixgrid
