@@ -158,7 +158,6 @@ program gen_fixgrid
   real(kind=dbl_kind), parameter :: deg2rad = pi/180.0_dbl_kind
 
   character(len=CL) :: fsrc, fdst, fwgt
-  character(len=CL) :: cmdstr
   character(len=CL) :: logmsg
   character(len= 2) :: cstagger
 
@@ -508,26 +507,6 @@ program gen_fixgrid
        stop
      end if
    end if
-
-!---------------------------------------------------------------------
-! use ESMF to create the mesh file used by the ocean and ice
-!---------------------------------------------------------------------
-
-   fsrc = trim(dirout)//'/'//'Ct.mx'//trim(res)//'_SCRIP_land.nc'
-   fdst = trim(dirout)//'/'//'mesh.mx'//trim(res)//'.nc'
-
-   cmdstr = 'ESMF_Scrip2Unstruct '//trim(fsrc)//'  '//trim(fdst)//' 0 ESMF'
-   !rc = system(trim(cmdstr))
-
-!---------------------------------------------------------------------
-! use NCO to extract the kmt for CICE into a separate file
-!---------------------------------------------------------------------
-
-   fsrc = trim(dirout)//'/'//'grid_cice_NEMS_mx'//trim(res)//'.nc'
-   fdst = trim(dirout)//'/'//'kmtu_cice_NEMS_mx'//trim(res)//'.nc'
-
-   cmdstr = 'ncks -O -v kmt '//trim(fsrc)//'  '//trim(fdst)
-   !rc = system(trim(cmdstr))
 
 !---------------------------------------------------------------------
 !
