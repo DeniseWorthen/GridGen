@@ -197,9 +197,9 @@ program gen_fixgrid
     print '(a)',' atm resolution '//trim(atmres)
     print '(a,i6)',' fv3 tile grid size ',npx
     print '(a)',' atm mosaic directory '//trim(fv3dir)
-    print *,' editmask flag ',editmask
-    print *,' debug flag ',debug
-    print *,' do_postwgts flag ',do_postwgts
+    print *,'editmask flag ',editmask
+    print *,'debug flag ',debug
+    print *,'do_postwgts flag ',do_postwgts
     print *
   end if
 
