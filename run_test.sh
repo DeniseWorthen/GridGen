@@ -78,10 +78,13 @@ if [ $RESNAME = 025 ]; then
  fi
 fi
 
+if [ ! -d ${OUTDIR_PATH} ]; then
+  mkdir -p ${OUTDIR_PATH}
+fi
+
 edit_namelist < grid.nml.IN > grid.nml
 make
-#./gengrid
-#srun --label -n 4 ./gengrid
+./gengrid
 
 # generate ice mesh
 export FSRC=${OUTDIR_PATH}/Ct.mx${RESNAME}_SCRIP_land.nc

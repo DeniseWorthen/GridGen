@@ -32,7 +32,7 @@ module cicegrid
 
   rc = nf90_create(fname, nf90_write, ncid)
   if(mastertask) then
-    logmsg = 'writing CICE grid to '//trim(fname)
+    logmsg = '==> writing CICE grid to '//trim(fname)
     print '(a)', trim(logmsg)
     if(rc .ne. 0)print '(a)', 'nf90_create = '//trim(nf90_strerror(rc))
   end if

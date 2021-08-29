@@ -189,17 +189,17 @@ program gen_fixgrid
   call read_inputnml('grid.nml')
 
   if(mastertask) then
-    print '(a,2i6)','output grid requested ',ni,nj
-    print '(a,2i6)','supergrid size used ', nx,ny
-    print '(a)','output grid tag '//trim(res)
+    print '(a,2i6)',' output grid requested ',ni,nj
+    print '(a,2i6)',' supergrid size used ', nx,ny
+    print '(a)',' output grid tag '//trim(res)
     print '(a)',' supergrid source directory '//trim(dirsrc)
     print '(a)',' output grid directory '//trim(dirout)
     print '(a)',' atm resolution '//trim(atmres)
-    print '(a,i6)','fv3 tile grid size ',npx
+    print '(a,i6)',' fv3 tile grid size ',npx
     print '(a)',' atm mosaic directory '//trim(fv3dir)
-    print *,'editmask flag ',editmask
-    print *,'debug flag ',debug
-    print *,'do_postwgts flag ',do_postwgts
+    print *,' editmask flag ',editmask
+    print *,' debug flag ',debug
+    print *,' do_postwgts flag ',do_postwgts
     print *
   end if
 
@@ -356,9 +356,9 @@ program gen_fixgrid
 !---------------------------------------------------------------------
 
    if(mastertask) then
-     write(logmsg,'(a,2f12.5)')'min vals of hte at folds ', &
+     write(logmsg,'(a,2e12.5)')'min vals of hte at folds ', &
                               minval(hte(ni/2,:)),minval(hte(ni,:))
-     print, '(a)',logmsg
+     print '(a)',trim(logmsg)
    end if
    do j = 1,nj
       ii = ni/2
@@ -367,9 +367,9 @@ program gen_fixgrid
     if(hte(ii,j) .le. 1.0)hte(ii,j) = 0.5*(hte(ii-1,j) + hte(   1,j))
    enddo
    if(mastertask) then
-     write(logmsg,'(a,2f12.5)')'min vals of hte at folds ', &
+     write(logmsg,'(a,2e12.5)')'min vals of hte at folds ', &
                               minval(hte(ni/2,:)),minval(hte(ni,:))
-     print, '(a)',logmsg
+     print '(a)',trim(logmsg)
    end if
 
 !---------------------------------------------------------------------

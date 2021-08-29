@@ -5,8 +5,8 @@ module postwgts
   use ESMF_RegridWeightGenMod
 
   use gengrid_kinds, only : CL,CM,CS
-  use grdvars,       only : nv
-  use charstrings,   only : dirout, res, staggerlocs
+  use grdvars,       only : nv, mastertask
+  use charstrings,   only : dirout, res, staggerlocs, logmsg
   use debugprint,    only : ChkErr
   use netcdf
 

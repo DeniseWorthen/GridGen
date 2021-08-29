@@ -1,7 +1,7 @@
 module mapped_mask
 
   use gengrid_kinds, only : dbl_kind, int_kind
-  use grdvars,       only : ni,nj,npx
+  use grdvars,       only : ni,nj,npx,mastertask
   use charstrings
   use netcdf
 
@@ -32,9 +32,9 @@ module mapped_mask
 
   character(len=CS) :: ctile
   character(len=CL) :: fdst
-  integer :: i,ii,jj,id,rc,ncid, dim2(2),dim3(3)
+  integer :: i,ii,jj,id,rc,ncid, dim2(2)
   integer :: istr,iend
-  integer :: idimid,jdimid,kdimid
+  integer :: idimid,jdimid
 
   character(len=CM) :: vname
 !---------------------------------------------------------------------
