@@ -1,7 +1,11 @@
 module debugprint
 
-  use esmf, only : ESMF_LogFoundError, ESMF_LOGERR_PASSTHRU
-  use grdvars
+  use esmf,    only : ESMF_LogFoundError, ESMF_LOGERR_PASSTHRU
+  use grdvars, only : ni,nj,ipole,angle,angleT
+  use grdvars, only : htn,latCt,lonCt,latCv,lonCv,latCu,lonCu,latBu,lonBu
+  use grdvars, only : xlatCt,xlonCt,xlatCu,xlonCu
+  use grdvars, only : latBu_vert,lonBu_vert,latCv_vert,lonCv_vert
+  use grdvars, only : latCt_vert,lonCt_vert,latCu_vert,lonCu_vert
 
   implicit none
 

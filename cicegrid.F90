@@ -1,8 +1,9 @@
 module cicegrid
 
-   use grdvars
-   use charstrings
-   use vartypedefs, only: maxvars, cicevars, cicevars_typedefine
+   use grdvars,       only: ni,nj,ulat,ulon,htn,hte,angle,wet4,mastertask
+   use charstrings,   only: history, logmsg
+   use vartypedefs,   only: maxvars, cicevars, cicevars_typedefine
+   use gengrid_kinds, only: CM
    use netcdf
 
    implicit none

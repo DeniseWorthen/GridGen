@@ -1,8 +1,8 @@
 module mapped_mask
 
-  use gengrid_kinds, only : dbl_kind, int_kind
+  use gengrid_kinds, only : dbl_kind,int_kind,CL,CM,CS
   use grdvars,       only : ni,nj,npx,mastertask
-  use charstrings
+  use charstrings,   only : dirout,res,atmres,logmsg
   use netcdf
 
   implicit none

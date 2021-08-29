@@ -1,11 +1,17 @@
 module tripolegrid
 
-   use grdvars
-   use charstrings
-   use vartypedefs, only: maxvars, fixvars, fixvars_typedefine
-   use netcdf
+  use gengrid_kinds, only: dbl_kind,int_kind,CM
+  use grdvars,       only: ni,nj,nv,mastertask,nverts,ncoord
+  use grdvars,       only: lonCt,latCt,lonCt_vert,latCt_vert
+  use grdvars,       only: lonCu,latCu,lonCu_vert,latCu_vert
+  use grdvars,       only: lonCv,latCv,lonCv_vert,latCv_vert
+  use grdvars,       only: lonBu,latBu,lonBu_vert,latBu_vert
+  use grdvars,       only: wet4,areaCt,angleT
+  use charstrings,   only: logmsg,history
+  use vartypedefs,   only: maxvars, fixvars, fixvars_typedefine
+  use netcdf
 
-   implicit none
+  implicit none
 
   contains
 

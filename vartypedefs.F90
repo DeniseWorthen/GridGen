@@ -118,7 +118,7 @@ module vartypedefs
 
  end subroutine fixvars_typedefine
 
-  subroutine cicevars_typedefine
+ subroutine cicevars_typedefine
 
   integer :: ii = 0
 
