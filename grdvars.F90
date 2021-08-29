@@ -17,6 +17,7 @@ module grdvars
   logical :: debug
   ! generate post weights
   logical :: do_postwgts
+  logical :: mastertask
 
   !super-grid maximum latitude
      real(dbl_kind) :: sg_maxlat

@@ -158,7 +158,6 @@ program gen_fixgrid
   real(kind=dbl_kind), parameter :: deg2rad = pi/180.0_dbl_kind
 
   character(len=CL) :: fsrc, fdst, fwgt
-  character(len=CL) :: logmsg
   character(len= 2) :: cstagger
 
   type(ESMF_RegridMethod_Flag) :: method
@@ -166,7 +165,7 @@ program gen_fixgrid
   integer :: rc,ncid,id,xtype
   integer :: i,j,k,i2,j2
   integer :: ii,jj
-  integer :: system
+  integer :: localPet
   logical :: fexist = .false.
 
   type(ESMF_VM) :: vm
@@ -177,6 +176,11 @@ program gen_fixgrid
 
  call ESMF_VMGetGlobal(vm, rc=rc)
  call ESMF_Initialize(VM=vm, logkindflag=ESMF_LOGKIND_MULTI, rc=rc)
+ call ESMF_VMGet(vm, localPet=localPet, rc=rc)
+ if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, &
+   line=__LINE__, file=__FILE__)) call ESMF_Finalize(endflag=ESMF_END_ABORT)
+ mastertask = .false.
+ if (localPet == 0) mastertask=.true.
 
 !---------------------------------------------------------------------
 !
@@ -184,18 +188,20 @@ program gen_fixgrid
 
   call read_inputnml('grid.nml')
 
-  print *,'output grid requested ',ni,nj
-  print *,'supergrid size used ', nx,ny
-  print *,'output grid tag '//trim(res)
-  print '(a)',' supergrid source directory '//trim(dirsrc)
-  print '(a)',' output grid directory '//trim(dirout)
-  print '(a)',' atm resolution '//trim(atmres)
-  print *,'fv3 tile grid size ',npx
-  print '(a)',' atm mosaic directory '//trim(fv3dir)
-  print *,'editmask flag ',editmask
-  print *,'debug flag ',debug
-  print *,'do_postwgts flag ',do_postwgts
-  print *
+  if(mastertask) then
+    print '(a,2i6)','output grid requested ',ni,nj
+    print '(a,2i6)','supergrid size used ', nx,ny
+    print '(a)','output grid tag '//trim(res)
+    print '(a)',' supergrid source directory '//trim(dirsrc)
+    print '(a)',' output grid directory '//trim(dirout)
+    print '(a)',' atm resolution '//trim(atmres)
+    print '(a,i6)','fv3 tile grid size ',npx
+    print '(a)',' atm mosaic directory '//trim(fv3dir)
+    print *,'editmask flag ',editmask
+    print *,'debug flag ',debug
+    print *,'do_postwgts flag ',do_postwgts
+    print *
+  end if
 
   call allocate_all
  
@@ -208,18 +214,20 @@ program gen_fixgrid
   iVertCv = iVertCt + 0; jVertCv = jVertCt + 1
   iVertBu = iVertCt + 1; jVertBu = jVertCt + 1
 
-  print '(a8,4i6)','iVertCt ',(iVertCt(i),i=1,4)
-  print '(a8,4i6)','jVertCt ',(jVertCt(i),i=1,4)
-  print *
-  print '(a8,4i6)','iVertCu ',(iVertCu(i),i=1,4)
-  print '(a8,4i6)','jVertCu ',(jVertCu(i),i=1,4)
-  print *
-  print '(a8,4i6)','iVertCv ',(iVertCv(i),i=1,4)
-  print '(a8,4i6)','jVertCv ',(jVertCv(i),i=1,4)
-  print *
-  print '(a8,4i6)','iVertBu ',(iVertBu(i),i=1,4)
-  print '(a8,4i6)','jVertBu ',(jVertBu(i),i=1,4)
-  print *
+  if(mastertask) then
+    print '(a8,4i6)','iVertCt ',(iVertCt(i),i=1,4)
+    print '(a8,4i6)','jVertCt ',(jVertCt(i),i=1,4)
+    print *
+    print '(a8,4i6)','iVertCu ',(iVertCu(i),i=1,4)
+    print '(a8,4i6)','jVertCu ',(jVertCu(i),i=1,4)
+    print *
+    print '(a8,4i6)','iVertCv ',(iVertCv(i),i=1,4)
+    print '(a8,4i6)','jVertCv ',(jVertCv(i),i=1,4)
+    print *
+    print '(a8,4i6)','iVertBu ',(iVertBu(i),i=1,4)
+    print '(a8,4i6)','jVertBu ',(jVertBu(i),i=1,4)
+    print *
+  end if
 
   latCt_vert = -9999.0 ; lonCt_vert = -9999.0
   latCu_vert = -9999.0 ; lonCu_vert = -9999.0
@@ -233,8 +241,10 @@ program gen_fixgrid
   fsrc = trim(dirsrc)//'/'//trim(maskfile)
 
   rc = nf90_open(fsrc, nf90_nowrite, ncid)
-  print '(a)', 'reading ocean mask from '//trim(fsrc)
-  if(rc .ne. 0)print '(a)', 'nf90_open = '//trim(nf90_strerror(rc))
+  if(mastertask) then
+    print '(a)', 'reading ocean mask from '//trim(fsrc)
+    if(rc .ne. 0)print '(a)', 'nf90_open = '//trim(nf90_strerror(rc))
+  end if
 
   rc = nf90_inq_varid(ncid,  trim(maskname), id)
   rc = nf90_inquire_variable(ncid, id, xtype=xtype)
@@ -244,8 +254,8 @@ program gen_fixgrid
 
   if(xtype.eq. 6)wet4 = real(wet8,4)
 
-  print *,minval(wet8),maxval(wet8)
-  print *,minval(wet4),maxval(wet4)
+  !print *,minval(wet8),maxval(wet8)
+  !print *,minval(wet4),maxval(wet4)
 
   if(editmask)then
 !---------------------------------------------------------------------
@@ -265,8 +275,10 @@ program gen_fixgrid
   fsrc = trim(dirsrc)//'/'//'ocean_hgrid.nc'
 
   rc = nf90_open(fsrc, nf90_nowrite, ncid)
-  print '(a)', 'reading supergrid from '//trim(fsrc)
-  if(rc .ne. 0)print '(a)', 'nf90_open = '//trim(nf90_strerror(rc))
+  if(mastertask) then
+    print '(a)', 'reading supergrid from '//trim(fsrc)
+    if(rc .ne. 0)print '(a)', 'nf90_open = '//trim(nf90_strerror(rc))
+  end if
   
   rc = nf90_inq_varid(ncid, 'x', id)  !lon
   rc = nf90_get_var(ncid,    id,  x)
@@ -281,8 +293,8 @@ program gen_fixgrid
   rc = nf90_get_var(ncid,     id, dy)
 
   rc = nf90_close(ncid)
-  print *,'super grid size ',size(y,1),size(y,2)
-  print *,'max lat in super grid ',maxval(y)
+  !print *,'super grid size ',size(y,1),size(y,2)
+  !print *,'max lat in super grid ',maxval(y)
   sg_maxlat = maxval(y)
 
 !---------------------------------------------------------------------
@@ -330,8 +342,10 @@ program gen_fixgrid
 
     call find_ang
 
-    print *,'ANGLET ',minval(anglet),maxval(anglet)
-    print *,'ANGLE  ',minval(angle),maxval(angle)
+    if(mastertask) then
+      print *,'ANGLET ',minval(anglet),maxval(anglet)
+      print *,'ANGLE  ',minval(angle),maxval(angle)
+    end if
 
 !---------------------------------------------------------------------
 ! For the 1/4deg grid, hte at j=720 and j = 1440 is identically=0.0 for
@@ -341,14 +355,22 @@ program gen_fixgrid
 ! hte < 1.0
 !---------------------------------------------------------------------
 
-   print *,'min vals of hte at folds ',minval(hte(ni/2,:)),minval(hte(ni,:))
+   if(mastertask) then
+     write(logmsg,'(a,2f12.5)')'min vals of hte at folds ', &
+                              minval(hte(ni/2,:)),minval(hte(ni,:))
+     print, '(a)',logmsg
+   end if
    do j = 1,nj
       ii = ni/2
     if(hte(ii,j) .le. 1.0)hte(ii,j) = 0.5*(hte(ii-1,j) + hte(ii+1,j))
       ii = ni
     if(hte(ii,j) .le. 1.0)hte(ii,j) = 0.5*(hte(ii-1,j) + hte(   1,j))
    enddo
-   print *,'min vals of hte at folds ',minval(hte(ni/2,:)),minval(hte(ni,:))
+   if(mastertask) then
+     write(logmsg,'(a,2f12.5)')'min vals of hte at folds ', &
+                              minval(hte(ni/2,:)),minval(hte(ni,:))
+     print, '(a)',logmsg
+   end if
 
 !---------------------------------------------------------------------
 !
@@ -373,9 +395,13 @@ program gen_fixgrid
     do i = ni/2+1,ni
      if(latBu(i,j) .eq. sg_maxlat)ipole(2) = i
     enddo
-    print '(a,2i6,2f12.2)','poles found at i = ',ipole,latBu(ipole(1),nj),latBu(ipole(2),nj)
+    if(mastertask) then
+      write(logmsg,'(a,2i6,2f12.2)')'poles found at i = ',ipole,latBu(ipole(1),nj), &
+                                                                latBu(ipole(2),nj)
+      print '(a)',trim(logmsg)
+    end if
 
-    if(debug)call checkseam
+    if(mastertask .and. debug)call checkseam
 
     do i = 1,ni
       i2 = ipole(2)+(ipole(1)-i)+1
@@ -390,7 +416,7 @@ program gen_fixgrid
      xlatCu(i) = latCu(i2,nj)
     enddo
  
-    if(debug)call checkxlatlon
+    if(mastertask .and. debug)call checkxlatlon
 
     !approx lat at grid bottom
     do i = 1,ni
@@ -416,7 +442,7 @@ program gen_fixgrid
   call fill_vertices(1,nj-1, iVertBu,jVertBu, latCt,lonCt, latBu_vert,lonBu_vert)
   call              fill_top(iVertBu,jVertBu, latCt,lonCt, latBu_vert,lonBu_vert, xlatCt, xlonCt)
  
-  if(debug)call checkpoint
+  if(mastertask .and. debug)call checkpoint
 
   if(minval(latCt_vert) .lt. -1.e3)stop
   if(minval(lonCt_vert) .lt. -1.e3)stop
@@ -447,6 +473,10 @@ program gen_fixgrid
    do k = 1,nv
     cstagger = trim(staggerlocs(k))
     fdst = trim(dirout)//'/'//trim(cstagger)//'.mx'//trim(res)//'_SCRIP.nc'
+    if(mastertask) then
+      logmsg = 'creating SCRIP file '//trim(fdst)
+      print '(a)',trim(logmsg)
+    end if
     call write_scripgrid(trim(fdst),trim(cstagger))
    end do
 
@@ -454,6 +484,10 @@ program gen_fixgrid
    ! and  mesh creation
    cstagger = trim(staggerlocs(1))
    fdst= trim(dirout)//'/'//trim(cstagger)//'.mx'//trim(res)//'_SCRIP_land.nc'
+   if(mastertask) then
+     logmsg = 'creating SCRIP file '//trim(fdst)
+     print '(a)',trim(logmsg)
+   end if
    call write_scripgrid(trim(fdst),trim(cstagger),imask=int(wet4))
 
 !---------------------------------------------------------------------
@@ -464,8 +498,10 @@ program gen_fixgrid
    fsrc = trim(dirout)//'/'//'Ct.mx'//trim(res)//'_SCRIP_land.nc'
    fdst = trim(fv3dir)//'/'//trim(atmres)//'/'//trim(atmres)//'_mosaic.nc'
    fwgt = trim(dirout)//'/'//'Ct.mx'//trim(res)//'.to.'//trim(atmres)//'.nc'
-   logmsg = 'creating weight file '//trim(fwgt)
-   print '(a)',trim(logmsg)
+   if(mastertask) then
+     logmsg = 'creating weight file '//trim(fwgt)
+     print '(a)',trim(logmsg)
+   end if
 
    call ESMF_RegridWeightGen(srcFile=trim(fsrc),dstFile=trim(fdst), &
                         weightFile=trim(fwgt), regridmethod=method, &
@@ -475,8 +511,10 @@ program gen_fixgrid
    if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, &
      line=__LINE__, file=__FILE__)) call ESMF_Finalize(endflag=ESMF_END_ABORT)
 
-   logmsg = 'creating mapped ocean mask for '//trim(atmres)
-   print '(a)',trim(logmsg)
+   if(mastertask) then
+     logmsg = 'creating mapped ocean mask for '//trim(atmres)
+     print '(a)',trim(logmsg)
+   end if
    call make_frac_land(trim(fsrc), trim(fwgt))
 
 !---------------------------------------------------------------------
@@ -492,8 +530,10 @@ program gen_fixgrid
        method=ESMF_REGRIDMETHOD_NEAREST_STOD
        fdst = trim(dirout)//'/'//'Ct.mx'//trim(res)//'_SCRIP.nc'
        fwgt = trim(dirout)//'/'//'tripole.mx025.Ct.to.mx'//trim(res)//'.Ct.neareststod.nc'
-       logmsg = 'creating weight file '//trim(fwgt)
-       print '(a)',trim(logmsg)
+       if(mastertask) then
+         logmsg = 'creating weight file '//trim(fwgt)
+         print '(a)',trim(logmsg)
+       end if
        
        call ESMF_RegridWeightGen(srcFile=trim(fsrc),dstFile=trim(fdst), &
                             weightFile=trim(fwgt), regridmethod=method, &
@@ -502,8 +542,10 @@ program gen_fixgrid
        if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, &
          line=__LINE__, file=__FILE__)) call ESMF_Finalize(endflag=ESMF_END_ABORT)
      else
-       logmsg = 'ERROR: '//trim(fsrc)//' is required to generate tripole:triple weights'
-       print '(a)',trim(logmsg)
+       if(mastertask) then
+         logmsg = 'ERROR: '//trim(fsrc)//' is required to generate tripole:triple weights'
+         print '(a)',trim(logmsg)
+       end if
        stop
      end if
    end if

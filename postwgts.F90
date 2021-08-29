@@ -20,7 +20,6 @@ module postwgts
   subroutine make_postwgts
 
   character(len=CL) :: fsrc, fdst, fwgt
-  character(len=CL) :: logmsg
   character(len= 2) :: cstagger
 
   character(len=CM), dimension(2) :: methodname = (/'conserve', 'bilinear'/)
@@ -63,8 +62,10 @@ module postwgts
    cstagger = trim(staggerlocs(k))
    fsrc = trim(dirout)//'/'//trim(cstagger)//'.mx'//trim(res)//'_SCRIP.nc'
    fwgt = trim(dirout)//'/'//'tripole.mx'//trim(res)//'.'//trim(cstagger)//'.to.Ct.bilinear.nc'
-   logmsg = 'creating weight file '//trim(fwgt)
-   print '(a)',trim(logmsg)
+   if(mastertask) then
+     logmsg = 'creating weight file '//trim(fwgt)
+     print '(a)',trim(logmsg)
+   end if
 
    call ESMF_RegridWeightGen(srcFile=trim(fsrc),dstFile=trim(fdst), &
                         weightFile=trim(fwgt), regridmethod=method, &
@@ -89,8 +90,10 @@ module postwgts
 
       fwgt = trim(dirout)//'/'//'tripole.mx'//trim(res)//'.Ct.to.rect.'//trim(destgrds(nd)) &
              //'.'//trim(methodname(k))//'.nc'
-      logmsg = 'creating weight file '//trim(fwgt)
-      print '(a)',trim(logmsg)
+      if(mastertask) then
+        logmsg = 'creating weight file '//trim(fwgt)
+        print '(a)',trim(logmsg)
+      end if
      
       call ESMF_RegridWeightGen(srcFile=trim(fsrc),dstFile=trim(fdst), &
                            weightFile=trim(fwgt), regridmethod=method, &

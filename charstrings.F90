@@ -6,6 +6,7 @@ module charstrings
 
   character(len=CL) :: dirsrc, dirout, fv3dir
   character(len=CS) :: res, atmres
+  character(len=CL) :: logmsg
 
   character(len=CL) :: maskfile = 'ocean_mask.nc'
   character(len=CS) :: maskname = 'mask'
