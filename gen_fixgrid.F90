@@ -205,7 +205,7 @@ program gen_fixgrid
 
   call allocate_all
  
- call ESMF_LogWrite("Driver is in ModifyCplLists()", ESMF_LOGMSG_INFO)
+  call ESMF_LogWrite("Starting gen_fixgrid", ESMF_LOGMSG_INFO)
 !---------------------------------------------------------------------
 ! set up the arrays to retrieve the vertices
 !---------------------------------------------------------------------
@@ -469,7 +469,8 @@ program gen_fixgrid
    fdst = trim(dirout)//'/'//'grid_cice_NEMS_mx'//trim(res)//'.nc'
    call write_cicegrid(trim(fdst))
 
-   ! write scrip grids
+   ! write scrip grids; only the Ct is required, the remaining
+   ! staggers are used only in the postweights generation
    do k = 1,nv
     cstagger = trim(staggerlocs(k))
     fdst = trim(dirout)//'/'//trim(cstagger)//'.mx'//trim(res)//'_SCRIP.nc'
@@ -491,7 +492,9 @@ program gen_fixgrid
    call write_scripgrid(trim(fdst),trim(cstagger),imask=int(wet4))
 
 !---------------------------------------------------------------------
-! use ESMF regridding to produce mapped ocean mask
+! use ESMF regridding to produce mapped ocean mask; first generate
+! conservative regrid weights from ocean to tiles; then generate the
+! tiled files containing the mapped ocean mask
 !---------------------------------------------------------------------
  
    method=ESMF_REGRIDMETHOD_CONSERVE
