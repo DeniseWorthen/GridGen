@@ -17,6 +17,8 @@ module grdvars
   logical :: debug
   ! generate post weights
   logical :: do_postwgts
+  ! make tiled MERRA2
+  logical :: do_merra2
   logical :: mastertask
 
   !super-grid maximum latitude

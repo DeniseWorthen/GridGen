@@ -14,9 +14,10 @@ module vartypedefs
     character(len=CM)   ::  vertices
   end type vardefs
 
-  type(vardefs) ::   fixvars(maxvars)
-  type(vardefs) ::  cicevars(maxvars)
-  type(vardefs) :: scripvars(maxvars)
+  type(vardefs) ::    fixvars(maxvars)
+  type(vardefs) ::   cicevars(maxvars)
+  type(vardefs) ::  scripvars(maxvars)
+  type(vardefs) :: merra2vars(maxvars)
 
   contains
 
@@ -185,4 +186,18 @@ module vartypedefs
    scripvars(ii)%unit_name = 'degrees'
 
  end subroutine scripvars_typedefine
+
+ subroutine merra2vars_typedefine
+
+  integer :: ii = 0
+
+  !default
+  merra2vars(:)%var_name   = ''
+  merra2vars(:)%long_name  = ''
+  merra2vars(:)%unit_name  = ''
+  merra2vars(:)%var_type   = 'r4'
+  merra2vars(:)%vertices   = ''
+
+ end subroutine merra2vars_typedefine
+
 end module vartypedefs

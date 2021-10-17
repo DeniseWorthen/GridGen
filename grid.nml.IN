@@ -10,4 +10,6 @@ npx=NPX
 editmask=DO_MASKEDIT
 debug=DO_DEBUG
 do_postwgts=DO_POSTWGTS
+do_merra2=DO_MERRA2
+merra2dir='MERRA2DIR'
 /

@@ -13,17 +13,26 @@ function edit_namelist {
       -e "s/NPX/$NPX/g" \
       -e "s/DO_MASKEDIT/$MASKEDIT/g" \
       -e "s/DO_DEBUG/$DEBUG/g" \
-      -e "s/DO_POSTWGTS/$DO_POSTWGTS/g"
+      -e "s/DO_POSTWGTS/$DO_POSTWGTS/g" \
+      -e "s/DO_MERRA2/$DO_MERRA2/g" \
+      -e "s|MERRA2DIR|$MERRA2DIR_PATH|g"
 }
 
 export RESNAME=$1
 export DEBUG=.false.
 export MASKEDIT=.false.
-export DO_POSTWGTS=.true.
+export DO_POSTWGTS=.false
+export DO_MERRA2=.true.
 #export OUTDIR_PATH=/scratch2/NCEPDEV/climate/Denise.Worthen/grids-20210727/
 #export OUTDIR_PATH=/scratch2/NCEPDEV/climate/Denise.Worthen/grids-esmf-20210822/
 export OUTDIR_PATH=/scratch2/NCEPDEV/climate/Denise.Worthen/test
 export MOSAICDIR_PATH=/scratch1/NCEPDEV/global/glopara/fix/fix_fv3_gmted2010
+export MERRA2DIR_PATH=/scratch1/NCEPDEV/nems/emc.nemspara/RT/NEMSfv3gfs/input-data-20210930/FV3_input_data_INCCN_aeroclim/MERRA2
+
+if [ $DO_MERRA2 == .true. ]; then
+ #pre-generate SCRIP files for dst merra2 grids using NCO
+ ncremap -g ${OUTDIR_PATH}/MERRA2_SCRIP.nc -G latlon=361,576#lat_typ=cap
+fi
 
 if [ $RESNAME = 400 ]; then
   export FIXDIR_PATH=/scratch2/NCEPDEV/climate/Denise.Worthen/soca/test/Data/72x35x25/INPUT
@@ -97,5 +106,5 @@ export FDST=${OUTDIR_PATH}/kmtu_cice_NEMS_mx${RESNAME}.nc
 ncks -O -v kmt ${FSRC} ${FDST}
 
 # clean up
-make clean
-rm grid.nml
+#make clean
+#rm grid.nml

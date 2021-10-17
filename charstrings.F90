@@ -4,7 +4,7 @@ module charstrings
 
   implicit none
 
-  character(len=CL) :: dirsrc, dirout, fv3dir
+  character(len=CL) :: dirsrc, dirout, fv3dir, merra2dir
   character(len=CS) :: res, atmres
   character(len=CL) :: logmsg
 

@@ -142,6 +142,7 @@ program gen_fixgrid
   use angles
   use vertices
   use mapped_mask
+  use mapped_data
   use postwgts
   use tripolegrid
   use cicegrid
@@ -200,6 +201,8 @@ program gen_fixgrid
     print *,'editmask flag ',editmask
     print *,'debug flag ',debug
     print *,'do_postwgts flag ',do_postwgts
+    print *,'do_merra2 flag ',do_merra2
+    print '(a)',' merra2 data directory '//trim(merra2dir)
     print *
   end if
 
@@ -518,7 +521,38 @@ program gen_fixgrid
      logmsg = 'creating mapped ocean mask for '//trim(atmres)
      print '(a)',trim(logmsg)
    end if
-   call make_frac_land(trim(fsrc), trim(fwgt))
+   !call make_frac_land(trim(fsrc), trim(fwgt))
+
+   if(do_merra2)then
+!---------------------------------------------------------------------
+! use ESMF regridding to produce MERRA2 tile files; first generate
+! bilinear regrid weights from MERRA2 to tiles; then generate the
+! tiled files containing the tiled MERRA2 data
+!---------------------------------------------------------------------
+
+      method=ESMF_REGRIDMETHOD_BILINEAR
+      fsrc = trim(dirout)//'/'//'MERRA2_SCRIP.nc'
+      fdst = trim(fv3dir)//'/'//trim(atmres)//'/'//trim(atmres)//'_mosaic.nc'
+      fwgt = trim(dirout)//'/'//'MERRA2'//'.to.'//trim(atmres)//'.nc'
+      if(mastertask) then
+        logmsg = 'creating weight file '//trim(fwgt)
+        print '(a)',trim(logmsg)
+      end if
+
+      call ESMF_RegridWeightGen(srcFile=trim(fsrc),dstFile=trim(fdst), &
+                           weightFile=trim(fwgt), regridmethod=method, &
+                           unmappedaction=ESMF_UNMAPPEDACTION_IGNORE, &
+                           ignoreDegenerate=.true., &
+                           tileFilePath=trim(fv3dir)//'/'//trim(atmres)//'/', rc=rc)
+      if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, &
+        line=__LINE__, file=__FILE__)) call ESMF_Finalize(endflag=ESMF_END_ABORT)
+
+      if(mastertask) then
+        logmsg = 'creating tiled MERRA2 for '//trim(atmres)
+        print '(a)',trim(logmsg)
+      end if
+      call make_tiled_data(trim(fsrc), trim(fwgt))
+   end if
 
 !---------------------------------------------------------------------
 ! use ESMF to find the tripole:tripole weights for creation
