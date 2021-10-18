@@ -11,22 +11,17 @@ module mapped_data
   integer, parameter :: ntile = 6
 
   ! hard-coded for merra2 files
-  integer, parameter :: nlons = 576, nlats = 361, nlev = 72, nmon = 12, ntra = 15+1
+  integer, parameter :: nlons = 576, nlats = 361, nlev = 72, nmon = 12
   real(real_kind)    :: vmiss = 1.0e-15
-
+  
   character(len=CM)  :: fname = 'merra2.aerclim.2003-2014.m'
-  character(len=CS)  :: specname(ntra) = (/'DU001   ','DU002   ','DU003   ','DU004   ', &
-                                           'DU005   ', &
-                                           'SS001   ','SS002   ','SS003   ','SS004   ', &
-                                           'SS005   ','SO4     ', &
-                                           'BCPHOBIC','BCPHILIC','OCPHOBIC','OCPHILIC', &
-                                           'DELP    '/)
+
+  integer :: ntra
   character(len=CM) :: vname
   character(len=2)  :: vtype
   character(len=CM) :: vlong
   character(len=CM) :: vunit
   character(len=8)  :: i2fmt = '(i2.2)'
-
 
   contains
 
@@ -36,7 +31,9 @@ module mapped_data
   character(len= 2)  :: cmon
   character(len=CS)  :: ctile
   character(len=CL)  :: fsrc,fdst
+
   integer :: ncid,id,rc,xtype,i,j,nt,nm
+  integer :: ii,nvars,ndims
   integer :: idimid, jdimid,kdimid,timid
   integer :: dim1(1),dim2(2),dim3(3),dim4(4)
 !---------------------------------------------------------------------
@@ -46,27 +43,34 @@ module mapped_data
     cmon = '01'
     fsrc=trim(merra2dir)//'/'//trim(fname)//trim(cmon)//'.nc'
     rc = nf90_open(trim(fsrc), nf90_nowrite, ncid)
-    do nt = 1,ntra
-     vname = trim(specname(nt))
+    rc = nf90_inquire(ncid, nVariables=nvars)
 
-     rc = nf90_inq_varid(ncid, trim(vname), id)
-     rc = nf90_inquire_variable(ncid, id, xtype=xtype)
-     rc = nf90_get_att(ncid, id, 'long_name',   vlong)
-     rc = nf90_get_att(ncid, id, 'units',       vunit)
+       nt = 0
+    do ii = 1,nvars
+     rc = nf90_inquire_variable(ncid, ii, name=vname, ndims=ndims)
+     if (ndims .eq. 4) then
+       rc = nf90_inq_varid(ncid, trim(vname), id)
+       rc = nf90_inquire_variable(ncid, id, xtype=xtype)
+       rc = nf90_get_att(ncid, id, 'long_name',   vlong)
+       rc = nf90_get_att(ncid, id, 'units',       vunit)
 
-     merra2vars(nt)%var_name   = trim(vname)
-     merra2vars(nt)%long_name  = trim(vlong)
-     merra2vars(nt)%unit_name  = trim(vunit)
-     if(xtype .eq. 5)merra2vars(nt)%var_type   = 'r4'
-     if(xtype .eq. 6)merra2vars(nt)%var_type   = 'r8'
+       nt = nt+1
+       merra2vars(nt)%var_name   = trim(vname)
+       merra2vars(nt)%var_name   = trim(vname)
+       merra2vars(nt)%long_name  = trim(vlong)
+       merra2vars(nt)%unit_name  = trim(vunit)
+       if(xtype .eq. 5)merra2vars(nt)%var_type   = 'r4'
+       if(xtype .eq. 6)merra2vars(nt)%var_type   = 'r8'
+     end if
     enddo
      rc = nf90_close(ncid)
+     ntra = nt
 
-    !do nt = 1,ntra
-    ! print '(5a)',trim(merra2vars(nt)%var_name),  '  ', &
-    !              trim(merra2vars(nt)%long_name), '  ', &
-    !              trim(merra2vars(nt)%unit_name)
-    !end do
+    do nt = 1,ntra
+     print '(5a)',trim(merra2vars(nt)%var_name),  '  ', &
+                  trim(merra2vars(nt)%long_name), '  ', &
+                  trim(merra2vars(nt)%unit_name)
+    end do
 
     !define netcdf tile file monthly output
     do nm=1,nmon
@@ -207,7 +211,7 @@ module mapped_data
      fsrc=trim(merra2dir)//'/'//trim(fname)//trim(cmon)//'.nc'
      rc = nf90_open(trim(fsrc), nf90_nowrite, ncid)
      do nt = 1,ntra
-      vname = trim(specname(nt))
+      vname = trim(merra2vars(nt)%var_name)
       rc = nf90_inq_varid(ncid, vname,   id)
       rc = nf90_get_var(ncid,      id, mdat)
       rc = nf90_close(ncid)
