@@ -207,7 +207,7 @@ program gen_fixgrid
   end if
 
   call allocate_all
- 
+#ifdef test
   call ESMF_LogWrite("Starting gen_fixgrid", ESMF_LOGMSG_INFO)
 !---------------------------------------------------------------------
 ! set up the arrays to retrieve the vertices
@@ -521,7 +521,8 @@ program gen_fixgrid
      logmsg = 'creating mapped ocean mask for '//trim(atmres)
      print '(a)',trim(logmsg)
    end if
-   !call make_frac_land(trim(fsrc), trim(fwgt))
+   call make_frac_land(trim(fsrc), trim(fwgt))
+#endif !test
 
    if(do_merra2)then
 !---------------------------------------------------------------------

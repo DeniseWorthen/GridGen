@@ -2,8 +2,8 @@ module mapped_data
 
   use gengrid_kinds, only : dbl_kind,real_kind,int_kind,CL,CM,CS
   use grdvars,       only : ni,nj,npx,mastertask
-  use charstrings,   only : dirout,merra2dir,atmres,logmsg
-  use vartypedefs,   only: maxvars, merra2vars, merra2vars_typedefine
+  use charstrings,   only : dirout,merra2dir,res,atmres,logmsg
+  use vartypedefs,   only : maxvars, merra2vars, merra2vars_typedefine
   use netcdf
 
   implicit none
@@ -14,10 +14,6 @@ module mapped_data
   integer, parameter :: nlons = 576, nlats = 361, nlev = 72, nmon = 12, ntra = 15+1
   real(real_kind)    :: vmiss = 1.0e-15
 
-  ! local variables
-  character(len= 2)  :: cmon
-  character(len=CS)  :: ctile
-  character(len=CL)  :: fsrc,fdst
   character(len=CM)  :: fname = 'merra2.aerclim.2003-2014.m'
   character(len=CS)  :: specname(ntra) = (/'DU001   ','DU002   ','DU003   ','DU004   ', &
                                            'DU005   ', &
@@ -31,14 +27,18 @@ module mapped_data
   character(len=CM) :: vunit
   character(len=8)  :: i2fmt = '(i2.2)'
 
-  integer :: ncid,id,rc,xtype,i,nt,nm
-  integer :: idimid, jdimid,kdimid,timid
-  integer :: dim1(1),dim2(2),dim3(3),dim4(4)
 
   contains
 
   subroutine setup_merra2files
 
+  ! local variables
+  character(len= 2)  :: cmon
+  character(len=CS)  :: ctile
+  character(len=CL)  :: fsrc,fdst
+  integer :: ncid,id,rc,xtype,i,j,nt,nm
+  integer :: idimid, jdimid,kdimid,timid
+  integer :: dim1(1),dim2(2),dim3(3),dim4(4)
 !---------------------------------------------------------------------
 !
 !---------------------------------------------------------------------
@@ -90,9 +90,11 @@ module mapped_data
        rc = nf90_def_var(ncid, vname, nf90_double, dim2, id)
        vname = 'grid_yt'
        rc = nf90_def_var(ncid, vname, nf90_double, dim2, id)
-       dim1(:) =  (/kdimid/)
+       dim1(:) =  (/timid/)
+       vname = 'time'
+       rc = nf90_def_var(ncid, vname, nf90_float,  dim1, id)
        
-       dim4(:) =  (/idimid, jdimid,kdimid,timid/)
+       dim4(:) =  (/idimid,jdimid,kdimid,timid/)
        do nt = 1,ntra
          vname = trim(merra2vars(nt)%var_name)
          vlong = trim(merra2vars(nt)%long_name)
@@ -104,15 +106,16 @@ module mapped_data
         rc = nf90_put_att(ncid, id,      'units', vunit)
         rc = nf90_put_att(ncid, id,  'long_name', vlong)
         rc = nf90_put_att(ncid, id, '_FillValue', vmiss)
-       end do; ntra
+       end do! ntra
         rc = nf90_enddef(ncid)
         rc = nf90_close(ncid)
-     end do; ntile
-    enddo; nmon
+     end do! ntile
+    enddo! nmon
 
   end subroutine setup_merra2files
 
   subroutine make_tiled_data(src, wgt)
+
   character(len=*), intent(in) :: src, wgt
 
   ! local variables
@@ -122,20 +125,28 @@ module mapped_data
      real(dbl_kind), allocatable, dimension(:) :: S
      real(dbl_kind), allocatable, dimension(:) :: lat1d, lon1d
 
+     !lev dependent
      real(real_kind), allocatable, dimension(:,:) :: src_field
      real(real_kind), allocatable, dimension(:,:) :: dst_field
 
-     real(real_kind), allocatable, dimension(:,:,:) :: dst3d
+     real(real_kind), allocatable, dimension(:,:,:,:) :: dst4d
      real(dbl_kind),  allocatable, dimension(:,:,:) :: lat3d,lon3d
 
-     real(real_kind), allocatable, dimension(:,:)   :: dst2d
+     real(real_kind), allocatable, dimension(:,:,:)   :: dst3d
      real(dbl_kind), allocatable, dimension(:,:)   :: lat2d,lon2d
 
   ! MERRA2 level data
   real(real_kind) :: mdat(nlons,nlats,nlev)
+  real(real_kind) :: month
 
   integer :: ii,jj
   integer :: istr,iend
+  integer :: ncid,id,rc,xtype,i,j,nt,nm
+  integer :: idimid, jdimid,kdimid,timid
+  integer :: dim1(1),dim2(2),dim3(3),dim4(4)
+  character(len= 2)  :: cmon
+  character(len=CS)  :: ctile
+  character(len=CL)  :: fsrc,fdst
 
 !---------------------------------------------------------------------
 ! retrieve the merra2 variable definitions
@@ -143,7 +154,6 @@ module mapped_data
 
   call setup_merra2files
 
-#ifdef test
 !---------------------------------------------------------------------
 ! retrieve the weights
 !---------------------------------------------------------------------
@@ -181,11 +191,18 @@ module mapped_data
     allocate(dst_field(1:n_b,1:nlev))
 
 !---------------------------------------------------------------------
-! retrieve MERRA2 data from the file and map it
+! retrieve each MERRA2 tracer from each month file and map it and write
+! to cdf
 !---------------------------------------------------------------------
 
+    allocate(dst4d(npx,npx,nlev,ntile))
+    allocate(lon3d(npx,npx,ntile)); allocate(lat3d(npx,npx,ntile))
+    allocate(dst3d(npx,npx,nlev))
+    allocate(lon2d(npx,npx)); allocate(lat2d(npx,npx))
+    !nm=1;nt=1
     do nm=1,nmon
      write( cmon, i2fmt)nm
+     month = real(nm,4) - 0.5
 
      fsrc=trim(merra2dir)//'/'//trim(fname)//trim(cmon)//'.nc'
      rc = nf90_open(trim(fsrc), nf90_nowrite, ncid)
@@ -195,7 +212,7 @@ module mapped_data
       rc = nf90_get_var(ncid,      id, mdat)
       rc = nf90_close(ncid)
     
-        ii = 0
+         ii = 0
       do j = 1,nlats
        do i = 1,nlons
          ii = ii + 1
@@ -203,76 +220,58 @@ module mapped_data
        enddo
       enddo
 
-    do i = 1,n_s
-      ii = row(i); jj = col(i)
-      dst_field(ii) = dst_field(ii) + S(i)*real(src_field(jj),dbl_kind)
-    enddo
+      do i = 1,n_s
+        ii = row(i); jj = col(i)
+        dst_field(ii,:) = dst_field(ii,:) + S(i)*src_field(jj,:)
+      enddo
 
 !---------------------------------------------------------------------
 !
 !---------------------------------------------------------------------
 
-    allocate(dst3d(npx,npx,ntile))
-    allocate(lon3d(npx,npx,ntile)); allocate(lat3d(npx,npx,ntile))
-    allocate(dst2d(npx,npx))
-    allocate(lon2d(npx,npx)); allocate(lat2d(npx,npx))
+      do i = 0,ntile-1
+       istr = i*npx*npx+1
+       iend = istr+npx*npx-1
+       !print *,i,istr,iend
+       dst4d(:,:,:,i+1) = reshape(dst_field(istr:iend,:), (/npx,npx,nlev/))
+       lat3d(:,:,  i+1) = reshape(    lat1d(istr:iend),   (/npx,npx/))
+       lon3d(:,:,  i+1) = reshape(    lon1d(istr:iend),   (/npx,npx/))
+      end do
 
-    do i = 0,ntile-1
-     istr = i*npx*npx+1
-     iend = istr+npx*npx-1
-     !print *,i,istr,iend
-     dst3d(:,:,i+1) = reshape(dst_field(istr:iend), (/npx,npx/))
-     lat3d(:,:,i+1) = reshape(    lat1d(istr:iend), (/npx,npx/))
-     lon3d(:,:,i+1) = reshape(    lon1d(istr:iend), (/npx,npx/))
-    end do
+      do i = 1,ntile
+       write(ctile,'(a5,i1)')'.tile',i
+       fdst=trim(dirout)//'/'//trim(atmres)//'.'//trim(fname)//trim(cmon)//trim(ctile)//'.nc'
+       if(mastertask .and. nm .eq. 1) then
+         logmsg = 'writing mapped merra2 data '//trim(vname)//' to file '//trim(fdst)
+         print '(a)',trim(logmsg)
+       end if
 
-    do i = 1,ntile
-     write(ctile,'(a5,i1)')'.tile',i
-     fdst = trim(dirout)//'/'//trim(atmres)//'.mx'//trim(res)//trim(ctile)//'.nc'
-     if(mastertask) then
-       logmsg = 'creating mapped ocean mask file '//trim(fdst)
-       print '(a)',trim(logmsg)
-     end if
+       dst3d(:,:,:) = dst4d(:,:,:,i)
+       lat2d(:,:)   = lat3d(:,:,  i)
+       lon2d(:,:)   = lon3d(:,:,  i)
 
-     dst2d(:,:) = dst3d(:,:,i)
-     lat2d(:,:) = lat3d(:,:,i)
-     lon2d(:,:) = lon3d(:,:,i)
-   
-     !rc = nf90_create(trim(fdst), nf90_64bit_offset, ncid)
-     !rc = nf90_def_dim(ncid, 'grid_xt', npx, idimid)
-     !rc = nf90_def_dim(ncid, 'grid_yt', npx, jdimid)
-
-     !dim2(:) =  (/idimid, jdimid/)
-     !vname = 'grid_xt'
-     !rc = nf90_def_var(ncid, vname, nf90_double, dim2, id)
-     !vname = 'grid_yt'
-     !rc = nf90_def_var(ncid, vname, nf90_double, dim2, id)
-     !!do nt = 1,ntra
-     !!vname = 'land_frac'
-     !!rc = nf90_def_var(ncid, vname, nf90_double, dim2, id)
-     !!unit,long_name
-     !!end do
-     !rc = nf90_enddef(ncid)
-
-     rc = nf90_open(trim(fdst), nf90_write, ncid)
-
-     rc = nf90_inq_varid(ncid,    'grid_xt',      id)
-     rc = nf90_put_var(ncid,             id,   lon2d)
-     rc = nf90_inq_varid(ncid,    'grid_yt',      id)
-     rc = nf90_put_var(ncid,             id,   lat2d)
-     rc = nf90_inq_varid(ncid,  'land_frac',      id)
-     rc = nf90_put_var(ncid,             id,   dst2d)
-     rc = nf90_close(ncid)
-    end do
+       rc = nf90_open(trim(fdst), nf90_write, ncid)
+       dim1(1) = 1
+       rc = nf90_inq_varid(ncid,       'time',      id)
+       rc = nf90_put_var(ncid,             id,   month, dim1)
+       rc = nf90_inq_varid(ncid,    'grid_xt',      id)
+       rc = nf90_put_var(ncid,             id,   lon2d)
+       rc = nf90_inq_varid(ncid,    'grid_yt',      id)
+       rc = nf90_put_var(ncid,             id,   lat2d)
+       rc = nf90_inq_varid(ncid,        vname,      id)
+       rc = nf90_put_var(ncid,             id,   dst3d)
+       rc = nf90_close(ncid)
+      end do
+     end do !ntra
+    enddo !nm
 
 !---------------------------------------------------------------------
 ! clean up
 !---------------------------------------------------------------------
 
   deallocate(dst3d,lon3d,lat3d)
-  deallocate(dst2d,lon2d,lat2d)
-  !deallocate(col, row, S, lat1d, lon1d, src_field, dst_field)
-#endif
+  deallocate(dst4d,lon2d,lat2d)
+  deallocate(col, row, S, lat1d, lon1d, src_field, dst_field)
 
   end subroutine make_tiled_data
 end module mapped_data
