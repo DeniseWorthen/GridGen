@@ -9,12 +9,13 @@ module mapped_data
   implicit none
 
   integer, parameter :: ntile = 6
+  integer, parameter :: maxatts = 10
 
   ! hard-coded for merra2 files
-  integer, parameter :: nlons = 576, nlats = 361, nlev = 72, nmon = 12
-  real(real_kind)    :: vmiss = 1.0e-15
-  
-  character(len=CM)  :: fname = 'merra2.aerclim.2003-2014.m'
+  integer, parameter               :: nlons = 576, nlats = 361, nlev = 72, nmon = 12
+  real(real_kind)                  :: vmiss = 1.0e-15
+  real(real_kind), dimension(nlev) :: levvals
+  character(len=CM)                :: fname = 'merra2.aerclim.2003-2014.m'
 
   integer :: ntra
   character(len=CM) :: vname
@@ -32,14 +33,19 @@ module mapped_data
   character(len=CS)  :: ctile
   character(len=CL)  :: fsrc,fdst
 
-  integer :: ncid,id,rc,xtype,i,j,nt,nm
-  integer :: ii,nvars,ndims
+  integer :: ncid,id,rc,xtype,i,j,nt,nm,na
+  integer :: ii,nvars,ndims,natts
   integer :: idimid, jdimid,kdimid,timid
   integer :: dim1(1),dim2(2),dim3(3),dim4(4)
+  integer :: dimid, dimlen
+  character(len=CM) :: attname(maxatts), attvals(maxatts)
+
 !---------------------------------------------------------------------
 !
 !---------------------------------------------------------------------
 
+    attname(:) = ''
+    attvals(:) = ''
     cmon = '01'
     fsrc=trim(merra2dir)//'/'//trim(fname)//trim(cmon)//'.nc'
     rc = nf90_open(trim(fsrc), nf90_nowrite, ncid)
@@ -47,7 +53,7 @@ module mapped_data
 
        nt = 0
     do ii = 1,nvars
-     rc = nf90_inquire_variable(ncid, ii, name=vname, ndims=ndims)
+     rc = nf90_inquire_variable(ncid, ii, name=vname, ndims=ndims, natts=natts)
      if (ndims .eq. 4) then
        rc = nf90_inq_varid(ncid, trim(vname), id)
        rc = nf90_inquire_variable(ncid, id, xtype=xtype)
@@ -56,20 +62,29 @@ module mapped_data
 
        nt = nt+1
        merra2vars(nt)%var_name   = trim(vname)
-       merra2vars(nt)%var_name   = trim(vname)
        merra2vars(nt)%long_name  = trim(vlong)
        merra2vars(nt)%unit_name  = trim(vunit)
        if(xtype .eq. 5)merra2vars(nt)%var_type   = 'r4'
        if(xtype .eq. 6)merra2vars(nt)%var_type   = 'r8'
+     end if
+     ! obtail vertical axis and attributes
+     if (ndims .eq. 1 .and. trim(vname) .eq. 'lev') then
+       rc = nf90_inq_varid(ncid, trim(vname), id)
+       rc = nf90_get_var(ncid, id, levvals)
+       do na = 1,natts
+        rc = nf90_inq_attname(ncid, id, na, attname(na))
+        rc = nf90_get_att(ncid, id, trim(attname(na)), attvals(na))
+        print *,na,trim(vname),'  ',trim(attname(na)),' ',trim(attvals(na))
+       end do
      end if
     enddo
      rc = nf90_close(ncid)
      ntra = nt
 
     do nt = 1,ntra
-     print '(5a)',trim(merra2vars(nt)%var_name),  '  ', &
-                  trim(merra2vars(nt)%long_name), '  ', &
-                  trim(merra2vars(nt)%unit_name)
+     print '(i4,a10,a2,a60,a2,a8)', nt, &
+      trim(merra2vars(nt)%var_name),'  ', trim(merra2vars(nt)%long_name), '  ', &
+      trim(merra2vars(nt)%unit_name)
     end do
 
     !define netcdf tile file monthly output
@@ -97,6 +112,15 @@ module mapped_data
        dim1(:) =  (/timid/)
        vname = 'time'
        rc = nf90_def_var(ncid, vname, nf90_float,  dim1, id)
+
+       dim1(:) =  (/kdimid/)
+       vname = 'lev'
+       rc = nf90_def_var(ncid, vname, nf90_double, dim1, id)
+       do na = 1,maxatts
+        if(len_trim(attname(na)) > 0)then
+         rc = nf90_put_att(ncid, id, trim(attname(na)), trim(attvals(na)))
+        end if
+       end do
        
        dim4(:) =  (/idimid,jdimid,kdimid,timid/)
        do nt = 1,ntra
@@ -112,6 +136,12 @@ module mapped_data
         rc = nf90_put_att(ncid, id, '_FillValue', vmiss)
        end do! ntra
         rc = nf90_enddef(ncid)
+
+        ! add lev values
+        vname = 'lev'
+        rc = nf90_inq_varid(ncid, trim(vname),      id)
+        rc = nf90_put_var(ncid,            id, levvals)
+
         rc = nf90_close(ncid)
      end do! ntile
     enddo! nmon
@@ -134,10 +164,10 @@ module mapped_data
      real(real_kind), allocatable, dimension(:,:) :: dst_field
 
      real(real_kind), allocatable, dimension(:,:,:,:) :: dst4d
-     real(dbl_kind),  allocatable, dimension(:,:,:) :: lat3d,lon3d
+     real(dbl_kind),  allocatable, dimension(:,:,:)   :: lat3d,lon3d
 
      real(real_kind), allocatable, dimension(:,:,:)   :: dst3d
-     real(dbl_kind), allocatable, dimension(:,:)   :: lat2d,lon2d
+     real(dbl_kind), allocatable, dimension(:,:)      :: lat2d,lon2d
 
   ! MERRA2 level data
   real(real_kind) :: mdat(nlons,nlats,nlev)
@@ -203,14 +233,14 @@ module mapped_data
     allocate(lon3d(npx,npx,ntile)); allocate(lat3d(npx,npx,ntile))
     allocate(dst3d(npx,npx,nlev))
     allocate(lon2d(npx,npx)); allocate(lat2d(npx,npx))
-    !nm=1;nt=1
-    do nm=1,nmon
+    nm=1;nt=5
+    !do nm=1,nmon
      write( cmon, i2fmt)nm
      month = real(nm,4) - 0.5
 
      fsrc=trim(merra2dir)//'/'//trim(fname)//trim(cmon)//'.nc'
      rc = nf90_open(trim(fsrc), nf90_nowrite, ncid)
-     do nt = 1,ntra
+     !do nt = 1,ntra
       vname = trim(merra2vars(nt)%var_name)
       rc = nf90_inq_varid(ncid, vname,   id)
       rc = nf90_get_var(ncid,      id, mdat)
@@ -266,8 +296,8 @@ module mapped_data
        rc = nf90_put_var(ncid,             id,   dst3d)
        rc = nf90_close(ncid)
       end do
-     end do !ntra
-    enddo !nm
+     !end do !ntra
+    !enddo !nm
 
 !---------------------------------------------------------------------
 ! clean up
