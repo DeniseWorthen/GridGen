@@ -142,7 +142,7 @@ program gen_fixgrid
   use angles
   use vertices
   use mapped_mask
-  use mapped_data
+  use mapped_merra2
   use postwgts
   use tripolegrid
   use cicegrid

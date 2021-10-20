@@ -1,4 +1,4 @@
-module mapped_data
+module mapped_merra2
 
   use gengrid_kinds, only : dbl_kind,real_kind,int_kind,CL,CM,CS
   use grdvars,       only : ni,nj,npx,mastertask
@@ -9,12 +9,10 @@ module mapped_data
   implicit none
 
   integer, parameter :: ntile = 6
-  integer, parameter :: maxatts = 10
 
   ! hard-coded for merra2 files
   integer, parameter               :: nlons = 576, nlats = 361, nlev = 72, nmon = 12
   real(real_kind)                  :: vmiss = 1.0e-15
-  real(real_kind), dimension(nlev) :: levvals
   character(len=CM)                :: fname = 'merra2.aerclim.2003-2014.m'
 
   integer :: ntra
@@ -33,19 +31,15 @@ module mapped_data
   character(len=CS)  :: ctile
   character(len=CL)  :: fsrc,fdst
 
-  integer :: ncid,id,rc,xtype,i,j,nt,nm,na
-  integer :: ii,nvars,ndims,natts
+  integer :: ncid,id,rc,xtype,i,nt,nm
+  integer :: ii,nvars,ndims
   integer :: idimid, jdimid,kdimid,timid
-  integer :: dim1(1),dim2(2),dim3(3),dim4(4)
-  integer :: dimid, dimlen
-  character(len=CM) :: attname(maxatts), attvals(maxatts)
+  integer :: dim1(1),dim2(2),dim4(4)
 
 !---------------------------------------------------------------------
 !
 !---------------------------------------------------------------------
 
-    attname(:) = ''
-    attvals(:) = ''
     cmon = '01'
     fsrc=trim(merra2dir)//'/'//trim(fname)//trim(cmon)//'.nc'
     rc = nf90_open(trim(fsrc), nf90_nowrite, ncid)
@@ -53,7 +47,7 @@ module mapped_data
 
        nt = 0
     do ii = 1,nvars
-     rc = nf90_inquire_variable(ncid, ii, name=vname, ndims=ndims, natts=natts)
+     rc = nf90_inquire_variable(ncid, ii, name=vname, ndims=ndims)
      if (ndims .eq. 4) then
        rc = nf90_inq_varid(ncid, trim(vname), id)
        rc = nf90_inquire_variable(ncid, id, xtype=xtype)
@@ -66,16 +60,6 @@ module mapped_data
        merra2vars(nt)%unit_name  = trim(vunit)
        if(xtype .eq. 5)merra2vars(nt)%var_type   = 'r4'
        if(xtype .eq. 6)merra2vars(nt)%var_type   = 'r8'
-     end if
-     ! obtain vertical axis and attributes
-     if (trim(vname) .eq. 'lev') then
-       rc = nf90_inq_varid(ncid, trim(vname), id)
-       rc = nf90_get_var(ncid, id, levvals)
-       do na = 1,natts
-        rc = nf90_inq_attname(ncid, id, na, attname(na))
-        rc = nf90_get_att(ncid, id, trim(attname(na)), attvals(na))
-        !print *,na,trim(vname),'  ',trim(attname(na)),' ',trim(attvals(na))
-       end do
      end if
     enddo
      rc = nf90_close(ncid)
@@ -111,18 +95,12 @@ module mapped_data
        rc = nf90_def_var(ncid, vname, nf90_double, dim2, id)
        vname = 'grid_yt'
        rc = nf90_def_var(ncid, vname, nf90_double, dim2, id)
-       dim1(:) =  (/timid/)
-       vname = 'time'
-       rc = nf90_def_var(ncid, vname, nf90_float,  dim1, id)
-
        dim1(:) =  (/kdimid/)
        vname = 'lev'
        rc = nf90_def_var(ncid, vname, nf90_double, dim1, id)
-      ! do na = 1,maxatts
-      !  if(len_trim(attname(na)) > 0)then
-      !   rc = nf90_put_att(ncid, id, trim(attname(na)), trim(attvals(na)))
-      !  end if
-      ! end do
+       dim1(:) =  (/timid/)
+       vname = 'time'
+       rc = nf90_def_var(ncid, vname, nf90_float,  dim1, id)
        
        dim4(:) =  (/idimid,jdimid,kdimid,timid/)
        do nt = 1,ntra
@@ -138,12 +116,6 @@ module mapped_data
         rc = nf90_put_att(ncid, id, '_FillValue', vmiss)
        end do! ntra
         rc = nf90_enddef(ncid)
-
-        ! add lev values
-        vname = 'lev'
-        rc = nf90_inq_varid(ncid, trim(vname),      id)
-        rc = nf90_put_var(ncid,            id, levvals)
-
         rc = nf90_close(ncid)
      end do! ntile
     enddo! nmon
@@ -173,14 +145,11 @@ module mapped_data
 
   ! MERRA2 level data
   real(real_kind) :: mdat(nlons,nlats,nlev)
-  real(real_kind) :: m1d(nlons*nlats)
   real(real_kind) :: month
 
   integer :: ii,jj
   integer :: istr,iend
-  integer :: ncid,id,rc,xtype,i,j,k,nt,nm
-  integer :: idimid, jdimid,kdimid,timid
-  integer :: dim1(1),dim2(2),dim3(3),dim4(4)
+  integer :: ncid,id,rc,i,j,nt,nm
   character(len= 2)  :: cmon
   character(len=CS)  :: ctile
   character(len=CL)  :: fsrc,fdst
@@ -289,9 +258,8 @@ module mapped_data
        lon2d(:,:)   = lon3d(:,:,  i)
 
        rc = nf90_open(trim(fdst), nf90_write, ncid)
-       dim1(1) = 1
        rc = nf90_inq_varid(ncid,       'time',      id)
-       rc = nf90_put_var(ncid,             id,   month, dim1)
+       rc = nf90_put_var(ncid,             id,   month, (/1/))
        rc = nf90_inq_varid(ncid,    'grid_xt',      id)
        rc = nf90_put_var(ncid,             id,   lon2d)
        rc = nf90_inq_varid(ncid,    'grid_yt',      id)
@@ -312,4 +280,4 @@ module mapped_data
   deallocate(col, row, S, lat1d, lon1d, src_field, dst_field)
 
   end subroutine make_tiled_data
-end module mapped_data
+end module mapped_merra2

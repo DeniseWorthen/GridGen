@@ -189,9 +189,7 @@ module vartypedefs
 
  subroutine merra2vars_typedefine
 
-  integer :: ii = 0
-
-  !default
+  !default; will be obtained from source file
   merra2vars(:)%var_name   = ''
   merra2vars(:)%long_name  = ''
   merra2vars(:)%unit_name  = ''
