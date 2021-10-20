@@ -67,25 +67,27 @@ module mapped_data
        if(xtype .eq. 5)merra2vars(nt)%var_type   = 'r4'
        if(xtype .eq. 6)merra2vars(nt)%var_type   = 'r8'
      end if
-     ! obtail vertical axis and attributes
-     if (ndims .eq. 1 .and. trim(vname) .eq. 'lev') then
+     ! obtain vertical axis and attributes
+     if (trim(vname) .eq. 'lev') then
        rc = nf90_inq_varid(ncid, trim(vname), id)
        rc = nf90_get_var(ncid, id, levvals)
        do na = 1,natts
         rc = nf90_inq_attname(ncid, id, na, attname(na))
         rc = nf90_get_att(ncid, id, trim(attname(na)), attvals(na))
-        print *,na,trim(vname),'  ',trim(attname(na)),' ',trim(attvals(na))
+        !print *,na,trim(vname),'  ',trim(attname(na)),' ',trim(attvals(na))
        end do
      end if
     enddo
      rc = nf90_close(ncid)
      ntra = nt
 
-    do nt = 1,ntra
-     print '(i4,a10,a2,a60,a2,a8)', nt, &
-      trim(merra2vars(nt)%var_name),'  ', trim(merra2vars(nt)%long_name), '  ', &
-      trim(merra2vars(nt)%unit_name)
-    end do
+    if(mastertask ) then
+       do nt = 1,ntra
+        logmsg = trim(merra2vars(nt)%var_name)//'  '//trim(merra2vars(nt)%long_name)//'  ' &
+               //trim(merra2vars(nt)%unit_name)
+        print '(i5,a)', nt,'  '//trim(logmsg)
+       end do
+    end if
 
     !define netcdf tile file monthly output
     do nm=1,nmon
@@ -116,11 +118,11 @@ module mapped_data
        dim1(:) =  (/kdimid/)
        vname = 'lev'
        rc = nf90_def_var(ncid, vname, nf90_double, dim1, id)
-       do na = 1,maxatts
-        if(len_trim(attname(na)) > 0)then
-         rc = nf90_put_att(ncid, id, trim(attname(na)), trim(attvals(na)))
-        end if
-       end do
+      ! do na = 1,maxatts
+      !  if(len_trim(attname(na)) > 0)then
+      !   rc = nf90_put_att(ncid, id, trim(attname(na)), trim(attvals(na)))
+      !  end if
+      ! end do
        
        dim4(:) =  (/idimid,jdimid,kdimid,timid/)
        do nt = 1,ntra
@@ -171,11 +173,12 @@ module mapped_data
 
   ! MERRA2 level data
   real(real_kind) :: mdat(nlons,nlats,nlev)
+  real(real_kind) :: m1d(nlons*nlats)
   real(real_kind) :: month
 
   integer :: ii,jj
   integer :: istr,iend
-  integer :: ncid,id,rc,xtype,i,j,nt,nm
+  integer :: ncid,id,rc,xtype,i,j,k,nt,nm
   integer :: idimid, jdimid,kdimid,timid
   integer :: dim1(1),dim2(2),dim3(3),dim4(4)
   character(len= 2)  :: cmon
@@ -232,6 +235,7 @@ module mapped_data
     allocate(dst4d(npx,npx,nlev,ntile))
     allocate(lon3d(npx,npx,ntile)); allocate(lat3d(npx,npx,ntile))
     allocate(dst3d(npx,npx,nlev))
+
     allocate(lon2d(npx,npx)); allocate(lat2d(npx,npx))
     nm=1;nt=5
     !do nm=1,nmon
@@ -245,8 +249,8 @@ module mapped_data
       rc = nf90_inq_varid(ncid, vname,   id)
       rc = nf90_get_var(ncid,      id, mdat)
       rc = nf90_close(ncid)
-    
-         ii = 0
+  
+        ii = 0
       do j = 1,nlats
        do i = 1,nlons
          ii = ii + 1
