@@ -13,6 +13,7 @@ module mapped_merra2
   ! hard-coded for merra2 files
   integer, parameter               :: nlons = 576, nlats = 361, nlev = 72, nmon = 12
   real(real_kind)                  :: vmiss = 1.0e-15
+  real(real_kind)                  :: levs(nlev)
   character(len=CM)                :: fname = 'merra2.aerclim.2003-2014.m'
 
   integer :: ntra
@@ -36,6 +37,7 @@ module mapped_merra2
   integer :: idimid, jdimid,kdimid,timid
   integer :: dim1(1),dim2(2),dim4(4)
 
+
 !---------------------------------------------------------------------
 !
 !---------------------------------------------------------------------
@@ -48,6 +50,10 @@ module mapped_merra2
        nt = 0
     do ii = 1,nvars
      rc = nf90_inquire_variable(ncid, ii, name=vname, ndims=ndims)
+     if (trim(vname) .eq. 'lev')then
+       rc = nf90_inq_varid(ncid, trim(vname), id)
+       rc = nf90_get_var(ncid,  id,  levs)
+     end if
      if (ndims .eq. 4) then
        rc = nf90_inq_varid(ncid, trim(vname), id)
        rc = nf90_inquire_variable(ncid, id, xtype=xtype)
@@ -74,21 +80,21 @@ module mapped_merra2
     end if
 
     !define netcdf tile file monthly output
+    if(mastertask) then
+       logmsg = 'set-up mapped MERRA2 file for nmons and ntiles '
+       print '(a)',trim(logmsg)
+    end if
     do nm=1,nmon
      write( cmon, i2fmt)nm
      do i = 1,ntile
       write(ctile,'(a5,i1)')'.tile',i
       fdst=trim(dirout)//'/'//trim(atmres)//'.'//trim(fname)//trim(cmon)//trim(ctile)//'.nc'
-      if(mastertask) then
-        logmsg = 'creating mapped MERRA2 file '//trim(fdst)
-        print '(a)',trim(logmsg)
-      end if
 
        rc = nf90_create(trim(fdst), nf90_64bit_offset, ncid)
        rc = nf90_def_dim(ncid, 'grid_xt', npx, idimid)
        rc = nf90_def_dim(ncid, 'grid_yt', npx, jdimid)
        rc = nf90_def_dim(ncid, 'lev',    nlev, kdimid)
-       rc = nf90_def_dim(ncid, 'time', nf90_unlimited,  timid)
+       rc = nf90_def_dim(ncid, 'time',      1,  timid)
 
        dim2(:) =  (/idimid, jdimid/)
        vname = 'grid_xt'
@@ -97,7 +103,10 @@ module mapped_merra2
        rc = nf90_def_var(ncid, vname, nf90_double, dim2, id)
        dim1(:) =  (/kdimid/)
        vname = 'lev'
-       rc = nf90_def_var(ncid, vname, nf90_double, dim1, id)
+       rc = nf90_def_var(ncid, vname, nf90_float,  dim1, id)
+       rc = nf90_put_att(ncid, id,   'long_name', 'vertical level')
+       rc = nf90_put_att(ncid, id,       'units',          'layer')
+       rc = nf90_put_att(ncid, id,    'positive',           'down')
        dim1(:) =  (/timid/)
        vname = 'time'
        rc = nf90_def_var(ncid, vname, nf90_float,  dim1, id)
@@ -137,17 +146,15 @@ module mapped_merra2
      real(real_kind), allocatable, dimension(:,:) :: src_field
      real(real_kind), allocatable, dimension(:,:) :: dst_field
 
-     real(real_kind), allocatable, dimension(:,:,:,:) :: dst4d
-     real(dbl_kind),  allocatable, dimension(:,:,:)   :: lat3d,lon3d
-
      real(real_kind), allocatable, dimension(:,:,:)   :: dst3d
      real(dbl_kind), allocatable, dimension(:,:)      :: lat2d,lon2d
 
   ! MERRA2 level data
   real(real_kind) :: mdat(nlons,nlats,nlev)
+  real(real_kind) :: mdatk(nlons,nlats)
   real(real_kind) :: month
 
-  integer :: ii,jj
+  integer :: ii,jj,k
   integer :: istr,iend
   integer :: ncid,id,rc,i,j,nt,nm
   character(len= 2)  :: cmon
@@ -196,37 +203,34 @@ module mapped_merra2
     allocate(src_field(1:n_a,1:nlev))
     allocate(dst_field(1:n_b,1:nlev))
 
+    allocate(dst3d(npx,npx,nlev))
+    allocate(lon2d(npx,npx)); allocate(lat2d(npx,npx))
+
 !---------------------------------------------------------------------
 ! retrieve each MERRA2 tracer from each month file and map it and write
 ! to cdf
 !---------------------------------------------------------------------
 
-    allocate(dst4d(npx,npx,nlev,ntile))
-    allocate(lon3d(npx,npx,ntile)); allocate(lat3d(npx,npx,ntile))
-    allocate(dst3d(npx,npx,nlev))
-
-    allocate(lon2d(npx,npx)); allocate(lat2d(npx,npx))
-    nm=1;nt=5
-    !do nm=1,nmon
+    !nm=1;nt=5
+    do nm=1,nmon
      write( cmon, i2fmt)nm
      month = real(nm,4) - 0.5
 
      fsrc=trim(merra2dir)//'/'//trim(fname)//trim(cmon)//'.nc'
-     rc = nf90_open(trim(fsrc), nf90_nowrite, ncid)
-     !do nt = 1,ntra
+     do nt = 1,ntra
       vname = trim(merra2vars(nt)%var_name)
+
+      rc = nf90_open(trim(fsrc), nf90_nowrite, ncid)
       rc = nf90_inq_varid(ncid, vname,   id)
       rc = nf90_get_var(ncid,      id, mdat)
       rc = nf90_close(ncid)
-  
-        ii = 0
-      do j = 1,nlats
-       do i = 1,nlons
-         ii = ii + 1
-         src_field(ii,:) = mdat(i,j,:)
-       enddo
+
+      do k = 1,nlev
+       mdatk(:,:) = mdat(:,:,k)
+       src_field(:,k) = reshape(mdatk(1:nlons,1:nlats), (/nlons*nlats/))
       enddo
 
+      dst_field = 0.0_real_kind
       do i = 1,n_s
         ii = row(i); jj = col(i)
         dst_field(ii,:) = dst_field(ii,:) + S(i)*src_field(jj,:)
@@ -240,26 +244,23 @@ module mapped_merra2
        istr = i*npx*npx+1
        iend = istr+npx*npx-1
        !print *,i,istr,iend
-       dst4d(:,:,:,i+1) = reshape(dst_field(istr:iend,:), (/npx,npx,nlev/))
-       lat3d(:,:,  i+1) = reshape(    lat1d(istr:iend),   (/npx,npx/))
-       lon3d(:,:,  i+1) = reshape(    lon1d(istr:iend),   (/npx,npx/))
-      end do
 
-      do i = 1,ntile
-       write(ctile,'(a5,i1)')'.tile',i
+       write(ctile,'(a5,i1)')'.tile',i+1
        fdst=trim(dirout)//'/'//trim(atmres)//'.'//trim(fname)//trim(cmon)//trim(ctile)//'.nc'
-       if(mastertask .and. nm .eq. 1) then
+       if(mastertask .and. nm .eq. 1 .and. i+1 .eq. 1) then
          logmsg = 'writing mapped merra2 data '//trim(vname)//' to file '//trim(fdst)
          print '(a)',trim(logmsg)
        end if
 
-       dst3d(:,:,:) = dst4d(:,:,:,i)
-       lat2d(:,:)   = lat3d(:,:,  i)
-       lon2d(:,:)   = lon3d(:,:,  i)
+       dst3d(:,:,:) = reshape(dst_field(istr:iend,:), (/npx,npx,nlev/))
+       lat2d(:,:  ) = reshape(    lat1d(istr:iend),   (/npx,npx/))
+       lon2d(:,:  ) = reshape(    lon1d(istr:iend),   (/npx,npx/))
 
        rc = nf90_open(trim(fdst), nf90_write, ncid)
+       rc = nf90_inq_varid(ncid,        'lev',      id)
+       rc = nf90_put_var(ncid,             id,    levs)
        rc = nf90_inq_varid(ncid,       'time',      id)
-       rc = nf90_put_var(ncid,             id,   month, (/1/))
+       rc = nf90_put_var(ncid,             id,   month)
        rc = nf90_inq_varid(ncid,    'grid_xt',      id)
        rc = nf90_put_var(ncid,             id,   lon2d)
        rc = nf90_inq_varid(ncid,    'grid_yt',      id)
@@ -268,15 +269,14 @@ module mapped_merra2
        rc = nf90_put_var(ncid,             id,   dst3d)
        rc = nf90_close(ncid)
       end do
-     !end do !ntra
-    !enddo !nm
+     end do !ntra
+    enddo !nm
 
 !---------------------------------------------------------------------
 ! clean up
 !---------------------------------------------------------------------
 
-  deallocate(dst3d,lon3d,lat3d)
-  deallocate(dst4d,lon2d,lat2d)
+  deallocate(dst3d, lat2d, lon2d)
   deallocate(col, row, S, lat1d, lon1d, src_field, dst_field)
 
   end subroutine make_tiled_data

@@ -24,9 +24,6 @@ module mapped_mask
   integer(int_kind), allocatable, dimension(:) :: src_field
      real(dbl_kind), allocatable, dimension(:) :: dst_field
 
-     real(dbl_kind), allocatable, dimension(:,:,:) :: dst3d
-     real(dbl_kind), allocatable, dimension(:,:,:) :: lat3d,lon3d
-
      real(dbl_kind), allocatable, dimension(:,:)   :: dst2d
      real(dbl_kind), allocatable, dimension(:,:)   :: lat2d,lon2d
 
@@ -93,8 +90,6 @@ module mapped_mask
 !
 !---------------------------------------------------------------------
 
-    allocate(dst3d(npx,npx,ntile))
-    allocate(lon3d(npx,npx,ntile)); allocate(lat3d(npx,npx,ntile))
     allocate(dst2d(npx,npx))
     allocate(lon2d(npx,npx)); allocate(lat2d(npx,npx))
 
@@ -102,22 +97,17 @@ module mapped_mask
      istr = i*npx*npx+1
      iend = istr+npx*npx-1
      !print *,i,istr,iend
-     dst3d(:,:,i+1) = reshape(dst_field(istr:iend), (/npx,npx/))
-     lat3d(:,:,i+1) = reshape(    lat1d(istr:iend), (/npx,npx/))
-     lon3d(:,:,i+1) = reshape(    lon1d(istr:iend), (/npx,npx/))
-    end do
 
-    do i = 1,ntile
-     write(ctile,'(a5,i1)')'.tile',i
+     write(ctile,'(a5,i1)')'.tile',i+1
      fdst = trim(dirout)//'/'//trim(atmres)//'.mx'//trim(res)//trim(ctile)//'.nc'
      if(mastertask) then
        logmsg = 'creating mapped ocean mask file '//trim(fdst)
        print '(a)',trim(logmsg)
      end if
 
-     dst2d(:,:) = dst3d(:,:,i)
-     lat2d(:,:) = lat3d(:,:,i)
-     lon2d(:,:) = lon3d(:,:,i)
+     dst2d(:,:) = reshape(dst_field(istr:iend), (/npx,npx/))
+     lat2d(:,:) = reshape(    lat1d(istr:iend), (/npx,npx/))
+     lon2d(:,:) = reshape(    lon1d(istr:iend), (/npx,npx/))
    
      rc = nf90_create(trim(fdst), nf90_64bit_offset, ncid)
      rc = nf90_def_dim(ncid, 'grid_xt', npx, idimid)
@@ -146,7 +136,6 @@ module mapped_mask
 !---------------------------------------------------------------------
 
   deallocate(col, row, S, lat1d, lon1d, src_field, dst_field)
-  deallocate(dst3d,lon3d,lat3d)
   deallocate(dst2d,lon2d,lat2d)
 
   end subroutine make_frac_land

@@ -5,9 +5,12 @@ module inputnml
  use charstrings, only : dirsrc, dirout, fv3dir, res, atmres, merra2dir
 
  implicit none
+ private
+
+ public read_inputnml
 
  contains
-
+ 
  subroutine read_inputnml(fname)
 
   character(len=*),   intent(in) :: fname

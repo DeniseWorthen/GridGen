@@ -8,9 +8,11 @@ module debugprint
   use grdvars, only : latCt_vert,lonCt_vert,latCu_vert,lonCu_vert
 
   implicit none
+  private
 
   public :: ChkErr
-
+  public :: checkseam, checkxlatlon, checkpoint
+ 
   character(len=*),parameter :: u_FILE_u =  __FILE__
 
   contains

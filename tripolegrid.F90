@@ -12,6 +12,9 @@ module tripolegrid
   use netcdf
 
   implicit none
+  private
+
+  public write_tripolegrid
 
   contains
 

@@ -1,12 +1,15 @@
 module cicegrid
 
-   use grdvars,       only: ni,nj,ulat,ulon,htn,hte,angle,wet4,mastertask
-   use charstrings,   only: history, logmsg
-   use vartypedefs,   only: maxvars, cicevars, cicevars_typedefine
-   use gengrid_kinds, only: CM
-   use netcdf
+  use grdvars,       only: ni,nj,ulat,ulon,htn,hte,angle,wet4,mastertask
+  use charstrings,   only: history, logmsg
+  use vartypedefs,   only: maxvars, cicevars, cicevars_typedefine
+  use gengrid_kinds, only: CM
+  use netcdf
 
-   implicit none
+  implicit none
+  private
+
+  public write_cicegrid
 
   contains
 
