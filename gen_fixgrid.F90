@@ -136,7 +136,7 @@ program gen_fixgrid
 
   use grdvars
   use inputnml
-  use gengrid_kinds,     only: CL, dbl_kind, real_kind, int_kind
+  use gengrid_kinds,     only: CL, CS, dbl_kind, real_kind, int_kind
   use angles,            only: find_angq, find_ang
   use vertices,          only: fill_vertices, fill_bottom, fill_top
   use mapped_mask,       only: make_frac_land
@@ -172,8 +172,12 @@ program gen_fixgrid
   type(ESMF_RegridMethod_Flag) :: method
   type(ESMF_VM) :: vm
 
-  !temporary
-  real(real_kind) :: min_depth = 9.5, lat_cutoff = 88.0
+  !WW3 mod_def
+  real(real_kind)   :: lat_cutoff = 88.0
+  character(len= 6) :: i4fmt = '(i4.4)'
+  character(len=CS) :: form1
+  character(len=CS) :: form2
+  character(len= 6) :: cnx
   
 !-------------------------------------------------------------------------
 ! Initialize esmf environment.
@@ -284,7 +288,7 @@ program gen_fixgrid
   if(xtype.eq. 6)dp4 = real(dp8,4)
 
   !print *,minval(dp8),maxval(dp8)
-  print *,minval(dp4),maxval(dp4)
+  !print *,minval(dp4),maxval(dp4)
 
   if(editmask)then
 !---------------------------------------------------------------------
@@ -524,10 +528,13 @@ program gen_fixgrid
 ! mod_def file
 !---------------------------------------------------------------------
 
-  allocate(ww3mask(1:ni,1:nj)); ww3mask = 0
+  write(cnx,i4fmt)nx
+  write(form1,'(a)')'('//trim(cnx)//'f14.8)'
+  write(form2,'(a)')'('//trim(cnx)//'i4)'
+
+  allocate(ww3mask(1:ni,1:nj)); ww3mask = wet4
   allocate(ww3dpth(1:ni,1:nj)); ww3dpth = dp4
 
-  where(ww3dpth .gt. min_depth)ww3mask = 1
   where(latCt .ge. lat_cutoff)ww3mask = 3
 
   open(unit=21,file=trim(dirout)//'/'//'ww3.mx'//trim(res)//'_x.inp',form='formatted')
@@ -536,12 +543,12 @@ program gen_fixgrid
   open(unit=24,file=trim(dirout)//'/'//'ww3.mx'//trim(res)//'_mapsta.inp',form='formatted')
 
   do j = 1,nj
-   write( 21,'(f14.8)')lonCt(:,j)
-   write( 22,'(f14.8)')latCt(:,j)
+   write( 21,trim(form1))lonCt(:,j)
+   write( 22,trim(form1))latCt(:,j)
   end do
   do j = 1,nj
-   write( 23,'(f14.8)')ww3dpth(:,j)
-   write( 24,'(i4)')ww3mask(:,j)
+   write( 23,trim(form1))ww3dpth(:,j)
+   write( 24,trim(form2))ww3mask(:,j)
   end do
 
   close(21); close(22); close(23); close(24)
