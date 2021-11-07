@@ -14,9 +14,9 @@ module vartypedefs
     character(len=CM)   ::  vertices
   end type vardefs
 
-  type(vardefs) ::   fixvars(maxvars)
-  type(vardefs) ::  cicevars(maxvars)
-  type(vardefs) :: scripvars(maxvars)
+  type(vardefs) ::    fixvars(maxvars)
+  type(vardefs) ::   cicevars(maxvars)
+  type(vardefs) ::  scripvars(maxvars)
 
   contains
 

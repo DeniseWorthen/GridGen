@@ -136,18 +136,19 @@ program gen_fixgrid
   ! temp fix until esmf updated
   use ESMF_RegridWeightGenMod
 
-  use gengrid_kinds
-  use inputnml
   use grdvars
-  use angles
-  use vertices
-  use mapped_mask
-  use postwgts
-  use tripolegrid
-  use cicegrid
-  use scripgrid
-  use charstrings
-  use debugprint
+  use inputnml
+  use gengrid_kinds,     only: CL, dbl_kind
+  use angles,            only: find_angq, find_ang
+  use vertices,          only: fill_vertices, fill_bottom, fill_top
+  use mapped_mask,       only: make_frac_land
+  use mapped_merra2,     only: make_tiled_data
+  use postwgts,          only: make_postwgts
+  use tripolegrid,       only: write_tripolegrid
+  use cicegrid,          only: write_cicegrid
+  use scripgrid,         only: write_scripgrid
+  use charstrings,       only: logmsg, res, dirsrc, dirout, atmres, fv3dir, merra2dir
+  use debugprint,        only : checkseam, checkxlatlon, checkpoint
   use netcdf
 
   implicit none

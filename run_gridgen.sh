@@ -19,7 +19,7 @@ function edit_namelist {
 export RESNAME=$1
 export DEBUG=.false.
 export MASKEDIT=.false.
-export DO_POSTWGTS=.true.
+export DO_POSTWGTS=.false.
 #export OUTDIR_PATH=/scratch2/NCEPDEV/climate/Denise.Worthen/grids-20210727/
 #export OUTDIR_PATH=/scratch2/NCEPDEV/climate/Denise.Worthen/grids-esmf-20210822/
 export OUTDIR_PATH=/scratch2/NCEPDEV/climate/Denise.Worthen/test
