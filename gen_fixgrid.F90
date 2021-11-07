@@ -269,6 +269,7 @@ program gen_fixgrid
    if(wet4(ii+1,jj+1) .eq. 0.0)wet4(ii+1,jj+1) = 1.0
   endif
 
+
 !---------------------------------------------------------------------
 ! read MOM6 supergrid file
 !---------------------------------------------------------------------
@@ -491,6 +492,19 @@ program gen_fixgrid
      print '(a)',trim(logmsg)
    end if
    call write_scripgrid(trim(fdst),trim(cstagger),imask=int(wet4))
+
+!---------------------------------------------------------------------
+! write lat,lon,depth and mask arrays required by ww3 in creating
+! mod_def file
+!---------------------------------------------------------------------
+
+  open(unit=21,file=trim(dirout)//'ww3.mx'//trim(res)//'_x.inp')
+  open(unit=22,file=trim(dirout)//'ww3.mx'//trim(res)//'_y.inp')
+  open(unit=23,file=trim(dirout)//'ww3.mx'//trim(res)//'_bottom.inp')
+  open(unit=24,file=trim(dirout)//'ww3.mx'//trim(res)//'_mapsta.inp')
+  do j = 1,nj
+  !fill in here
+  end do
 
 !---------------------------------------------------------------------
 ! use ESMF regridding to produce mapped ocean mask; first generate
