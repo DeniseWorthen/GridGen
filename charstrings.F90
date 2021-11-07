@@ -8,8 +8,9 @@ module charstrings
   character(len=CS) :: res, atmres
   character(len=CL) :: logmsg
 
-  character(len=CL) :: maskfile = 'ocean_mask.nc'
-  character(len=CS) :: maskname = 'mask'
+  character(len=CL) :: maskfile  = 'ocean_mask.nc'
+  character(len=CS) :: maskname  = 'mask'
+  character(len=CL) :: editsfile = 'topo_edits_011818'
 
   character(len=CL) :: history
   character(len=CS) :: cdate

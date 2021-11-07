@@ -1,8 +1,6 @@
 module postwgts
 
   use ESMF
-  ! temp fix until esmf updated
-  use ESMF_RegridWeightGenMod
 
   use gengrid_kinds, only : CL,CM,CS
   use grdvars,       only : nv, mastertask

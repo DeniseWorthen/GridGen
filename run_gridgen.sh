@@ -97,5 +97,5 @@ export FDST=${OUTDIR_PATH}/kmtu_cice_NEMS_mx${RESNAME}.nc
 ncks -O -v kmt ${FSRC} ${FDST}
 
 # clean up
-make clean
-rm grid.nml
+#make clean
+#rm grid.nml

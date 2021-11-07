@@ -133,8 +133,6 @@
 program gen_fixgrid
 
   use ESMF
-  ! temp fix until esmf updated
-  !use ESMF_RegridWeightGenMod
 
   use grdvars
   use inputnml
@@ -146,7 +144,8 @@ program gen_fixgrid
   use tripolegrid,       only: write_tripolegrid
   use cicegrid,          only: write_cicegrid
   use scripgrid,         only: write_scripgrid
-  use charstrings,       only: logmsg, res, dirsrc, dirout, atmres, fv3dir
+  use topoedits,         only: add_topoedits
+  use charstrings,       only: logmsg, res, dirsrc, dirout, atmres, fv3dir, editsfile
   use charstrings,       only: maskfile, maskname, staggerlocs, cdate, history
   use debugprint,        only: checkseam, checkxlatlon, checkpoint
   use netcdf
@@ -260,15 +259,13 @@ program gen_fixgrid
 
   if(editmask)then
 !---------------------------------------------------------------------
-! kludgy fix: 1-deg model has single point which switches froma
-! land->ocean at run time. see issue #47 on NOAA-EMC/MOM6
-! TODO: add routine to create full topoedits file for runtime
+! apply topoedits run time mask changes
 !---------------------------------------------------------------------
 
-   ii = 88; jj = 132
-   if(wet4(ii+1,jj+1) .eq. 0.0)wet4(ii+1,jj+1) = 1.0
+   fsrc = trim(dirsrc)//'/'//trim(editsfile)//'.nc'
+   fdst = trim(dirout)//'/'//trim(editsfile)//'.ufs.nc'
+   call add_topoedits(fsrc,fdst)
   endif
-
 
 !---------------------------------------------------------------------
 ! read MOM6 supergrid file
@@ -498,10 +495,10 @@ program gen_fixgrid
 ! mod_def file
 !---------------------------------------------------------------------
 
-  open(unit=21,file=trim(dirout)//'ww3.mx'//trim(res)//'_x.inp')
-  open(unit=22,file=trim(dirout)//'ww3.mx'//trim(res)//'_y.inp')
-  open(unit=23,file=trim(dirout)//'ww3.mx'//trim(res)//'_bottom.inp')
-  open(unit=24,file=trim(dirout)//'ww3.mx'//trim(res)//'_mapsta.inp')
+  open(unit=21,file=trim(dirout)//'/'//'ww3.mx'//trim(res)//'_x.inp')
+  open(unit=22,file=trim(dirout)//'/'//'ww3.mx'//trim(res)//'_y.inp')
+  open(unit=23,file=trim(dirout)//'/'//'ww3.mx'//trim(res)//'_bottom.inp')
+  open(unit=24,file=trim(dirout)//'/'//'ww3.mx'//trim(res)//'_mapsta.inp')
   do j = 1,nj
   !fill in here
   end do
