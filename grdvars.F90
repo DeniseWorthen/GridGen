@@ -73,6 +73,10 @@ module grdvars
      real(real_kind), allocatable, dimension(:,:) :: wet4
      real(dbl_kind),  allocatable, dimension(:,:) :: wet8
 
+  ! ocean depth from fixed file, stored as either r4 or r8
+     real(real_kind), allocatable, dimension(:,:) :: dp4
+     real(dbl_kind),  allocatable, dimension(:,:) :: dp8
+
   ! ice grid variables
   real(dbl_kind), allocatable, dimension(:,:) :: ulon, ulat
   real(dbl_kind), allocatable, dimension(:,:) ::  htn, hte
@@ -104,6 +108,9 @@ module grdvars
 
      allocate( wet4(ni,nj) )
      allocate( wet8(ni,nj) )
+
+     allocate(  dp4(ni,nj) )
+     allocate(  dp8(ni,nj) )
 
   allocate( ulon(ni,nj), ulat(ni,nj) )
   allocate(  htn(ni,nj),  hte(ni,nj) )

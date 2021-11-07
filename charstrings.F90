@@ -12,6 +12,9 @@ module charstrings
   character(len=CS) :: maskname  = 'mask'
   character(len=CL) :: editsfile = 'topo_edits_011818'
 
+  character(len=CL) :: topofile
+  character(len=CS) :: toponame  = 'depth'
+
   character(len=CL) :: history
   character(len=CS) :: cdate
 

@@ -136,7 +136,7 @@ program gen_fixgrid
 
   use grdvars
   use inputnml
-  use gengrid_kinds,     only: CL, dbl_kind
+  use gengrid_kinds,     only: CL, dbl_kind, real_kind, int_kind
   use angles,            only: find_angq, find_ang
   use vertices,          only: fill_vertices, fill_bottom, fill_top
   use mapped_mask,       only: make_frac_land
@@ -146,7 +146,7 @@ program gen_fixgrid
   use scripgrid,         only: write_scripgrid
   use topoedits,         only: add_topoedits
   use charstrings,       only: logmsg, res, dirsrc, dirout, atmres, fv3dir, editsfile
-  use charstrings,       only: maskfile, maskname, staggerlocs, cdate, history
+  use charstrings,       only: maskfile, maskname, topofile, toponame, staggerlocs, cdate, history
   use debugprint,        only: checkseam, checkxlatlon, checkpoint
   use netcdf
 
@@ -157,10 +157,11 @@ program gen_fixgrid
   real(kind=dbl_kind), parameter :: pi = 3.14159265358979323846_dbl_kind
   real(kind=dbl_kind), parameter :: deg2rad = pi/180.0_dbl_kind
 
+    real(real_kind), allocatable, dimension(:,:) :: ww3dpth
+  integer(int_kind), allocatable, dimension(:,:) :: ww3mask
+
   character(len=CL) :: fsrc, fdst, fwgt
   character(len= 2) :: cstagger
-
-  type(ESMF_RegridMethod_Flag) :: method
 
   integer :: rc,ncid,id,xtype
   integer :: i,j,k,i2,j2
@@ -168,8 +169,12 @@ program gen_fixgrid
   integer :: localPet
   logical :: fexist = .false.
 
+  type(ESMF_RegridMethod_Flag) :: method
   type(ESMF_VM) :: vm
 
+  !temporary
+  real(real_kind) :: min_depth = 9.5, lat_cutoff = 88.0
+  
 !-------------------------------------------------------------------------
 ! Initialize esmf environment.
 !-------------------------------------------------------------------------
@@ -197,6 +202,7 @@ program gen_fixgrid
     print '(a)',' atm resolution '//trim(atmres)
     print '(a,i6)',' fv3 tile grid size ',npx
     print '(a)',' atm mosaic directory '//trim(fv3dir)
+    print '(a)',' MOM6 topography file '//trim(topofile)
     print *,'editmask flag ',editmask
     print *,'debug flag ',debug
     print *,'do_postwgts flag ',do_postwgts
@@ -256,6 +262,29 @@ program gen_fixgrid
 
   !print *,minval(wet8),maxval(wet8)
   !print *,minval(wet4),maxval(wet4)
+
+!---------------------------------------------------------------------
+! read the MOM6 depth file
+!---------------------------------------------------------------------
+
+  fsrc = trim(dirsrc)//'/'//trim(topofile)
+
+  rc = nf90_open(fsrc, nf90_nowrite, ncid)
+  if(mastertask) then
+    print '(a)', 'reading ocean topography from '//trim(fsrc)
+    if(rc .ne. 0)print '(a)', 'nf90_open = '//trim(nf90_strerror(rc))
+  end if
+
+  rc = nf90_inq_varid(ncid,  trim(toponame), id)
+  rc = nf90_inquire_variable(ncid, id, xtype=xtype)
+  if(xtype .eq. 5)rc = nf90_get_var(ncid,      id,  dp4)
+  if(xtype .eq. 6)rc = nf90_get_var(ncid,      id,  dp8)
+  rc = nf90_close(ncid)
+
+  if(xtype.eq. 6)dp4 = real(dp8,4)
+
+  !print *,minval(dp8),maxval(dp8)
+  print *,minval(dp4),maxval(dp4)
 
   if(editmask)then
 !---------------------------------------------------------------------
@@ -495,13 +524,28 @@ program gen_fixgrid
 ! mod_def file
 !---------------------------------------------------------------------
 
-  open(unit=21,file=trim(dirout)//'/'//'ww3.mx'//trim(res)//'_x.inp')
-  open(unit=22,file=trim(dirout)//'/'//'ww3.mx'//trim(res)//'_y.inp')
-  open(unit=23,file=trim(dirout)//'/'//'ww3.mx'//trim(res)//'_bottom.inp')
-  open(unit=24,file=trim(dirout)//'/'//'ww3.mx'//trim(res)//'_mapsta.inp')
+  allocate(ww3mask(1:ni,1:nj)); ww3mask = 0
+  allocate(ww3dpth(1:ni,1:nj)); ww3dpth = dp4
+
+  where(ww3dpth .gt. min_depth)ww3mask = 1
+  where(latCt .ge. lat_cutoff)ww3mask = 3
+
+  open(unit=21,file=trim(dirout)//'/'//'ww3.mx'//trim(res)//'_x.inp',form='formatted')
+  open(unit=22,file=trim(dirout)//'/'//'ww3.mx'//trim(res)//'_y.inp',form='formatted')
+  open(unit=23,file=trim(dirout)//'/'//'ww3.mx'//trim(res)//'_bottom.inp',form='formatted')
+  open(unit=24,file=trim(dirout)//'/'//'ww3.mx'//trim(res)//'_mapsta.inp',form='formatted')
+
   do j = 1,nj
-  !fill in here
+   write( 21,'(f14.8)')lonCt(:,j)
+   write( 22,'(f14.8)')latCt(:,j)
   end do
+  do j = 1,nj
+   write( 23,'(f14.8)')ww3dpth(:,j)
+   write( 24,'(i4)')ww3mask(:,j)
+  end do
+
+  close(21); close(22); close(23); close(24)
+  deallocate(ww3mask); deallocate(ww3dpth)
 
 !---------------------------------------------------------------------
 ! use ESMF regridding to produce mapped ocean mask; first generate

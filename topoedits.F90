@@ -53,21 +53,6 @@ module topoedits
   rc = nf90_close(ncid)
 
 !---------------------------------------------------------------------
-! check existing topo edits which give land->ocean switch at run time
-! edit land mask to reflect this run-time change for all further
-! fix file generations
-!---------------------------------------------------------------------
-
-!  icnt = 0
-!  do i = 1,cnt1
-!   ii = ieds1(i); jj = jeds1(i)
-!   if(wet4(ii+1,jj+1) .eq. 0.0 .and. zeds1(i) .gt. 0.0) then
-!     wet4(ii+1,jj+1) = 1.0
-!     print '(a,2i4,a)', 'switch point ',ii,jj,' from land->ocean '
-!   end if
-!  end do
-
-!---------------------------------------------------------------------
 ! determine the number of points to be added to topo-edits file
 ! check only j=1 now
 !---------------------------------------------------------------------
@@ -106,9 +91,9 @@ module topoedits
    end if
   end do
 
-  do i = 1,cnt2
-   print '(3i5,f12.4)',i,ieds2(i),jeds2(i),zeds2(i)
-  end do
+  !do i = 1,cnt2
+  ! print '(3i5,f12.4)',i,ieds2(i),jeds2(i),zeds2(i)
+  !end do
 
   rc = nf90_create(fdst, nf90_write, ncid)
   print '(a)', 'writing new topo edits to '//trim(fdst)

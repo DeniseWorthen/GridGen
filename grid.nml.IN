@@ -4,6 +4,7 @@ nj=NJ_GLB
 dirsrc='FIXDIR'
 dirout='OUTDIR'
 fv3dir='MOSAICDIR'
+topofile=TOPOGFILE
 res=RESNAME
 atmres=MOSAICRES
 npx=NPX
