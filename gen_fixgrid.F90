@@ -134,7 +134,7 @@ program gen_fixgrid
 
   use ESMF
   ! temp fix until esmf updated
-  use ESMF_RegridWeightGenMod
+  !use ESMF_RegridWeightGenMod
 
   use grdvars
   use inputnml
@@ -142,13 +142,13 @@ program gen_fixgrid
   use angles,            only: find_angq, find_ang
   use vertices,          only: fill_vertices, fill_bottom, fill_top
   use mapped_mask,       only: make_frac_land
-  use mapped_merra2,     only: make_tiled_data
   use postwgts,          only: make_postwgts
   use tripolegrid,       only: write_tripolegrid
   use cicegrid,          only: write_cicegrid
   use scripgrid,         only: write_scripgrid
-  use charstrings,       only: logmsg, res, dirsrc, dirout, atmres, fv3dir, merra2dir
-  use debugprint,        only : checkseam, checkxlatlon, checkpoint
+  use charstrings,       only: logmsg, res, dirsrc, dirout, atmres, fv3dir
+  use charstrings,       only: maskfile, maskname, staggerlocs, cdate, history
+  use debugprint,        only: checkseam, checkxlatlon, checkpoint
   use netcdf
 
   implicit none

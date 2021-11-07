@@ -24,8 +24,9 @@ endif
 
 include $(ESMFMKFILE)
 
-#localFopt = -C -fPIC
-localFopt = -check bounds -fpe0 -ftrapuv -fPIC
+localFopt = -C -fPIC
+#localFopt = -check bounds -fpe0 -ftrapuv -fPIC -warn unused -check uninit
+#localFopt = -check bounds -fpe0 -ftrapuv -fPIC -init=snan,arrays -check uninit
 
 %.o : %.f90
 	$(ESMF_F90COMPILER) -c $(ESMF_F90COMPILEOPTS) $(ESMF_F90COMPILEPATHS) $(ESMF_F90COMPILEFREENOCPP) $<

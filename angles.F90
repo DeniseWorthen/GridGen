@@ -23,7 +23,7 @@ module angles
     real(dbl_kind) :: len_lon ! The periodic range of longitudes, usually 360 degrees.
     real(dbl_kind) :: pi_720deg ! One quarter the conversion factor from degrees to radians.
     real(dbl_kind) :: lonB(2,2)  ! The longitude of a point, shifted to have about the same value.
-    real(dbl_kind) :: lon_scale
+    real(dbl_kind) :: lon_scale = 0.0
   
     real(dbl_kind) :: modulo_around_point
 !---------------------------------------------------------------------
@@ -94,7 +94,6 @@ module angles
       do n=1,2 ; do m=1,2
         lonB(m,n) = modulo_around_point(xsgp1(I+m-2,J+n-2), xsgp1(i-1,j-1), len_lon)
       enddo ; enddo
-  
       lon_scale    = cos(pi_720deg*(ysgp1(i-1,j-1) + ysgp1(i+1,j-1) + &
                                     ysgp1(i-1,j+1) + ysgp1(i+1,j+1)) )
       angq(i,j)    = atan2(lon_scale*((lonB(1,2) - lonB(2,1)) + (lonB(2,2) - lonB(1,1))), &
@@ -126,7 +125,7 @@ module angles
     real(dbl_kind) :: len_lon ! The periodic range of longitudes, usually 360 degrees.
     real(dbl_kind) :: pi_720deg ! One quarter the conversion factor from degrees to radians.
     real(dbl_kind) :: lonB(2,2)  ! The longitude of a point, shifted to have about the same value.
-    real(dbl_kind) :: lon_scale
+    real(dbl_kind) :: lon_scale = 0.0
   
     real(dbl_kind) :: modulo_around_point
 !---------------------------------------------------------------------
