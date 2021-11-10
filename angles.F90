@@ -30,6 +30,8 @@ module angles
 ! to find angleq on seam, replicate supergrid values across seam
 !---------------------------------------------------------------------
   
+     angq = 0.0
+    xsgp1 = 0.0; ysgp1 = 0.0
     !pole on supergrid
     ipolesg = -1
         j = ny
@@ -135,7 +137,8 @@ module angles
 ! note this does not reproduce sin_rot,cos_rot found in MOM6 output
 ! differences are ~O 10-6
 !---------------------------------------------------------------------
-  
+ 
+     anglet = 0.0
      pi_720deg = atan(1.0) / 180.0
        len_lon = 360.0
       do j=1,nj; do i = 1,ni

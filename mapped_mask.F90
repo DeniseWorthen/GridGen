@@ -81,6 +81,7 @@ module mapped_mask
     rc = nf90_get_var(ncid,     id,  src_field)
     rc = nf90_close(ncid)
 
+    dst_field = 0.0
     do i = 1,n_s
       ii = row(i); jj = col(i)
       dst_field(ii) = dst_field(ii) + S(i)*real(src_field(jj),dbl_kind)
