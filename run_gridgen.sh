@@ -49,7 +49,8 @@ if [ $RESNAME = 100 ]; then
   export TOPOGFILE=topog.nc
   if [ $DO_POSTWGTS == .true. ]; then
    #pre-generate SCRIP files for dst rectilinear grids using NCO
-   # is the stagger really correct? The first pt is at 0.0E?
+   # TODO: is the stagger really correct? The first pt is at 0.0E?
+   # should lat_type be cap? #lon_typ=grn_ctr#lat_typ=cap
    ncremap -g ${OUTDIR_PATH}/rect.1p0_SCRIP.nc -G latlon=181,360#lon_typ=grn_ctr
   fi
 fi

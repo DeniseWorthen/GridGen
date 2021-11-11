@@ -3,12 +3,7 @@ module topoedits
   use gengrid_kinds, only: real_kind,int_kind
   use grdvars,       only: ni,nj,nv,mastertask
   use grdvars,       only: wet4
-  !use grdvars,       only: lonCt,latCt,lonCt_vert,latCt_vert
-  !use grdvars,       only: lonCu,latCu,lonCu_vert,latCu_vert
-  !use grdvars,       only: lonCv,latCv,lonCv_vert,latCv_vert
-  !use grdvars,       only: lonBu,latBu,lonBu_vert,latBu_vert
   use charstrings,   only: logmsg,history
-  !use vartypedefs,   only: maxvars, scripvars, scripvars_typedefine
   use netcdf
 
   implicit none

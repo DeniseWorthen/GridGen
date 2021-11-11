@@ -6,7 +6,7 @@ module tripolegrid
   use grdvars,       only: lonCu,latCu,lonCu_vert,latCu_vert
   use grdvars,       only: lonCv,latCv,lonCv_vert,latCv_vert
   use grdvars,       only: lonBu,latBu,lonBu_vert,latBu_vert
-  use grdvars,       only: wet4,areaCt,angleT
+  use grdvars,       only: wet4,areaCt,angleT,dp4
   use charstrings,   only: logmsg,history
   use vartypedefs,   only: maxvars, fixvars, fixvars_typedefine
   use netcdf
@@ -50,14 +50,17 @@ module tripolegrid
   
   !mask
   dim2(:) = (/idimid, jdimid/)
-   rc = nf90_def_var(ncid, 'wet',     nf90_int, dim2, id)
-   rc = nf90_put_att(ncid, id,     'units',         'nd')
+   rc = nf90_def_var(ncid, 'wet',     nf90_int,   dim2, id)
+   rc = nf90_put_att(ncid, id,     'units',           'nd')
   !area
-   rc = nf90_def_var(ncid, 'area', nf90_double, dim2, id)
-   rc = nf90_put_att(ncid, id,     'units',         'm2')
+   rc = nf90_def_var(ncid, 'area', nf90_double,   dim2, id)
+   rc = nf90_put_att(ncid, id,     'units',           'm2')
   !angleT
    rc = nf90_def_var(ncid, 'anglet', nf90_double, dim2, id)
-   rc = nf90_put_att(ncid, id,     'units',    'radians')
+   rc = nf90_put_att(ncid, id,     'units',      'radians')
+  !bathymetry
+   rc = nf90_def_var(ncid,  'depth', nf90_double, dim2, id)
+   rc = nf90_put_att(ncid, id,     'units',            'm')
 
   dim2(:) = (/idimid, jdimid/)
   do ii = 1,ncoord
@@ -89,6 +92,9 @@ module tripolegrid
 
   rc = nf90_inq_varid(ncid,'anglet',      id)
   rc = nf90_put_var(ncid,        id,  anglet)
+
+  rc = nf90_inq_varid(ncid, 'depth',      id)
+  rc = nf90_put_var(ncid,        id,     dp4)
 
   rc = nf90_inq_varid(ncid,  'lonCt',     id)
   rc = nf90_put_var(ncid,        id,   lonCt)
