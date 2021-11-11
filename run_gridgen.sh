@@ -64,7 +64,7 @@ if [ $RESNAME = 050 ]; then
   export MOSAICRES=C192
   export NPX=192
   export TOPOGFILE=ocean_topog.nc
-  export EDITSFILE=All_edits.nc
+  export EDITSFILE='none'
   if [ $DO_POSTWGTS == .true. ]; then
    #pre-generate SCRIP files for dst rectilinear grids using NCO
    # TODO: is the stagger really correct? The first pt is at 0.0E?

@@ -296,8 +296,13 @@ program gen_fixgrid
 ! apply topoedits run time mask changes
 !---------------------------------------------------------------------
 
-   fsrc = trim(dirsrc)//'/'//trim(editsfile)//'.nc'
-   fdst = trim(dirout)//'/'//'ufs.'//trim(editsfile)//'.nc'
+   if(trim(editsfile)  == 'none')then
+    print '(a)', 'Need a valid editsfile to make mask edits '
+    stop
+   end if
+    
+   fsrc = trim(dirsrc)//'/'//trim(editsfile)
+   fdst = trim(dirout)//'/'//'ufs.'//trim(editsfile)
    call add_topoedits(fsrc,fdst)
   endif
 

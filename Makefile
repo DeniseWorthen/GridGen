@@ -26,7 +26,7 @@ include $(ESMFMKFILE)
 
 #localFopt = -C -fPIC
 
-localFopt = -check bounds -fpe0 -ftrapuv -fPIC -warn unused -check uninit
+#localFopt = -check bounds -fpe0 -ftrapuv -fPIC -warn unused -check uninit
 #localFopt = -check bounds -fpe0 -ftrapuv -fPIC -check uninit
 #localFopt = -check bounds -fpe0 -ftrapuv -fPIC -init=snan,arrays -check uninit
 

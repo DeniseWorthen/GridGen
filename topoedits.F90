@@ -27,7 +27,7 @@ module topoedits
 !---------------------------------------------------------------------
 
   rc = nf90_open(trim(fsrc), nf90_nowrite, ncid)
-  print '(a)','using topo edits file ',trim(fsrc)
+  print '(a)','using topo edits file '//trim(fsrc)//' to edit land mask '
 
   rc = nf90_inq_dimid(ncid, 'nEdits', dimid)
   rc = nf90_inquire_dimension(ncid, dimid, len=cnt1)
