@@ -146,7 +146,7 @@ program gen_fixgrid
   use scripgrid,         only: write_scripgrid
   use topoedits,         only: add_topoedits
   use charstrings,       only: logmsg, res, dirsrc, dirout, atmres, fv3dir, editsfile
-  use charstrings,       only: maskfile, maskname, topofile, toponame, staggerlocs, cdate, history
+  use charstrings,       only: maskfile, maskname, topofile, toponame, editsfile, staggerlocs, cdate, history
   use debugprint,        only: checkseam, checkxlatlon, checkpoint
   use netcdf
 
@@ -207,6 +207,7 @@ program gen_fixgrid
     print '(a,i6)',' fv3 tile grid size ',npx
     print '(a)',' atm mosaic directory '//trim(fv3dir)
     print '(a)',' MOM6 topography file '//trim(topofile)
+    print '(a)',' MOM6 edits file '//trim(editsfile)
     print *,'editmask flag ',editmask
     print *,'debug flag ',debug
     print *,'do_postwgts flag ',do_postwgts
@@ -296,7 +297,7 @@ program gen_fixgrid
 !---------------------------------------------------------------------
 
    fsrc = trim(dirsrc)//'/'//trim(editsfile)//'.nc'
-   fdst = trim(dirout)//'/'//trim(editsfile)//'.ufs.nc'
+   fdst = trim(dirout)//'/'//'ufs.'//trim(editsfile)//'.nc'
    call add_topoedits(fsrc,fdst)
   endif
 

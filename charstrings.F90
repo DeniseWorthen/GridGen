@@ -10,7 +10,7 @@ module charstrings
 
   character(len=CL) :: maskfile  = 'ocean_mask.nc'
   character(len=CS) :: maskname  = 'mask'
-  character(len=CL) :: editsfile = 'topo_edits_011818'
+  character(len=CL) :: editsfile
 
   character(len=CL) :: topofile
   character(len=CS) :: toponame  = 'depth'

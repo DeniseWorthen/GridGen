@@ -9,6 +9,7 @@ function edit_namelist {
       -e "s|OUTDIR|$OUTDIR_PATH|g" \
       -e "s|MOSAICDIR|$MOSAICDIR_PATH|g" \
       -e "s/TOPOGFILE/$TOPOGFILE/g" \
+      -e "s/EDITSFILE/$EDITSFILE/g" \
       -e "s/RESNAME/$RESNAME/g" \
       -e "s/MOSAICRES/$MOSAICRES/g" \
       -e "s/NPX/$NPX/g" \
@@ -38,6 +39,7 @@ if [ $RESNAME = 400 ]; then
   export MOSAICRES=C48
   export NPX=48
   export TOPOGFILE=ocean_topog.nc
+  export EDITSFILE=''
 fi
 
 if [ $RESNAME = 100 ]; then
@@ -47,6 +49,7 @@ if [ $RESNAME = 100 ]; then
   export MOSAICRES=C96
   export NPX=96
   export TOPOGFILE=topog.nc
+  export EDITSFILE=topo_edits_011818.nc
   if [ $DO_POSTWGTS == .true. ]; then
    #pre-generate SCRIP files for dst rectilinear grids using NCO
    # TODO: is the stagger really correct? The first pt is at 0.0E?
@@ -61,9 +64,11 @@ if [ $RESNAME = 050 ]; then
   export MOSAICRES=C192
   export NPX=192
   export TOPOGFILE=ocean_topog.nc
+  export EDITSFILE=All_edits.nc
   if [ $DO_POSTWGTS == .true. ]; then
    #pre-generate SCRIP files for dst rectilinear grids using NCO
-   # is the stagger really correct? The first pt is at 0.0E?
+   # TODO: is the stagger really correct? The first pt is at 0.0E?
+   # should lat_type be cap? #lon_typ=grn_ctr#lat_typ=cap
    ncremap -g ${OUTDIR_PATH}/rect.1p0_SCRIP.nc -G latlon=181,360#lon_typ=grn_ctr
    ncremap -g ${OUTDIR_PATH}/rect.0p5_SCRIP.nc -G latlon=361,720#lon_typ=grn_ctr
   fi
@@ -75,9 +80,11 @@ if [ $RESNAME = 025 ]; then
   export MOSAICRES=C384
   export NPX=384
   export TOPOGFILE=ocean_topog.nc
+  export EDITSFILE=All_edits.nc
   if [ $DO_POSTWGTS == .true. ]; then
    #pre-generate SCRIP files for dst rectilinear grids using NCO
-   # is the stagger really correct? The first pt is at 0.0E?
+   # TODO: is the stagger really correct? The first pt is at 0.0E?
+   # should lat_type be cap? #lon_typ=grn_ctr#lat_typ=cap
    ncremap -g ${OUTDIR_PATH}/rect.1p0_SCRIP.nc -G latlon=181,360#lon_typ=grn_ctr
    ncremap -g ${OUTDIR_PATH}/rect.0p5_SCRIP.nc -G latlon=361,720#lon_typ=grn_ctr
    ncremap -g ${OUTDIR_PATH}/rect.0p25_SCRIP.nc -G latlon=721,1440#lon_typ=grn_ctr
