@@ -536,17 +536,21 @@ program gen_fixgrid
 
   write(cnx,i4fmt)nx
   write(form1,'(a)')'('//trim(cnx)//'f14.8)'
-  write(form2,'(a)')'('//trim(cnx)//'i4)'
+  write(form2,'(a)')'('//trim(cnx)//'i2)'
 
   allocate(ww3mask(1:ni,1:nj)); ww3mask = wet4
   allocate(ww3dpth(1:ni,1:nj)); ww3dpth = dp4
 
   where(latCt .ge. lat_cutoff)ww3mask = 3
+  !close last row
+  ww3mask(:,nj) = 3
 
   open(unit=21,file=trim(dirout)//'/'//'ww3.mx'//trim(res)//'_x.inp',form='formatted')
   open(unit=22,file=trim(dirout)//'/'//'ww3.mx'//trim(res)//'_y.inp',form='formatted')
   open(unit=23,file=trim(dirout)//'/'//'ww3.mx'//trim(res)//'_bottom.inp',form='formatted')
   open(unit=24,file=trim(dirout)//'/'//'ww3.mx'//trim(res)//'_mapsta.inp',form='formatted')
+  ! cice0 .ne. cicen requires obstruction map, should be initialized as zeros (w3grid,ln3032)
+  open(unit=25,file=trim(dirout)//'/'//'ww3.mx'//trim(res)//'_obstr.inp',form='formatted')
 
   do j = 1,nj
    write( 21,trim(form1))lonCt(:,j)
@@ -555,9 +559,12 @@ program gen_fixgrid
   do j = 1,nj
    write( 23,trim(form1))ww3dpth(:,j)
    write( 24,trim(form2))ww3mask(:,j)
+   !'obsx' and 'obsy' arrays ???
+   write( 25,trim(form2))ww3mask(:,j)*0
+   write( 25,trim(form2))ww3mask(:,j)*0
   end do
 
-  close(21); close(22); close(23); close(24)
+  close(21); close(22); close(23); close(24); close(25)
   deallocate(ww3mask); deallocate(ww3dpth)
 
 !---------------------------------------------------------------------
