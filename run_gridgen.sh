@@ -24,7 +24,8 @@ export MASKEDIT=.false.
 export DO_POSTWGTS=.false.
 #export OUTDIR_PATH=/scratch2/NCEPDEV/climate/Denise.Worthen/grids-20210727/
 #export OUTDIR_PATH=/scratch2/NCEPDEV/climate/Denise.Worthen/grids-esmf-20210822/
-export OUTDIR_PATH=/scratch2/NCEPDEV/climate/Denise.Worthen/grids-esmf-20211107
+#export OUTDIR_PATH=/scratch2/NCEPDEV/climate/Denise.Worthen/grids-esmf-20211107
+export OUTDIR_PATH=/scratch2/NCEPDEV/climate/Denise.Worthen/grids-20220116
 export MOSAICDIR_PATH=/scratch1/NCEPDEV/global/glopara/fix/fix_fv3_gmted2010
 
 if [ $RESNAME = 400 ]; then
@@ -110,5 +111,5 @@ export FDST=${OUTDIR_PATH}/kmtu_cice_NEMS_mx${RESNAME}.nc
 ncks -O -v kmt ${FSRC} ${FDST}
 
 # clean up
-make clean
+#make clean
 rm grid.nml

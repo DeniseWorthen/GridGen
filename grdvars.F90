@@ -81,6 +81,11 @@ module grdvars
   real(dbl_kind), allocatable, dimension(:,:) :: ulon, ulat
   real(dbl_kind), allocatable, dimension(:,:) ::  htn, hte
 
+  real(kind=real_kind), parameter :: minimum_depth = 9.5     !MOM6
+  real(kind=real_kind), parameter :: maximum_depth = 6500.0  !MOM6
+  real(kind=real_kind), parameter :: masking_depth = 0.0     !MOM6
+  real(kind=real_kind), parameter :: maximum_lat = 88.0      !WW3
+
   contains
 
   subroutine allocate_all
