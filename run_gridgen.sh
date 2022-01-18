@@ -19,13 +19,14 @@ function edit_namelist {
 }
 
 export RESNAME=$1
+export ARESNAME=$2
 export DEBUG=.false.
 export MASKEDIT=.false.
 export DO_POSTWGTS=.false.
 #export OUTDIR_PATH=/scratch2/NCEPDEV/climate/Denise.Worthen/grids-20210727/
 #export OUTDIR_PATH=/scratch2/NCEPDEV/climate/Denise.Worthen/grids-esmf-20210822/
-#export OUTDIR_PATH=/scratch2/NCEPDEV/climate/Denise.Worthen/grids-esmf-20211107
-export OUTDIR_PATH=/scratch2/NCEPDEV/climate/Denise.Worthen/grids-20220116
+export OUTDIR_PATH=/scratch2/NCEPDEV/climate/Denise.Worthen/grids-esmf-20211107
+#export OUTDIR_PATH=/scratch2/NCEPDEV/climate/Denise.Worthen/grids-esmf-test
 export MOSAICDIR_PATH=/scratch1/NCEPDEV/global/glopara/fix/fix_fv3_gmted2010
 
 if [ $RESNAME = 400 ]; then
@@ -34,11 +35,10 @@ else
   export FIXDIR_PATH=/scratch2/NCEPDEV/climate/climpara/S2S/FIX/fix_UFSp4/fix_mom6/${RESNAME}
 fi
 
+# Set ocean/ice resolutions
 if [ $RESNAME = 400 ]; then
   export NI=72
   export NJ=35
-  export MOSAICRES=C48
-  export NPX=48
   export TOPOGFILE=ocean_topog.nc
   export EDITSFILE=''
 fi
@@ -47,8 +47,6 @@ if [ $RESNAME = 100 ]; then
   export NI=360
   export NJ=320
   export MASKEDIT=.T.
-  export MOSAICRES=C96
-  export NPX=96
   export TOPOGFILE=topog.nc
   export EDITSFILE=topo_edits_011818.nc
   if [ $DO_POSTWGTS == .true. ]; then
@@ -62,8 +60,6 @@ fi
 if [ $RESNAME = 050 ]; then
   export NI=720
   export NJ=576
-  export MOSAICRES=C192
-  export NPX=192
   export TOPOGFILE=ocean_topog.nc
   export EDITSFILE='none'
   if [ $DO_POSTWGTS == .true. ]; then
@@ -78,8 +74,6 @@ fi
 if [ $RESNAME = 025 ]; then
   export NI=1440
   export NJ=1080
-  export MOSAICRES=C384
-  export NPX=384
   export TOPOGFILE=ocean_topog.nc
   export EDITSFILE=All_edits.nc
   if [ $DO_POSTWGTS == .true. ]; then
@@ -92,6 +86,29 @@ if [ $RESNAME = 025 ]; then
   fi
 fi
 
+#Set atm resolutions
+if [ $ARESNAME = 48 ]; then
+  export MOSAICRES=C48
+  export NPX=48
+fi
+if [ $ARESNAME = 96 ]; then
+  export MOSAICRES=C96
+  export NPX=96
+fi
+if [ $ARESNAME = 192 ]; then
+  export MOSAICRES=C192
+  export NPX=192
+fi
+if [ $ARESNAME = 384 ]; then
+  export MOSAICRES=C384
+  export NPX=384
+fi
+if [ $ARESNAME = 1152 ]; then
+  export MOSAICRES=C1152
+  export NPX=1152
+fi
+
+#
 if [ ! -d ${OUTDIR_PATH} ]; then
   mkdir -p ${OUTDIR_PATH}
 fi
@@ -111,5 +128,5 @@ export FDST=${OUTDIR_PATH}/kmtu_cice_NEMS_mx${RESNAME}.nc
 ncks -O -v kmt ${FSRC} ${FDST}
 
 # clean up
-#make clean
+make clean
 rm grid.nml

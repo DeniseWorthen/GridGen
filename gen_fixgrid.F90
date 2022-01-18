@@ -288,8 +288,8 @@ program gen_fixgrid
 
   if(xtype.eq. 6)dp4 = real(dp8,4)
 
-  print *,minval(dp8),maxval(dp8)
-  print *,minval(dp4),maxval(dp4)
+  !print *,minval(dp8),maxval(dp8)
+  !print *,minval(dp4),maxval(dp4)
 
   if(editmask)then
 !---------------------------------------------------------------------
