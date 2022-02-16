@@ -1,5 +1,5 @@
 module topoedits
-
+#ifdef test
   use gengrid_kinds, only: real_kind,int_kind
   use grdvars,       only: ni,nj,mastertask
   use grdvars,       only: wet4,dp4,minimum_depth,maximum_depth,masking_depth
@@ -201,4 +201,5 @@ module topoedits
    end do
 
   end subroutine apply_topoedits
+#endif
 end module topoedits

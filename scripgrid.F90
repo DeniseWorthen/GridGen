@@ -1,5 +1,5 @@
 module scripgrid
-
+#ifdef test
   use gengrid_kinds, only: dbl_kind,int_kind,CM
   use grdvars,       only: ni,nj,nv,mastertask
   use grdvars,       only: lonCt,latCt,lonCt_vert,latCt_vert
@@ -166,4 +166,5 @@ module scripgrid
   rc = nf90_close(ncid)
 
   end subroutine write_scripgrid
+#endif
 end module scripgrid

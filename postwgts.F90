@@ -1,5 +1,5 @@
 module postwgts
-
+#ifdef test
   use ESMF
 
   use gengrid_kinds, only : CL,CM,CS
@@ -104,4 +104,5 @@ module postwgts
   deallocate(destgrds)
 
   end subroutine make_postwgts
+#endif
 end module postwgts

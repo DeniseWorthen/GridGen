@@ -1,5 +1,5 @@
 module mapped_mask
-
+#ifdef test
   use gengrid_kinds, only : dbl_kind,int_kind,CL,CM,CS
   use grdvars,       only : ni,nj,npx,mastertask
   use charstrings,   only : dirout,res,atmres,logmsg
@@ -140,4 +140,5 @@ module mapped_mask
   deallocate(dst2d,lon2d,lat2d)
 
   end subroutine make_frac_land
+#endif
 end module mapped_mask

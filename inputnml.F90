@@ -1,5 +1,5 @@
 module inputnml
-
+#ifdef test
  use grdvars,     only : nx,ny,ni,nj,npx
  use grdvars,     only : editmask, debug, do_postwgts
  use charstrings, only : dirsrc, dirout, fv3dir, res, atmres, topofile, editsfile
@@ -40,4 +40,5 @@ module inputnml
 
   close (iounit)
   end subroutine read_inputnml
+#endif
 end module inputnml

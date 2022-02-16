@@ -5,11 +5,16 @@ module grdvars
   implicit none
 
   ! dimensions of output grid
-  integer :: ni,nj
+  !integer :: ni,nj
   ! dimensions of fv3 tile
-  integer :: npx
+  !integer :: npx
   ! dimensions of supergrid
-  integer :: nx,ny
+  !integer :: nx,ny
+
+  integer, parameter :: ni = 12, nj = 7
+  integer, parameter :: nx = 2*ni
+  integer, parameter :: ny = 2*nj
+  integer, parameter :: npx = 96
 
   ! edit mask flag
   logical :: editmask
