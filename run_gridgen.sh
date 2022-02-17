@@ -25,7 +25,8 @@ export DO_POSTWGTS=.false.
 #export OUTDIR_PATH=/scratch2/NCEPDEV/climate/Denise.Worthen/grids-20210727/
 #export OUTDIR_PATH=/scratch2/NCEPDEV/climate/Denise.Worthen/grids-esmf-20210822/
 #export OUTDIR_PATH=/scratch2/NCEPDEV/climate/Denise.Worthen/grids-esmf-20211107
-export OUTDIR_PATH=/scratch2/NCEPDEV/climate/Denise.Worthen/grids-20220116
+#export OUTDIR_PATH=/scratch2/NCEPDEV/climate/Denise.Worthen/grids-20220116
+export OUTDIR_PATH=/scratch2/NCEPDEV/climate/Denise.Worthen/grids-ww3-test
 export MOSAICDIR_PATH=/scratch1/NCEPDEV/global/glopara/fix/fix_fv3_gmted2010
 
 if [ $RESNAME = 400 ]; then
@@ -40,7 +41,7 @@ if [ $RESNAME = 400 ]; then
   export MOSAICRES=C48
   export NPX=48
   export TOPOGFILE=ocean_topog.nc
-  export EDITSFILE=''
+  export EDITSFILE='none'
 fi
 
 if [ $RESNAME = 100 ]; then
@@ -103,13 +104,13 @@ make
 # generate ice mesh
 export FSRC=${OUTDIR_PATH}/Ct.mx${RESNAME}_SCRIP_land.nc
 export FDST=${OUTDIR_PATH}/mesh.mx${RESNAME}.nc
-ESMF_Scrip2Unstruct ${FSRC} ${FDST} 0
+#ESMF_Scrip2Unstruct ${FSRC} ${FDST} 0
 
 # generate kmt file for CICE
 export FSRC=${OUTDIR_PATH}/grid_cice_NEMS_mx${RESNAME}.nc
 export FDST=${OUTDIR_PATH}/kmtu_cice_NEMS_mx${RESNAME}.nc
-ncks -O -v kmt ${FSRC} ${FDST}
+#ncks -O -v kmt ${FSRC} ${FDST}
 
 # clean up
 #make clean
-rm grid.nml
+#rm grid.nml

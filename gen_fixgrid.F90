@@ -148,6 +148,7 @@ program gen_fixgrid
   use charstrings,       only: logmsg, res, dirsrc, dirout, atmres, fv3dir, editsfile
   use charstrings,       only: maskfile, maskname, topofile, toponame, editsfile, staggerlocs, cdate, history
   use debugprint,        only: checkseam, checkxlatlon, checkpoint
+  use ww3grid,           only: ww3files
   use netcdf
 
   implicit none
@@ -156,8 +157,6 @@ program gen_fixgrid
 
   real(kind=dbl_kind),  parameter :: pi = 3.14159265358979323846_dbl_kind
   real(kind=dbl_kind),  parameter :: deg2rad = pi/180.0_dbl_kind
-  real(real_kind),   allocatable, dimension(:,:) :: ww3dpth
-  integer(int_kind), allocatable, dimension(:,:) :: ww3mask
 
   character(len=CL) :: fsrc, fdst, fwgt
   character(len= 2) :: cstagger
@@ -171,12 +170,6 @@ program gen_fixgrid
   type(ESMF_RegridMethod_Flag) :: method
   type(ESMF_VM) :: vm
 
-  !WW3 file format for mod_def generation
-  character(len= 6) :: i4fmt = '(i4.4)'
-  character(len=CS) :: form1
-  character(len=CS) :: form2
-  character(len= 6) :: cnx
-  
 !-------------------------------------------------------------------------
 ! Initialize esmf environment.
 !-------------------------------------------------------------------------
@@ -512,72 +505,63 @@ program gen_fixgrid
    ! write fix grid
    fdst = trim(dirout)//'/'//'tripole.mx'//trim(res)//'.nc'
    call write_tripolegrid(trim(fdst))
-
+#ifdef test
    ! write cice grid
    fdst = trim(dirout)//'/'//'grid_cice_NEMS_mx'//trim(res)//'.nc'
    call write_cicegrid(trim(fdst))
 
-   ! write scrip grids; only the Ct is required, the remaining
-   ! staggers are used only in the postweights generation
-   do k = 1,nv
-    cstagger = trim(staggerlocs(k))
-    fdst = trim(dirout)//'/'//trim(cstagger)//'.mx'//trim(res)//'_SCRIP.nc'
-    if(mastertask) then
-      logmsg = 'creating SCRIP file '//trim(fdst)
-      print '(a)',trim(logmsg)
-    end if
-    call write_scripgrid(trim(fdst),trim(cstagger))
-   end do
+   ! write scrip grids; only the Ct is required
+   cstagger = 'Ct'
+   fdst = trim(dirout)//'/'//trim(cstagger)//'.mx'//trim(res)//'_SCRIP.nc'
+   if(mastertask) then
+     logmsg = 'creating SCRIP file '//trim(fdst)
+     print '(a)',trim(logmsg)
+   end if
+   call write_scripgrid(trim(fdst),ni,nj,latCt,lonCt,latCt_vert,lonCt_vert)
 
    ! write SCRIP file with land mask, used for mapped ocean mask
    ! and  mesh creation
-   cstagger = trim(staggerlocs(1))
    fdst= trim(dirout)//'/'//trim(cstagger)//'.mx'//trim(res)//'_SCRIP_land.nc'
    if(mastertask) then
      logmsg = 'creating SCRIP file '//trim(fdst)
      print '(a)',trim(logmsg)
    end if
-   call write_scripgrid(trim(fdst),trim(cstagger),imask=int(wet4))
+   call write_scripgrid(trim(fdst),ni,nj,latCt,lonCt,latCt_vert,lonCt_vert,imask=int(wet4))
+
+   ! Cu,Cv,Bu staggers are used only in the postweights generation
+   if (do_postwgts) then
+      cstagger = 'Cu'
+      fdst = trim(dirout)//'/'//trim(cstagger)//'.mx'//trim(res)//'_SCRIP.nc'
+      if(mastertask) then
+        logmsg = 'creating SCRIP file '//trim(fdst)
+        print '(a)',trim(logmsg)
+      end if
+      call write_scripgrid(trim(fdst),ni,nj,latCu,lonCu,latCu_vert,lonCu_vert)
+
+      cstagger = 'Cv'
+      fdst = trim(dirout)//'/'//trim(cstagger)//'.mx'//trim(res)//'_SCRIP.nc'
+      if(mastertask) then
+        logmsg = 'creating SCRIP file '//trim(fdst)
+        print '(a)',trim(logmsg)
+      end if
+      call write_scripgrid(trim(fdst),ni,nj,latCv,lonCv,latCv_vert,lonCv_vert)
+
+      cstagger = 'Bu'
+      fdst = trim(dirout)//'/'//trim(cstagger)//'.mx'//trim(res)//'_SCRIP.nc'
+      if(mastertask) then
+        logmsg = 'creating SCRIP file '//trim(fdst)
+        print '(a)',trim(logmsg)
+      end if
+      call write_scripgrid(trim(fdst),ni,nj,latBu,lonBu,latBu_vert,lonBu_vert)
+   end if
+#endif
 
 !---------------------------------------------------------------------
-! write lat,lon,depth and mask arrays required by ww3 in creating
-! mod_def file
-! dp4 has already been adjusted by minimum_depth above
+! write files required by ww3 mod_def creation
 !---------------------------------------------------------------------
 
-  write(cnx,i4fmt)nx
-  write(form1,'(a)')'('//trim(cnx)//'f14.8)'
-  write(form2,'(a)')'('//trim(cnx)//'i2)'
-
-  allocate(ww3mask(1:ni,1:nj)); ww3mask = wet4
-  allocate(ww3dpth(1:ni,1:nj)); ww3dpth = dp4
-
-  where(latCt .ge. maximum_lat)ww3mask = 3
-  !close last row
-  ww3mask(:,nj) = 3
-
-  open(unit=21,file=trim(dirout)//'/'//'ww3.mx'//trim(res)//'_x.inp',form='formatted')
-  open(unit=22,file=trim(dirout)//'/'//'ww3.mx'//trim(res)//'_y.inp',form='formatted')
-  open(unit=23,file=trim(dirout)//'/'//'ww3.mx'//trim(res)//'_bottom.inp',form='formatted')
-  open(unit=24,file=trim(dirout)//'/'//'ww3.mx'//trim(res)//'_mapsta.inp',form='formatted')
-  ! cice0 .ne. cicen requires obstruction map, should be initialized as zeros (w3grid,ln3032)
-  open(unit=25,file=trim(dirout)//'/'//'ww3.mx'//trim(res)//'_obstr.inp',form='formatted')
-
-  do j = 1,nj
-   write( 21,trim(form1))lonCt(:,j)
-   write( 22,trim(form1))latCt(:,j)
-  end do
-  do j = 1,nj
-   write( 23,trim(form1))ww3dpth(:,j)
-   write( 24,trim(form2))ww3mask(:,j)
-   !'obsx' and 'obsy' arrays ???
-   write( 25,trim(form2))ww3mask(:,j)*0
-   write( 25,trim(form2))ww3mask(:,j)*0
-  end do
-
-  close(21); close(22); close(23); close(24); close(25)
-  deallocate(ww3mask); deallocate(ww3dpth)
-
+    call ww3files
+#ifdef test
 !---------------------------------------------------------------------
 ! use ESMF regridding to produce mapped ocean mask; first generate
 ! conservative regrid weights from ocean to tiles; then generate the
@@ -646,6 +630,7 @@ program gen_fixgrid
 
    if(do_postwgts)call make_postwgts
 
+#endif
 !---------------------------------------------------------------------
 ! clean up
 !---------------------------------------------------------------------

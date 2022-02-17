@@ -42,7 +42,7 @@ include $(ESMFMKFILE)
 %.o : %.C
 	$(ESMF_CXXCOMPILER) -c $(ESMF_CXXCOMPILEOPTS) $(ESMF_CXXCOMPILEPATHSLOCAL) $(ESMF_CXXCOMPILEPATHS) $(ESMF_CXXCOMPILECPPFLAGS) $<
 
-OBJs=scripgrid.o inputnml.o vartypedefs.o tripolegrid.o cicegrid.o angles.o gengrid_kinds.o debugprint.o vertices.o grdvars.o charstrings.o gen_fixgrid.o mapped_mask.o postwgts.o topoedits.o
+OBJs=scripgrid.o inputnml.o vartypedefs.o tripolegrid.o cicegrid.o angles.o gengrid_kinds.o debugprint.o vertices.o grdvars.o charstrings.o gen_fixgrid.o mapped_mask.o postwgts.o topoedits.o ww3grid.o
 
 gengrid: $(OBJs)
 	$(ESMF_F90LINKER) $(ESMF_F90LINKOPTS) $(ESMF_F90LINKPATHS) $(ESMF_F90LINKRPATHS) -o $@ $^ $(ESMF_F90ESMFLINKLIBS)
@@ -62,7 +62,8 @@ cicegrid.o: grdvars.o charstrings.o vartypedefs.o
 scripgrid.o: grdvars.o charstrings.o vartypedefs.o
 tripolgrid.o: grdvars.o charstrings.o vartypedefs.o
 vertices.o: grdvars.o
-gen_fixgrid.o: inputnml.o grdvars.o angles.o vertices.o vartypedefs.o tripolgrid.o cicegrid.o scripgrid.o gengrid_kinds.o charstrings.o debugprint.o mapped_mask.o postwgts.o topoedits.o
+ww3grid.o: grdvars.o charstrings.o gengrid_kinds.o
+gen_fixgrid.o: inputnml.o grdvars.o angles.o vertices.o vartypedefs.o tripolgrid.o cicegrid.o scripgrid.o gengrid_kinds.o charstrings.o debugprint.o mapped_mask.o postwgts.o topoedits.o ww3grid.o
 
 # -----------------------------------------------------------------------------
 #.PRECIOUS: %.so
