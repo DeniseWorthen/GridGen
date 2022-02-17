@@ -1,11 +1,7 @@
 module scripgrid
 
   use gengrid_kinds, only: dbl_kind,int_kind,CM
-  use grdvars,       only: ni,nj,nv,mastertask
-  use grdvars,       only: lonCt,latCt,lonCt_vert,latCt_vert
-  use grdvars,       only: lonCu,latCu,lonCu_vert,latCu_vert
-  use grdvars,       only: lonCv,latCv,lonCv_vert,latCv_vert
-  use grdvars,       only: lonBu,latBu,lonBu_vert,latBu_vert
+  use grdvars,       only: nv,mastertask
   use charstrings,   only: logmsg
   use vartypedefs,   only: maxvars, scripvars, scripvars_typedefine
   use netcdf
@@ -17,11 +13,13 @@ module scripgrid
 
   contains
 
-  subroutine write_scripgrid(fname,cstagger, imask)
+  subroutine write_scripgrid(fname,lx,ly,lats,lons,vlats,vlons,imask)
 
-   character(len=*), intent(in) :: fname
-   character(len=*), intent(in) :: cstagger
-   integer(int_kind), dimension(ni,nj), optional, intent(in) :: imask(:,:)
+   character(len=*) , intent(in) :: fname
+   integer(int_kind), intent(in) :: lx,ly
+   real(dbl_kind)   , intent(in) :: lons(lx,ly),lats(lx,ly)
+   real(dbl_kind)   , intent(in) :: vlats(lx,ly,nv),vlons(lx,ly,nv)
+   integer(int_kind), intent(in), optional :: imask(lx,ly)
 
    ! local variables
    integer, parameter :: grid_rank = 2
@@ -30,11 +28,11 @@ module scripgrid
    integer :: idimid,jdimid,kdimid
 
    integer, dimension(grid_rank) :: gdims
-   integer(int_kind), dimension(ni*nj)    :: cnmask          !1-d mask
-   real(dbl_kind),    dimension(ni*nj)    :: cnlons, cnlats  !1-d center lats,lons
-   real(dbl_kind),    dimension(nv,ni*nj) :: crlons, crlats  !2-d corner lats,lons
+   integer(int_kind), dimension(lx*ly)    :: cnmask          !1-d mask
+   real(dbl_kind),    dimension(lx*ly)    :: cnlons, cnlats  !1-d center lats,lons
+   real(dbl_kind),    dimension(nv,lx*ly) :: crlons, crlats  !2-d corner lats,lons
 
-   real(dbl_kind), dimension(ni,nj) :: tmp
+   real(dbl_kind), dimension(lx,ly) :: tmp
 
    character(len=2)  :: vtype
    character(len=CM) :: vname
@@ -44,53 +42,18 @@ module scripgrid
 !
 !---------------------------------------------------------------------
  
-  gdims(:) = (/ni,nj/)
-  if(trim(cstagger) .eq. 'Ct')then
-   cnlons = reshape(lonCt, (/ni*nj/))
-   cnlats = reshape(latCt, (/ni*nj/))
-   do n = 1,nv
-       tmp(:,:) = lonCt_vert(:,:,n)
-    crlons(n,:) = reshape(tmp, (/ni*nj/))
-       tmp(:,:) = latCt_vert(:,:,n)
-    crlats(n,:) = reshape(tmp, (/ni*nj/))
-   end do
-  end if
-
-  if(trim(cstagger) .eq. 'Cu')then
-   cnlons = reshape(lonCu, (/ni*nj/))
-   cnlats = reshape(latCu, (/ni*nj/))
-   do n = 1,nv
-       tmp(:,:) = lonCu_vert(:,:,n)
-    crlons(n,:) = reshape(tmp, (/ni*nj/))
-       tmp(:,:) = latCu_vert(:,:,n)
-    crlats(n,:) = reshape(tmp, (/ni*nj/))
-   end do
-  end if
-
-  if(trim(cstagger) .eq. 'Cv')then
-   cnlons = reshape(lonCv, (/ni*nj/))
-   cnlats = reshape(latCv, (/ni*nj/))
-   do n = 1,nv
-       tmp(:,:) = lonCv_vert(:,:,n)
-    crlons(n,:) = reshape(tmp, (/ni*nj/))
-       tmp(:,:) = latCv_vert(:,:,n)
-    crlats(n,:) = reshape(tmp, (/ni*nj/))
-   end do
-  end if
-
-  if(trim(cstagger) .eq. 'Bu')then
-   cnlons = reshape(lonBu, (/ni*nj/))
-   cnlats = reshape(latBu, (/ni*nj/))
-   do n = 1,nv
-       tmp(:,:) = lonBu_vert(:,:,n)
-    crlons(n,:) = reshape(tmp, (/ni*nj/))
-       tmp(:,:) = latBu_vert(:,:,n)
-    crlats(n,:) = reshape(tmp, (/ni*nj/))
-   end do
-  end if
+  gdims(:) = (/lx,ly/)
+  cnlons = reshape(lons, (/lx*ly/))
+  cnlats = reshape(lats, (/lx*ly/))
+  do n = 1,nv
+      tmp(:,:) = vlons(:,:,n)
+   crlons(n,:) = reshape(tmp, (/lx*ly/))
+      tmp(:,:) = vlats(:,:,n)
+   crlats(n,:) = reshape(tmp, (/lx*ly/))
+  end do
 
   if(present(imask))then
-   cnmask = reshape(imask, (/ni*nj/))
+   cnmask = reshape(imask, (/lx*ly/))
   else
    cnmask = 1
   end if
@@ -111,7 +74,7 @@ module scripgrid
     if(rc .ne. 0)print '(a)', 'nf90_create = '//trim(nf90_strerror(rc))
   end if
 
-  rc = nf90_def_dim(ncid, 'grid_size',     ni*nj, idimid)
+  rc = nf90_def_dim(ncid, 'grid_size',     lx*ly, idimid)
   rc = nf90_def_dim(ncid, 'grid_corners',     nv, jdimid)
   rc = nf90_def_dim(ncid, 'grid_rank', grid_rank, kdimid)
   

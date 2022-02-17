@@ -517,27 +517,50 @@ program gen_fixgrid
    fdst = trim(dirout)//'/'//'grid_cice_NEMS_mx'//trim(res)//'.nc'
    call write_cicegrid(trim(fdst))
 
-   ! write scrip grids; only the Ct is required, the remaining
-   ! staggers are used only in the postweights generation
-   do k = 1,nv
-    cstagger = trim(staggerlocs(k))
-    fdst = trim(dirout)//'/'//trim(cstagger)//'.mx'//trim(res)//'_SCRIP.nc'
-    if(mastertask) then
-      logmsg = 'creating SCRIP file '//trim(fdst)
-      print '(a)',trim(logmsg)
-    end if
-    call write_scripgrid(trim(fdst),trim(cstagger))
-   end do
+   ! write scrip grids; only the Ct is required
+   cstagger = 'Ct'
+   fdst = trim(dirout)//'/'//trim(cstagger)//'.mx'//trim(res)//'_SCRIP.nc'
+   if(mastertask) then
+     logmsg = 'creating SCRIP file '//trim(fdst)
+     print '(a)',trim(logmsg)
+   end if
+   call write_scripgrid(trim(fdst),ni,nj,latCt,lonCt,latCt_vert,lonCt_vert)
 
    ! write SCRIP file with land mask, used for mapped ocean mask
    ! and  mesh creation
-   cstagger = trim(staggerlocs(1))
    fdst= trim(dirout)//'/'//trim(cstagger)//'.mx'//trim(res)//'_SCRIP_land.nc'
    if(mastertask) then
      logmsg = 'creating SCRIP file '//trim(fdst)
      print '(a)',trim(logmsg)
    end if
-   call write_scripgrid(trim(fdst),trim(cstagger),imask=int(wet4))
+   call write_scripgrid(trim(fdst),ni,nj,latCt,lonCt,latCt_vert,lonCt_vert,imask=int(wet4))
+
+   ! Cu,Cv,Bu staggers are used only in the postweights generation
+   if (do_postwgts) then
+      cstagger = 'Cu'
+      fdst = trim(dirout)//'/'//trim(cstagger)//'.mx'//trim(res)//'_SCRIP.nc'
+      if(mastertask) then
+        logmsg = 'creating SCRIP file '//trim(fdst)
+        print '(a)',trim(logmsg)
+      end if
+      call write_scripgrid(trim(fdst),ni,nj,latCu,lonCu,latCu_vert,lonCu_vert)
+
+      cstagger = 'Cv'
+      fdst = trim(dirout)//'/'//trim(cstagger)//'.mx'//trim(res)//'_SCRIP.nc'
+      if(mastertask) then
+        logmsg = 'creating SCRIP file '//trim(fdst)
+        print '(a)',trim(logmsg)
+      end if
+      call write_scripgrid(trim(fdst),ni,nj,latCv,lonCv,latCv_vert,lonCv_vert)
+
+      cstagger = 'Bu'
+      fdst = trim(dirout)//'/'//trim(cstagger)//'.mx'//trim(res)//'_SCRIP.nc'
+      if(mastertask) then
+        logmsg = 'creating SCRIP file '//trim(fdst)
+        print '(a)',trim(logmsg)
+      end if
+      call write_scripgrid(trim(fdst),ni,nj,latBu,lonBu,latBu_vert,lonBu_vert)
+   end if
 
 !---------------------------------------------------------------------
 ! write lat,lon,depth and mask arrays required by ww3 in creating
