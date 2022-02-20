@@ -18,11 +18,15 @@ module ww3grid
 
   ! local variables
   ! grid 4 = total grid
-  integer, parameter :: ngrids = 4
+  integer, parameter :: ngrids = 4, joverlap = 2
   integer, dimension(ngrids) :: jbeg, jend
   integer(int_kind) :: ipoles(2)
 
   character(len= 4), dimension(ngrids) :: grdnms = (/'.g01','.g02', '.g03','    '/)
+  character(len= 6) :: i4fmt = '(i4.4)'
+  character(len=CS) :: form1
+  character(len=CS) :: form2
+  character(len= 6) :: clen
 
   contains
 
@@ -43,47 +47,39 @@ module ww3grid
    real(dbl_kind)   , allocatable, dimension(:,:,:) :: latverts, lonverts
    integer(int_kind), allocatable, dimension(:,:)   :: mask
 
-   integer(int_kind), dimension(ni,nj)   :: itmp
+   integer(int_kind), dimension(ni,nj,ngrids)   :: imask
 
 !---------------------------------------------------------------------
 !
 !---------------------------------------------------------------------
 
-   call define_ww3grids(ipoles)
-
-   ! set special values along boundary rows
-   itmp = int(wet4)
-   do i = 1,ni
-    if(wet4(i,jend(1)) == 1.)itmp(i,jend(1)) = 2
-    if(wet4(i,jbeg(2)) == 1.)itmp(i,jbeg(2)) = 2
-    if(wet4(i,jend(2)) == 1.)itmp(i,jend(2)) = 2
-    if(wet4(i,jbeg(3)) == 1.)itmp(i,jbeg(3)) = 2
+   do ng = 1,ngrids
+      imask(:,:,ng) = int(wet4(:,:))
    end do
+   do ng = 1,ngrids
+      do j = 1,nj
+         do i = 1,ni
+            if (imask(i,j,ng) == 1) then
+              if (latCt(i,j) .ge. maximum_lat) imask(i,j,ng) = 3
+            end if
+         end do
+      end do
+      where (imask(:,nj,ng) == 1) imask(:,nj,ng) = 3
+   end do
+
+   call define_ww3grids(ipoles,imask)
 
    ! Ct grid only
    cstagger = trim(staggerlocs(1))
    do ng = 1,ngrids
 
-      ! set special values along boundary rows
-      itmp = int(wet4)
-      do i = 1,ni
-        if(wet4(i,jend(ng)) == 1.)itmp(i,jend(ng)) = 2
-        if(wet4(i,jbeg(ng)) == 1.)itmp(i,jbeg(ng)) = 2
-      end do
-      if (ng >= 3) then
-        do j = 1,nj
-          where(latCt(:,j) .ge. maximum_lat)itmp(:,j) = 3
-        end do
-        where(wet4(:,nj) == 1.)itmp(:,nj) = 3
-      end if
-  
       lx = ni
       ly = (jend(ng) - jbeg(ng))+1
       ! polar grid
-      if (ng .eq. 3)then
-         lx = ni/2
-         ly = 2*ly
-      end if
+      !if (ng .eq. 3)then
+      !   lx = ni/2
+      !   ly = 2*ly
+      !end if
       print '(3(a,i4))','grid = ',ng,' lx = ',lx,' ly = ',ly
     
       ! allocate arrays for this grid
@@ -96,11 +92,11 @@ module ww3grid
       lats   = -999.; lons = -999.; latverts = -999.; lonverts = -999.
       depths = -999.; mask = -999
 
-      if (ng == 3) then
-         ibeg = 1; iend = 2*ipoles(1)
-      else
+      !if (ng == 3) then
+      !   ibeg = 1; iend = 2*ipoles(1)
+      !else
          ibeg = 1; iend = lx
-      end if
+      !end if
   
       gname = trim(grdnms(ng))
         jj = 0
@@ -109,10 +105,11 @@ module ww3grid
             lats(ibeg:iend,jj)   =      latCt(ibeg:iend,j)
             lons(ibeg:iend,jj)   =      lonCt(ibeg:iend,j)
           depths(ibeg:iend,jj)   =        dp4(ibeg:iend,j)
-            mask(ibeg:iend,jj)   =       itmp(ibeg:iend,j)
+            mask(ibeg:iend,jj)   =      imask(ibeg:iend,j,ng)
         latverts(ibeg:iend,jj,:) = latCt_vert(ibeg:iend,j,:)
         lonverts(ibeg:iend,jj,:) = lonCt_vert(ibeg:iend,j,:)
       end do
+#ifdef test
       ! fill in 2nd half for 3rd (polar) grid
       if (ng == 3) then
           jj = (jend(ng) - jbeg(ng))+1
@@ -122,7 +119,7 @@ module ww3grid
                i2 = ipoles(2)+(ipoles(1)-i)+1
                  lats(i,jj)   =      latCt(i2,j)
                  lons(i,jj)   =      lonCt(i2,j)
-                 mask(i,jj)   =       itmp(i2,j)
+                 mask(i,jj)   =      imask(i2,j,ng)
                depths(i,jj)   =        dp4(i2,j)
              latverts(i,jj,:) = latCt_vert(i2,j,:)
              lonverts(i,jj,:) = lonCt_vert(i2,j,:)
@@ -136,11 +133,15 @@ module ww3grid
         call flip(lx,ly,lonverts)
         call flip(lx,ly,    mask)
       endif
+#endif
+      write(clen,i4fmt)lx
+      write(form1,'(a)')'('//trim(clen)//'f8.2)'
+      write(form2,'(a)')'('//trim(clen)//'i2)'
       do j = 1,ly
-       write(ng*10+1,'(180f8.2)')(lats(i,j),i=1,lx)
-       write(ng*10+2,'(180f8.2)')(lons(i,j),i=1,lx)
-       write(ng*10+3,'(180f8.2)')(real(mask(i,j),4),i=1,lx)
-       write(ng*10+4,'(180f8.2)')(depths(i,j),i=1,lx)
+       write(ng*10+1,trim(form1))(lats(i,j),i=1,lx)
+       write(ng*10+2,trim(form1))(lons(i,j),i=1,lx)
+       write(ng*10+3,trim(form1))(real(mask(i,j),4),i=1,lx)
+       write(ng*10+4,trim(form1))(depths(i,j),i=1,lx)
       end do
 
       ! don't write SCRIP for total grid
@@ -172,10 +173,6 @@ module ww3grid
 
     ! local variables
     integer :: i,j
-    character(len= 6) :: i4fmt = '(i4.4)'
-    character(len=CS) :: form1
-    character(len=CS) :: form2
-    character(len= 6) :: clen
 
 !---------------------------------------------------------------------
 ! write lat,lon,depth and mask arrays required by ww3 in creating
@@ -186,11 +183,6 @@ module ww3grid
     write(clen,i4fmt)lx
     write(form1,'(a)')'('//trim(clen)//'f14.8)'
     write(form2,'(a)')'('//trim(clen)//'i2)'
-
-    ! put this where the arrays are created
-    !where(lats .ge. maximum_lat)mask = 3
-    !close last row
-    !if(trim(gname .eq. '')ww3mask(:,nj) = 3
 
     print *,trim(dirout)//'/'//'ww3.mx'//trim(res)//trim(gname)//'_x.inp'
     open(unit=21,file=trim(dirout)//'/'//'ww3.mx'//trim(res)//trim(gname)//'_x.inp',form='formatted')
@@ -214,12 +206,13 @@ module ww3grid
    end subroutine ww3_asciifiles
 
 !---------------------------------------------------------------------
-  subroutine define_ww3grids(ipoles)
+  subroutine define_ww3grids(ipoles,imask)
 
    use grdvars,       only: lonCt,latCt
    use grdvars,       only: lonBu,latBu
 
-   integer(int_kind), intent(out)  :: ipoles(2)
+   integer(int_kind), intent(out)   :: ipoles(2)
+   integer(int_kind), intent(inout) :: imask(ni,nj,ngrids)
 
    ! local variables
    integer :: ng,i,j,j1,j2
@@ -251,17 +244,19 @@ module ww3grid
       if(latCt(i,j) .ge. -50.)jend(1) = j
       !print *,j,jend(1),latCt(i,j)
      end do
-    
+     jend(1) = jend(1) + joverlap
+ 
      ! second grid
-     ! overlap 1 row
-     jbeg(2) = jend(1)
+     ! overlap rows
+     jbeg(2) = jend(1) - joverlap
      do j = 1,nj
       if(latCt(i,j) .le.  50.)jend(2) = j
       !print *,j,jend(2),latCt(i,j)
      end do
+     jend(2) = jend(2) + joverlap
 
-     ! the third (polar) grid. this one needs special treatment
-     jbeg(3) = jend(2)
+     ! the third (polar) grid. this one may need special treatment
+     jbeg(3) = jend(2) - joverlap
      jend(3) = nj
 
      ! the total grid
@@ -270,8 +265,28 @@ module ww3grid
 
      do ng = 1,ngrids
       j1 = jbeg(ng); j2 = jend(ng)
-      print '(4i5,2f8.2)',ng,j1,j2,(j2-j1)+1,latCt(i,j1),latCt(i,j2)
-    end do
+      print '(a,4i5,2f8.2)','grid= ',ng,j1,j2,(j2-j1)+1,latCt(i,j1),latCt(i,j2)
+     end do
+
+     ! set up masking
+     ng = 1
+     imask(:,jend(ng)-1,ng) = 2
+     imask(:,jend(ng)  ,ng) = 3
+
+     ng = 2
+     imask(:,jbeg(ng)  ,ng) = 3
+     imask(:,jbeg(ng)+1,ng) = 2
+     imask(:,jend(ng)-1,ng) = 2
+     imask(:,jend(ng)  ,ng) = 3
+     
+     ng = 3
+     imask(:,jbeg(ng)  ,ng) = 3
+     imask(:,jbeg(ng)+1,ng) = 2
+ 
+     i = 100
+     do j = 1,nj
+      if(imask(i,j,4) > 0)print '(5i4)',j,imask(i,j,1),imask(i,j,2),imask(i,j,3),imask(i,j,4)
+     end do
   end subroutine define_ww3grids
 
 !---------------------------------------------------------------------

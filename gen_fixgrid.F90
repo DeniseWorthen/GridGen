@@ -505,7 +505,7 @@ program gen_fixgrid
    ! write fix grid
    fdst = trim(dirout)//'/'//'tripole.mx'//trim(res)//'.nc'
    call write_tripolegrid(trim(fdst))
-#ifdef test
+!#ifdef test
    ! write cice grid
    fdst = trim(dirout)//'/'//'grid_cice_NEMS_mx'//trim(res)//'.nc'
    call write_cicegrid(trim(fdst))
@@ -554,7 +554,7 @@ program gen_fixgrid
       end if
       call write_scripgrid(trim(fdst),ni,nj,latBu,lonBu,latBu_vert,lonBu_vert)
    end if
-#endif
+!#endif
 
 !---------------------------------------------------------------------
 ! write files required by ww3 mod_def creation
