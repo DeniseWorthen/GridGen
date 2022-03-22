@@ -19,13 +19,13 @@ function edit_namelist {
 }
 
 export RESNAME=$1
-export DEBUG=.false.
+export DEBUG=.true.
 export MASKEDIT=.false.
 export DO_POSTWGTS=.false.
 #export OUTDIR_PATH=/scratch2/NCEPDEV/climate/Denise.Worthen/grids-20210727/
 #export OUTDIR_PATH=/scratch2/NCEPDEV/climate/Denise.Worthen/grids-esmf-20210822/
 #export OUTDIR_PATH=/scratch2/NCEPDEV/climate/Denise.Worthen/grids-esmf-20211107
-export OUTDIR_PATH=/scratch2/NCEPDEV/climate/Denise.Worthen/grids-20220116
+export OUTDIR_PATH=/scratch2/NCEPDEV/climate/Denise.Worthen/grids-esmf-test
 export MOSAICDIR_PATH=/scratch1/NCEPDEV/global/glopara/fix/fix_fv3_gmted2010
 
 if [ $RESNAME = 400 ]; then
@@ -40,7 +40,7 @@ if [ $RESNAME = 400 ]; then
   export MOSAICRES=C48
   export NPX=48
   export TOPOGFILE=ocean_topog.nc
-  export EDITSFILE=''
+  export EDITSFILE='none'
 fi
 
 if [ $RESNAME = 100 ]; then
