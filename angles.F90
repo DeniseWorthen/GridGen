@@ -91,6 +91,7 @@ module angles
      ! constants as defined in MOM
      pi_720deg = atan(1.0) / 180.0
        len_lon = 360.0
+          lonB = 0.0
     do j=1,ny ; do i=1,nx-1
       do n=1,2 ; do m=1,2
         lonB(m,n) = modulo_around_point(xsgp1(I+m-2,J+n-2), xsgp1(i-1,j-1), len_lon)
@@ -139,6 +140,7 @@ module angles
      anglet = 0.0
      pi_720deg = atan(1.0) / 180.0
        len_lon = 360.0
+          lonB = 0.0
       do j=1,nj; do i = 1,ni
         do n=1,2 ; do m=1,2
                       jj = J+n-2; ii = I+m-2

@@ -271,25 +271,28 @@ program gen_fixgrid
 ! read the MOM6 depth file
 !---------------------------------------------------------------------
 
-  fsrc = trim(dirsrc)//'/'//trim(topofile)
-
-  rc = nf90_open(fsrc, nf90_nowrite, ncid)
-  if(mastertask) then
-    print '(a)', 'reading ocean topography from '//trim(fsrc)
-    if(rc .ne. 0)print '(a)', 'nf90_open = '//trim(nf90_strerror(rc))
-  end if
-
   dp4 = 0.0; dp8 = 0.0
-  rc = nf90_inq_varid(ncid,  trim(toponame), id)
-  rc = nf90_inquire_variable(ncid, id, xtype=xtype)
-  if(xtype .eq. 5)rc = nf90_get_var(ncid,      id,  dp4)
-  if(xtype .eq. 6)rc = nf90_get_var(ncid,      id,  dp8)
-  rc = nf90_close(ncid)
+  ! temp work around for missing 008 topog file, will use zeros for bathy
+  if (trim(topofile)  /= 'none') then
+     fsrc = trim(dirsrc)//'/'//trim(topofile)
 
-  if(xtype.eq. 6)dp4 = real(dp8,4)
+     rc = nf90_open(fsrc, nf90_nowrite, ncid)
+     if(mastertask) then
+       print '(a)', 'reading ocean topography from '//trim(fsrc)
+       if(rc .ne. 0)print '(a)', 'nf90_open = '//trim(nf90_strerror(rc))
+     end if
 
-  print *,minval(dp8),maxval(dp8)
-  print *,minval(dp4),maxval(dp4)
+     rc = nf90_inq_varid(ncid,  trim(toponame), id)
+     rc = nf90_inquire_variable(ncid, id, xtype=xtype)
+     if(xtype .eq. 5)rc = nf90_get_var(ncid,      id,  dp4)
+     if(xtype .eq. 6)rc = nf90_get_var(ncid,      id,  dp8)
+     rc = nf90_close(ncid)
+
+     if(xtype.eq. 6)dp4 = real(dp8,4)
+
+     print *,minval(dp8),maxval(dp8)
+     print *,minval(dp4),maxval(dp4)
+  end if
 
   if(editmask)then
 !---------------------------------------------------------------------

@@ -30,6 +30,8 @@ export MOSAICDIR_PATH=/scratch1/NCEPDEV/global/glopara/fix/fix_fv3_gmted2010
 
 if [ $RESNAME = 400 ]; then
   export FIXDIR_PATH=/scratch2/NCEPDEV/climate/Denise.Worthen/soca/test/Data/72x35x25/INPUT
+elif [ $RESNAME = 008 ]; then
+  export FIXDIR_PATH=/scratch2/NCEPDEV/climate/Denise.Worthen/Hae-Cheol/INPUT/008
 else
   export FIXDIR_PATH=/scratch2/NCEPDEV/climate/climpara/S2S/FIX/fix_UFSp4/fix_mom6/${RESNAME}
 fi
@@ -82,6 +84,24 @@ if [ $RESNAME = 025 ]; then
   export NPX=384
   export TOPOGFILE=ocean_topog.nc
   export EDITSFILE=All_edits.nc
+  if [ $DO_POSTWGTS == .true. ]; then
+   #pre-generate SCRIP files for dst rectilinear grids using NCO
+   # TODO: is the stagger really correct? The first pt is at 0.0E?
+   # should lat_type be cap? #lon_typ=grn_ctr#lat_typ=cap
+   ncremap -g ${OUTDIR_PATH}/rect.1p0_SCRIP.nc -G latlon=181,360#lon_typ=grn_ctr
+   ncremap -g ${OUTDIR_PATH}/rect.0p5_SCRIP.nc -G latlon=361,720#lon_typ=grn_ctr
+   ncremap -g ${OUTDIR_PATH}/rect.0p25_SCRIP.nc -G latlon=721,1440#lon_typ=grn_ctr
+  fi
+fi
+
+
+if [ $RESNAME = 008 ]; then
+  export NI=4500
+  export NJ=3297
+  export MOSAICRES=C384
+  export NPX=384
+  export TOPOGFILE='none'
+  export EDITSFILE='none'
   if [ $DO_POSTWGTS == .true. ]; then
    #pre-generate SCRIP files for dst rectilinear grids using NCO
    # TODO: is the stagger really correct? The first pt is at 0.0E?
