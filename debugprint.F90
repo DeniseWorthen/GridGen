@@ -10,11 +10,7 @@ module debugprint
   implicit none
   private
 
-  public :: ChkErr
-
   public :: checkseam, checkxlatlon, checkpoint
- 
-  character(len=*),parameter :: u_FILE_u =  __FILE__
 
   contains
 
@@ -227,17 +223,4 @@ module debugprint
  !   print *,minval(latBu_vert),maxval(latBu_vert)
  !   print *,minval(lonBu_vert),maxval(lonBu_vert)
   end subroutine checkpoint
-
-  !> Returns true if ESMF_LogFoundError() determines that rc is an error code. Otherwise false.
-  logical function ChkErr(rc, line, file)
-    integer, intent(in) :: rc            !< return code to check
-    integer, intent(in) :: line          !< Integer source line number
-    character(len=*), intent(in) :: file !< User-provided source file name
-    integer :: lrc
-    ChkErr = .false.
-    lrc = rc
-    if (ESMF_LogFoundError(rcToCheck=lrc, msg=ESMF_LOGERR_PASSTHRU, line=line, file=file)) then
-       ChkErr = .true.
-    endif
-  end function ChkErr
 end module debugprint

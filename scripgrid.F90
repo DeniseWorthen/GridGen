@@ -21,7 +21,7 @@ module scripgrid
 
    character(len=*), intent(in) :: fname
    character(len=*), intent(in) :: cstagger
-   integer(int_kind), dimension(ni,nj), optional, intent(in) :: imask(:,:)
+   integer(int_kind), optional, intent(in) :: imask(:,:)
 
    ! local variables
    integer, parameter :: grid_rank = 2
