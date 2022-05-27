@@ -5,13 +5,9 @@ module postwgts
   use gengrid_kinds, only : CL,CM,CS
   use grdvars,       only : nv, mastertask
   use charstrings,   only : dirout, res, staggerlocs, logmsg
-  use debugprint,    only : ChkErr
   use netcdf
 
   implicit none
-
-  character(*), parameter :: u_FILE_u  = &
-       __FILE__
 
   contains
 
