@@ -1,20 +1,36 @@
+!> @file
+!! @brief Define the input namelist variables
+!! @author Denise.Worthen@noaa.gov
+!!
+!> This module contains the namelist variables
+!! @author Denise.Worthen@noaa.gov
+
 module inputnml
 
- use grdvars,     only : nx,ny,ni,nj
- use grdvars,     only : editmask, debug
- use charstrings, only : dirsrc, dirout, res
+ use grdvars,     only : nx,ny,ni,nj,npx
+ use grdvars,     only : editmask, debug, do_postwgts
+ use charstrings, only : dirsrc, dirout, fv3dir, res, atmres, topofile, editsfile
 
  implicit none
 
  contains
 
+!>  Read input namelist file
+!!
+!! @param[in]  fname  the file name to read
+!!
+!! @author Denise.Worthen@noaa.gov
+
  subroutine read_inputnml(fname)
 
   character(len=*),   intent(in) :: fname
 
+  ! local variables
   integer :: stderr, iounit, rc
 
-  namelist /grid_nml/ ni, nj, dirsrc, dirout, res, editmask, debug
+  namelist /grid_nml/ ni, nj, dirsrc, dirout, fv3dir,  topofile, editsfile, &
+                     res, atmres, npx, editmask, debug, &
+                     do_postwgts
 
   ! Check whether file exists.
   inquire (file=trim(fname), iostat=rc)

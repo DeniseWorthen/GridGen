@@ -1,14 +1,33 @@
+!> @file
+!! @brief Print debugging information
+!! @author Denise.Worthen@noaa.gov
+!!
+!> Print values for debugging
+!! @author Denise.Worthen@noaa.gov
+
 module debugprint
 
-  use grdvars
+  use esmf,    only : ESMF_LogFoundError, ESMF_LOGERR_PASSTHRU
+  use grdvars, only : ni,nj,ipole,angle,angleT
+  use grdvars, only : htn,latCt,lonCt,latCv,lonCv,latCu,lonCu,latBu,lonBu
+  use grdvars, only : xlatCt,xlonCt,xlatCu,xlonCu
+  use grdvars, only : latBu_vert,lonBu_vert,latCv_vert,lonCv_vert
+  use grdvars, only : latCt_vert,lonCt_vert,latCu_vert,lonCu_vert
 
   implicit none
+  private
 
+  public :: checkseam, checkxlatlon, checkpoint
+ 
   contains
-
+!> Print values across the tripole seam
+!!
+!! @author Denise.Worthen@noaa.gov
+  
   subroutine checkseam
 
-  integer :: j,i1,i2
+   ! local variables
+   integer :: j,i1,i2
 
     j = nj
     i1 = ipole(1); i2 = ipole(2)+1
@@ -81,9 +100,14 @@ module debugprint
     print *,lonCt(i1+3,j),lonCt(i2-3,j)
     print *
   end subroutine checkseam
-
+  
+  !> Print values near the poles and along the domain edges
+  !!
+  !! @author Denise.Worthen@noaa.gov
+  
   subroutine checkxlatlon
  
+  ! local variables
   integer :: i
 
     print *,'============== Ct grid ==============='
@@ -138,9 +162,14 @@ module debugprint
     print *
 
   end subroutine checkxlatlon
-
+  
+!> Print values at specified point
+!!
+!! @author Denise.Worthen@noaa.gov
+  
   subroutine checkpoint
 
+   ! local variables
    integer :: i,j
 
     ! check

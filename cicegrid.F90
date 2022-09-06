@@ -1,19 +1,35 @@
+!> @file
+!! @brief Write the CICE6 grid file
+!! @author Denise.Worthen@noaa.gov
+!!
+!> Write the CICE6 grid file
+!! @author Denise.Worthen@noaa.gov
+
 module cicegrid
 
-   use grdvars
-   use charstrings
-   use vartypedefs, only: maxvars, cicevars, cicevars_typedefine
-   use netcdf
+  use grdvars,       only: ni,nj,ulat,ulon,htn,hte,angle,wet4,mastertask
+  use charstrings,   only: history, logmsg
+  use vartypedefs,   only: maxvars, cicevars, cicevars_typedefine
+  use gengrid_kinds, only: CM
+  use netcdf
 
-   implicit none
+  implicit none
+  private
+
+  public write_cicegrid
 
   contains
+!> Write the CICE6 grid file
+!!
+!! @param[in]  fname  the name of the CICE6 grid file to write
+!!
+!! @author Denise.Worthen@noaa.gov
+  
+  subroutine write_cicegrid(fname)
 
-  subroutine write_cicegrid
+  character(len=*), intent(in) :: fname
 
   ! local variables
-
-  character(len=CL) :: fname_out
   integer :: ii,id,rc, ncid, dim2(2)
   integer :: idimid,jdimid
 
@@ -28,11 +44,13 @@ module cicegrid
 
   ! define the output variables and file name
   call cicevars_typedefine
-  fname_out= trim(dirout)//'grid_cice_NEMS_mx'//trim(res)//'.nc'
 
-  rc = nf90_create(fname_out, nf90_write, ncid)
-  print '(a)', 'writing CICE grid to '//trim(fname_out)
-  if(rc .ne. 0)print '(a)', 'nf90_create = '//trim(nf90_strerror(rc))
+  rc = nf90_create(fname, nf90_write, ncid)
+  if(mastertask) then
+    logmsg = '==> writing CICE grid to '//trim(fname)
+    print '(a)', trim(logmsg)
+    if(rc .ne. 0)print '(a)', 'nf90_create = '//trim(nf90_strerror(rc))
+  end if
 
   rc = nf90_def_dim(ncid, 'ni', ni, idimid)
   rc = nf90_def_dim(ncid, 'nj', nj, jdimid)

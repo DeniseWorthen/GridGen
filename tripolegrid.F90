@@ -1,18 +1,40 @@
+!> @file
+!! @brief Write the tripole grid file
+!! @author Denise.Worthen@noaa.gov
+!!
+!> This module writes the master tripole grid file
+!! @author Denise.Worthen@noaa.gov
+
 module tripolegrid
 
-   use grdvars
-   use charstrings
-   use vartypedefs, only: maxvars, fixvars, fixvars_typedefine
-   use netcdf
+  use gengrid_kinds, only: dbl_kind,int_kind,CM
+  use grdvars,       only: ni,nj,nv,mastertask,nverts,ncoord
+  use grdvars,       only: lonCt,latCt,lonCt_vert,latCt_vert
+  use grdvars,       only: lonCu,latCu,lonCu_vert,latCu_vert
+  use grdvars,       only: lonCv,latCv,lonCv_vert,latCv_vert
+  use grdvars,       only: lonBu,latBu,lonBu_vert,latBu_vert
+  use grdvars,       only: wet4,areaCt,angleT,dp4
+  use charstrings,   only: logmsg,history
+  use vartypedefs,   only: maxvars, fixvars, fixvars_typedefine
+  use netcdf
 
-   implicit none
+  implicit none
+  private
+
+  public write_tripolegrid
+
   contains
+!> Write the tripole grid file
+!!
+!! @param[in]  fname  the name of the tripole grid file to write
+!!
+!! @author Denise.Worthen@noaa.gov
+  
+  subroutine write_tripolegrid(fname)
 
-  subroutine write_tripolegrid
+  character(len=*), intent(in) :: fname
 
   ! local variables
-
-  character(len=CL) :: fname_out
   integer :: ii,id,rc, ncid, dim2(2),dim3(3)
   integer :: idimid,jdimid,kdimid
 
@@ -22,14 +44,16 @@ module tripolegrid
 
   ! define the output variables and file name
   call fixvars_typedefine
-  fname_out= trim(dirout)//'tripole.mx'//trim(res)//'.nc'
 
   ! create the file
   ! 64_bit offset reqd for 008 grid
   ! produces b4b results for smaller grids
-  rc = nf90_create(trim(fname_out), nf90_64bit_offset, ncid)
-  print '(a)', 'writing grid to '//trim(fname_out)
-  if(rc .ne. 0)print '(a)', 'nf90_create = '//trim(nf90_strerror(rc))
+  rc = nf90_create(trim(fname), nf90_64bit_offset, ncid)
+  if(mastertask) then
+    logmsg = '==> writing tripole grid to '//trim(fname)
+    print '(a)', trim(logmsg)
+    if(rc .ne. 0)print '(a)', 'nf90_create = '//trim(nf90_strerror(rc))
+  end if
 
   rc = nf90_def_dim(ncid, 'ni', ni, idimid)
   rc = nf90_def_dim(ncid, 'nj', nj, jdimid)
@@ -37,14 +61,17 @@ module tripolegrid
   
   !mask
   dim2(:) = (/idimid, jdimid/)
-   rc = nf90_def_var(ncid, 'wet',     nf90_int, dim2, id)
-   rc = nf90_put_att(ncid, id,     'units',         'nd')
+   rc = nf90_def_var(ncid, 'wet',     nf90_int,   dim2, id)
+   rc = nf90_put_att(ncid, id,     'units',           'nd')
   !area
-   rc = nf90_def_var(ncid, 'area', nf90_double, dim2, id)
-   rc = nf90_put_att(ncid, id,     'units',         'm2')
+   rc = nf90_def_var(ncid, 'area', nf90_double,   dim2, id)
+   rc = nf90_put_att(ncid, id,     'units',           'm2')
   !angleT
    rc = nf90_def_var(ncid, 'anglet', nf90_double, dim2, id)
-   rc = nf90_put_att(ncid, id,     'units',    'radians')
+   rc = nf90_put_att(ncid, id,     'units',      'radians')
+  !bathymetry
+   rc = nf90_def_var(ncid,  'depth', nf90_float,  dim2, id)
+   rc = nf90_put_att(ncid, id,     'units',            'm')
 
   dim2(:) = (/idimid, jdimid/)
   do ii = 1,ncoord
@@ -76,6 +103,9 @@ module tripolegrid
 
   rc = nf90_inq_varid(ncid,'anglet',      id)
   rc = nf90_put_var(ncid,        id,  anglet)
+
+  rc = nf90_inq_varid(ncid, 'depth',      id)
+  rc = nf90_put_var(ncid,        id,     dp4)
 
   rc = nf90_inq_varid(ncid,  'lonCt',     id)
   rc = nf90_put_var(ncid,        id,   lonCt)

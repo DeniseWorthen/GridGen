@@ -1,37 +1,58 @@
+!> @file
+!! @brief Write a SCRIP format file
+!! @author Denise.Worthen@noaa.gov
+!!
+!> This module writes a SCRIP format file
+!! @author Denise.Worthen@noaa.gov
+
 module scripgrid
 
-  use physcon, only : R8,I4
-  use grdvars
-  use charstrings
-  use vartypedefs, only: maxvars, scripvars, scripvars_typedefine
+  use gengrid_kinds, only: dbl_kind,int_kind,CM
+  use grdvars,       only: ni,nj,nv,mastertask
+  use grdvars,       only: lonCt,latCt,lonCt_vert,latCt_vert
+  use grdvars,       only: lonCu,latCu,lonCu_vert,latCu_vert
+  use grdvars,       only: lonCv,latCv,lonCv_vert,latCv_vert
+  use grdvars,       only: lonBu,latBu,lonBu_vert,latBu_vert
+  use charstrings,   only: logmsg
+  use vartypedefs,   only: maxvars, scripvars, scripvars_typedefine
   use netcdf
 
   implicit none
+  private
+
+  public write_scripgrid
 
   contains
+!> Write a SCRIP grid file
+!!
+!! @param[in]  fname  the file name to write
+!! @param[in]  cstagger  the name of the stagger location
+!! @param[in]  imask (optional)  the land mask values
+!!
+!! @author Denise.Worthen@noaa.gov
+  
+  subroutine write_scripgrid(fname,cstagger, imask)
 
-  subroutine write_scripgrid(cstagger, imask)
+   character(len=*) , intent(in) :: fname
+   character(len=*) , intent(in) :: cstagger
+   integer(int_kind), optional, intent(in) :: imask(:,:)
 
-   character(len=*), intent(in) :: cstagger
-   integer(I4), dimension(ni,nj), optional, intent(in) :: imask(:,:)
+   ! local variables
+   integer, parameter :: grid_rank = 2
 
-  ! local variables
-  integer, parameter :: grid_rank = 2
+   integer :: ii,n,id,rc, ncid, dim2(2),dim1(1)
+   integer :: idimid,jdimid,kdimid
 
-  character(len=CL) :: fname_out
-  integer :: ii,n,id,rc, ncid, dim2(2),dim1(1)
-  integer :: idimid,jdimid,kdimid
+   integer, dimension(grid_rank) :: gdims
+   integer(int_kind), dimension(ni*nj)    :: cnmask          !1-d mask
+   real(dbl_kind),    dimension(ni*nj)    :: cnlons, cnlats  !1-d center lats,lons
+   real(dbl_kind),    dimension(nv,ni*nj) :: crlons, crlats  !2-d corner lats,lons
 
-  integer, dimension(grid_rank) :: gdims
-  integer(I4), dimension(ni*nj)    :: cnmask          !1-d mask
-  real(R8),    dimension(ni*nj)    :: cnlons, cnlats  !1-d center lats,lons
-  real(R8),    dimension(nv,ni*nj) :: crlons, crlats  !2-d corner lats,lons
+   real(dbl_kind), dimension(ni,nj) :: tmp
 
-  real(R8), dimension(ni,nj) :: tmp
-
-  character(len=2)  :: vtype
-  character(len=CM) :: vname
-  character(len=CM) :: vunit
+   character(len=2)  :: vtype
+   character(len=CM) :: vname
+   character(len=CM) :: vunit
 
 !---------------------------------------------------------------------
 !
@@ -84,11 +105,8 @@ module scripgrid
 
   if(present(imask))then
    cnmask = reshape(imask, (/ni*nj/))
-   !used for mesh creation
-   fname_out= trim(dirout)//trim(cstagger)//'.mx'//trim(res)//'_SCRIP_land.nc'
   else
-   cnmask  = 1
-   fname_out= trim(dirout)//trim(cstagger)//'.mx'//trim(res)//'_SCRIP.nc'
+   cnmask = 1
   end if
 
 !---------------------------------------------------------------------
@@ -100,9 +118,12 @@ module scripgrid
   ! create the file
   ! 64_bit offset reqd for 008 grid
   ! produces b4b results for smaller grids
-  rc = nf90_create(trim(fname_out), nf90_64bit_offset, ncid)
-  print '(a)', 'writing grid to '//trim(fname_out)
-  if(rc .ne. 0)print '(a)', 'nf90_create = '//trim(nf90_strerror(rc))
+  rc = nf90_create(trim(fname), nf90_64bit_offset, ncid)
+  if(mastertask) then
+    logmsg = '==> writing SCRIP grid to '//trim(fname)
+    print '(a)',trim(logmsg)
+    if(rc .ne. 0)print '(a)', 'nf90_create = '//trim(nf90_strerror(rc))
+  end if
 
   rc = nf90_def_dim(ncid, 'grid_size',     ni*nj, idimid)
   rc = nf90_def_dim(ncid, 'grid_corners',     nv, jdimid)
