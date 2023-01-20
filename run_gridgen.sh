@@ -106,14 +106,14 @@ make
 srun -n 4 ./gengrid
 
 # generate ice mesh
-#export FSRC=${OUTDIR_PATH}/Ct.mx${RESNAME}_SCRIP_land.nc
-#export FDST=${OUTDIR_PATH}/mesh.mx${RESNAME}.nc
-#srun -A nems -n 1 ESMF_Scrip2Unstruct ${FSRC} ${FDST} 0
+export FSRC=${OUTDIR_PATH}/Ct.mx${RESNAME}_SCRIP_land.nc
+export FDST=${OUTDIR_PATH}/mesh.mx${RESNAME}.nc
+srun -A nems -n 1 ESMF_Scrip2Unstruct ${FSRC} ${FDST} 0
 
 # generate kmt file for CICE
-#export FSRC=${OUTDIR_PATH}/grid_cice_NEMS_mx${RESNAME}.nc
-#export FDST=${OUTDIR_PATH}/kmtu_cice_NEMS_mx${RESNAME}.nc
-#ncks -O -v kmt ${FSRC} ${FDST}
+export FSRC=${OUTDIR_PATH}/grid_cice_NEMS_mx${RESNAME}.nc
+export FDST=${OUTDIR_PATH}/kmtu_cice_NEMS_mx${RESNAME}.nc
+ncks -O -v kmt ${FSRC} ${FDST}
 
 # clean up
 #make clean

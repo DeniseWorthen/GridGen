@@ -78,12 +78,9 @@ program gen_fixgrid
        line=__LINE__, file=__FILE__)) call ESMF_Finalize(endflag=ESMF_END_ABORT)
   maintask = .false.
   if (localPet == 0) maintask=.true.
-  print '(a,i4)','num pets = ',npet
 
   if (maintask) then
-     !---------------------------------------------------------------------
-     !
-     !---------------------------------------------------------------------
+     print '(a,i4,a)','Running on = ',npet,' tasks'
 
      call read_inputnml('grid.nml')
 
@@ -455,6 +452,39 @@ program gen_fixgrid
      deallocate(wet4, wet8)
 
   end if ! if (maintask)
+  !---------------------------------------------------------------------
+  ! use ESMF to find the tripole:tripole weights for creation
+  ! of CICE ICs; the source grid is always mx025; don't create this
+  ! file if destination is also mx025
+  !---------------------------------------------------------------------
+  if(trim(res) .ne. '025') then
+     fsrc = trim(dirout)//'/'//'Ct.mx025_SCRIP.nc'
+     call mpi_bcast(fsrc, len(fsrc), MPI_CHARACTER, 0, mpi_comm, ierr)
+     inquire(FILE=trim(fsrc), EXIST=fexist)
+     if (fexist ) then
+        method=ESMF_REGRIDMETHOD_NEAREST_STOD
+        fdst = trim(dirout)//'/'//'Ct.mx'//trim(res)//'_SCRIP.nc'
+        fwgt = trim(dirout)//'/'//'tripole.mx025.Ct.to.mx'//trim(res)//'.Ct.neareststod.nc'
+        call mpi_bcast(fdst, len(fdst), MPI_CHARACTER, 0, mpi_comm, ierr)
+        call mpi_bcast(fwgt, len(fwgt), MPI_CHARACTER, 0, mpi_comm, ierr)
+        if(maintask) then
+           logmsg = 'creating weight file '//trim(fwgt)
+           print '(a)',trim(logmsg)
+        end if
+        call ESMF_RegridWeightGen(srcFile=trim(fsrc),dstFile=trim(fdst), &
+             weightFile=trim(fwgt), regridmethod=method, &
+             ignoreDegenerate=.true., &
+             unmappedaction=ESMF_UNMAPPEDACTION_IGNORE, rc=rc)
+        if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, &
+             line=__LINE__, file=__FILE__)) call ESMF_Finalize(endflag=ESMF_END_ABORT)
+     else
+        if(maintask) then
+           logmsg = 'ERROR: '//trim(fsrc)//' is required to generate tripole:triple weights'
+           print '(a)',trim(logmsg)
+        end if
+        stop
+     end if
+  end if
 
   !---------------------------------------------------------------------
   ! use ESMF regridding to produce mapped ocean mask; first generate
@@ -488,40 +518,9 @@ program gen_fixgrid
      logmsg = 'creating mapped ocean mask for '//trim(atmres)
      print '(a)',trim(logmsg)
 
+     fsrc = trim(dirout)//'/'//'Ct.mx'//trim(res)//'_SCRIP_land.nc'
+     fwgt = trim(dirout)//'/'//'Ct.mx'//trim(res)//'.to.'//trim(atmres)//'.nc'
      call make_frac_land(trim(fsrc), trim(fwgt))
-
-     !---------------------------------------------------------------------
-     ! use ESMF to find the tripole:tripole weights for creation
-     ! of CICE ICs; the source grid is always mx025; don't create this
-     ! file if destination is also mx025
-     !---------------------------------------------------------------------
-
-     if(trim(res) .ne. '025') then
-        fsrc = trim(dirout)//'/'//'Ct.mx025_SCRIP.nc'
-        inquire(FILE=trim(fsrc), EXIST=fexist)
-        if (fexist ) then
-           method=ESMF_REGRIDMETHOD_NEAREST_STOD
-           fdst = trim(dirout)//'/'//'Ct.mx'//trim(res)//'_SCRIP.nc'
-           fwgt = trim(dirout)//'/'//'tripole.mx025.Ct.to.mx'//trim(res)//'.Ct.neareststod.nc'
-           if(maintask) then
-              logmsg = 'creating weight file '//trim(fwgt)
-              print '(a)',trim(logmsg)
-           end if
-
-           call ESMF_RegridWeightGen(srcFile=trim(fsrc),dstFile=trim(fdst), &
-                weightFile=trim(fwgt), regridmethod=method, &
-                ignoreDegenerate=.true., &
-                unmappedaction=ESMF_UNMAPPEDACTION_IGNORE, rc=rc)
-           if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, &
-                line=__LINE__, file=__FILE__)) call ESMF_Finalize(endflag=ESMF_END_ABORT)
-        else
-           if(maintask) then
-              logmsg = 'ERROR: '//trim(fsrc)//' is required to generate tripole:triple weights'
-              print '(a)',trim(logmsg)
-           end if
-           stop
-        end if
-     end if
 
      !---------------------------------------------------------------------
      !
