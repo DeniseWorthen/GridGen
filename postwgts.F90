@@ -9,7 +9,7 @@ module postwgts
   use ESMF
 
   use gengrid_kinds, only : CL,CM,CS
-  use grdvars,       only : nv, mastertask
+  use grdvars,       only : nv, maintask
   use charstrings,   only : dirout, res, staggerlocs, logmsg
   use netcdf
 
@@ -66,7 +66,7 @@ contains
        cstagger = trim(staggerlocs(k))
        fsrc = trim(dirout)//'/'//trim(cstagger)//'.mx'//trim(res)//'_SCRIP.nc'
        fwgt = trim(dirout)//'/'//'tripole.mx'//trim(res)//'.'//trim(cstagger)//'.to.Ct.bilinear.nc'
-       if(mastertask) then
+       if(maintask) then
           logmsg = 'creating weight file '//trim(fwgt)
           print '(a)',trim(logmsg)
        end if
@@ -95,7 +95,7 @@ contains
 
           fwgt = trim(dirout)//'/'//'tripole.mx'//trim(res)//'.Ct.to.rect.'//trim(destgrds(nd)) &
                //'.'//trim(methodname(k))//'.nc'
-          if(mastertask) then
+          if(maintask) then
              logmsg = 'creating weight file '//trim(fwgt)
              print '(a)',trim(logmsg)
           end if

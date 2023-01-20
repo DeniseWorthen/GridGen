@@ -8,7 +8,7 @@
 module topoedits
 
   use gengrid_kinds, only: real_kind,int_kind
-  use grdvars,       only: ni,nj,mastertask
+  use grdvars,       only: ni,nj
   use grdvars,       only: wet4,dp4,minimum_depth,maximum_depth,masking_depth
   use charstrings,   only: logmsg,history
   use netcdf

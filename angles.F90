@@ -14,7 +14,7 @@ module angles
   use grdvars,       only : x,y,xsgp1,ysgp1,sg_maxlat
   use grdvars,       only : latBu,lonBu,lonCt
   use grdvars,       only : angq,anglet
-  use grdvars,       only : mastertask, debug
+  use grdvars,       only : maintask, debug
 
   implicit none
 
@@ -51,7 +51,7 @@ contains
     do i = nx/2+1,nx
        if(y(i,j) .eq. sg_maxlat)ipolesg(2) = i
     enddo
-    if(mastertask .and. debug)print *,'poles found at ',ipolesg
+    if(maintask .and. debug)print *,'poles found at ',ipolesg
 
     xsgp1(:,0:ny) = x(:,0:ny)
     ysgp1(:,0:ny) = y(:,0:ny)
@@ -59,12 +59,12 @@ contains
     !check
     do i = ipolesg(1)-5,ipolesg(1)+5
        i2 = ipolesg(2)+(ipolesg(1)-i)+1
-       if(mastertask .and. debug)print *,i,i2
+       if(maintask .and. debug)print *,i,i2
     enddo
     print *
     do i = ipolesg(2)-5,ipolesg(2)+5
        i2 = ipolesg(2)+(ipolesg(1)-i)+1
-       if(mastertask .and. debug)print *,i,i2
+       if(maintask .and. debug)print *,i,i2
     enddo
 
     !replicate supergrid across pole
@@ -75,7 +75,7 @@ contains
     enddo
 
     !check
-    if(mastertask .and. debug)then
+    if(maintask .and. debug)then
        j = ny+1
        i1 = ipolesg(1); i2 = ipolesg(2)-(ipolesg(1)-i1)
        print *,'replicate X across seam on SG'
@@ -114,7 +114,7 @@ contains
     enddo; enddo
 
     !check
-    if(mastertask .and. debug) then
+    if(maintask .and. debug) then
        j = ny
        i1 = ipolesg(1); i2 = ipolesg(2)-(ipolesg(1)-i1)
        print *,'angq along seam on SG'

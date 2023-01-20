@@ -7,7 +7,7 @@
 module mapped_mask
 
   use gengrid_kinds, only : dbl_kind,int_kind,CL,CM,CS
-  use grdvars,       only : ni,nj,npx,mastertask
+  use grdvars,       only : ni,nj,npx,maintask
   use charstrings,   only : dirout,res,atmres,logmsg
   use netcdf
 
@@ -112,7 +112,7 @@ contains
 
        write(ctile,'(a5,i1)')'.tile',i+1
        fdst = trim(dirout)//'/'//trim(atmres)//'.mx'//trim(res)//trim(ctile)//'.nc'
-       if(mastertask) then
+       if(maintask) then
           logmsg = 'creating mapped ocean mask file '//trim(fdst)
           print '(a)',trim(logmsg)
        end if

@@ -17,15 +17,15 @@ module grdvars
   integer :: nx                                                    !< i-dimension of MOM6 supergrid
   integer :: ny                                                    !< j-dimension of MOM6 supergrid
 
- logical :: editmask                                               !< flag indicating whether the MOM6 land mask
+  logical :: editmask                                              !< flag indicating whether the MOM6 land mask
                                                                    !! should be edited. Default is false
- logical :: debug                                                  !< flag indicating whether grid information
+  logical :: debug                                                 !< flag indicating whether grid information
                                                                    !! should be printed for debugging purposes
                                                                    !! Default is false
- logical :: do_postwgts                                            !< flag indicating whether then ESMF weights to
+  logical :: do_postwgts                                           !< flag indicating whether then ESMF weights to
                                                                    !! regrid from the tripole grid to a rectilinear
                                                                    !! grid should be generated. Default is false.
-  logical :: mastertask                                            !< flag indicating whether this is the mastertask
+  logical :: maintask                                              !< flag indicating whether this is the root task
 
   integer, parameter :: nv = 4.                                    !< the number of vertices for each stagger location
   integer, parameter :: ncoord = 2*4.                              !< the number of coord pairs (lat,lon) for each of
@@ -136,7 +136,7 @@ module grdvars
                                                                    !! grid bottom
   real(dbl_kind), allocatable, dimension(:) :: dlatCv              !< The latitude spacing between Cv points at the
                                                                    !! grid bottom
-  ! MOM6 fix fields
+                                                                   ! MOM6 fix fields
   real(real_kind), allocatable, dimension(:,:) :: wet4             !< The ocean mask from a MOM6 mask file, stored as
                                                                    !! real*4 (nd)
   real(dbl_kind),  allocatable, dimension(:,:) :: wet8             !< The ocean mask from a MOM6 mask file, stored as

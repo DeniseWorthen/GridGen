@@ -20,7 +20,7 @@ module vartypedefs
      character(len=CM)   ::  vertices    !< A variable's vertices
   end type vardefs
 
-  type(vardefs) ::    fixvars(maxvars)  !< Attribute definitions for the variables written to the master tripole file
+  type(vardefs) ::    fixvars(maxvars)  !< Attribute definitions for the variables written to the main tripole file
   type(vardefs) ::   cicevars(maxvars)  !< Attribute definitions for the variables written to the CICE grid file
   type(vardefs) ::  scripvars(maxvars)  !< Attribute definitions for the variables written to any SCRIP file
 
