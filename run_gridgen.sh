@@ -36,13 +36,18 @@ else
   export FIXDIR_PATH=/scratch1/NCEPDEV/global/glopara/fix/mom6/20220805/${RESNAME}
 fi
 
-if [[ $MOSAICRES == C1152 ]]; then
+if [[ $MOSAICRES == C3072 ]]; then
+    export NPX=3072
+elif [[ $MOSAICRES == C1152 ]]; then
     export NPX=1152
+elif [[ $MOSAICRES == C768 ]]; then
+    export NPX=768
 elif [[ $MOSAICRES == C384 ]]; then
     export NPX=384
 elif [[ $MOSAICRES == C192 ]]; then
   export NPX=192
-else
+elif [[ $MOSAICRES == C96 ]]; then
+  export MOSAICRES=C96
   export NPX=96
 fi
 
@@ -103,8 +108,8 @@ fi
 edit_namelist < grid.nml.IN > grid.nml
 make
 #srun -A nems --ntasks=2 ./gengrid
-time srun -n 8 ./gengrid
-#srun --nodes=1 --ntasks-per-node=4 ./gengrid
+#time srun -n 60 ./gengrid
+srun --nodes=4 --ntasks-per-node=5 ./gengrid
 
 # generate ice mesh
 export FSRC=${OUTDIR_PATH}/Ct.mx${RESNAME}_SCRIP_land.nc

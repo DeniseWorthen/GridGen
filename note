@@ -1,0 +1,23 @@
+using time srun -n 20 ./gengrid for C1152
+creating mapped ocean mask file /scratch1/NCEPDEV/climate/Denise.Worthen/grids-test-202210/C1152.mx025.tile6.nc
+
+real	1m34.125s
+user	0m0.028s
+sys	0m0.018s
+
+
+added 'largefile'
+salloc --x11=first -q batch -t 2:00:00 --nodes=10 -A marine-cpu
+srun --nodes=4 --ntasks-per-node=5 ./gengrid
+creating mapped ocean mask file /scratch1/NCEPDEV/climate/Denise.Worthen/grids-test-202210/C3072.mx025.tile6.nc
++ export FSRC=/scratch1/NCEPDEV/climate/Denise.Worthen/grids-test-202210/Ct.mx025_SCRIP_land.nc
++ FSRC=/scratch1/NCEPDEV/climate/Denise.Worthen/grids-test-202210/Ct.mx025_SCRIP_land.nc
++ export FDST=/scratch1/NCEPDEV/climate/Denise.Worthen/grids-test-202210/mesh.mx025.nc
++ FDST=/scratch1/NCEPDEV/climate/Denise.Worthen/grids-test-202210/mesh.mx025.nc
++ srun -A nems -n 1 ESMF_Scrip2Unstruct /scratch1/NCEPDEV/climate/Denise.Worthen/grids-test-202210/Ct.mx025_SCRIP_land.nc /scratch1/NCEPDEV/climate/Denise.Worthen/grids-test-202210/mesh.mx025.nc 0
+srun: Warning: can't run 1 processes on 10 nodes, setting nnodes to 1
+Done converting /scratch1/NCEPDEV/climate/Denise.Worthen/grids-test-202210/Ct.mx025_SCRIP_land.nc
+
+real	0m10.399s
+user	0m0.026s
+sys	0m0.019s

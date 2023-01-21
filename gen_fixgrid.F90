@@ -507,12 +507,17 @@ program gen_fixgrid
   if(maintask) then
      logmsg = 'creating weight file '//trim(fwgt)
      print '(a)',trim(logmsg)
+
+     !   print *,'fsrc ='//trim(fsrc)
+     !   print *,'fdst ='//trim(fdst)
+     !   print *,'fwgt ='//trim(fwgt)
+     !   print *,'fatm ='//trim(fatm)
   end if
 
   call ESMF_RegridWeightGen(srcFile=trim(fsrc),dstFile=trim(fdst), &
        weightFile=trim(fwgt), regridmethod=method, &
        unmappedaction=ESMF_UNMAPPEDACTION_IGNORE, &
-       ignoreDegenerate=.true., verboseFlag=debug, &
+       ignoreDegenerate=.true., verboseFlag=debug, largefileFlag=.true., &
        tileFilePath=trim(fatm), rc=rc)
   if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, &
        line=__LINE__, file=__FILE__)) call ESMF_Finalize(endflag=ESMF_END_ABORT)
