@@ -20,7 +20,7 @@ function edit_namelist {
 
 export RESNAME=$1
 export MOSAICRES=$2
-export DEBUG=.true.
+export DEBUG=.false.
 export MASKEDIT=.false.
 export DO_POSTWGTS=.false.
 #export OUTDIR_PATH=/scratch2/NCEPDEV/climate/Denise.Worthen/grids-20210727/
@@ -103,12 +103,13 @@ fi
 edit_namelist < grid.nml.IN > grid.nml
 make
 #srun -A nems --ntasks=2 ./gengrid
-srun -n 4 ./gengrid
+time srun -n 8 ./gengrid
+#srun --nodes=1 --ntasks-per-node=4 ./gengrid
 
 # generate ice mesh
 export FSRC=${OUTDIR_PATH}/Ct.mx${RESNAME}_SCRIP_land.nc
 export FDST=${OUTDIR_PATH}/mesh.mx${RESNAME}.nc
-srun -A nems -n 1 ESMF_Scrip2Unstruct ${FSRC} ${FDST} 0
+time srun -A nems -n 1 ESMF_Scrip2Unstruct ${FSRC} ${FDST} 0
 
 # generate kmt file for CICE
 export FSRC=${OUTDIR_PATH}/grid_cice_NEMS_mx${RESNAME}.nc
