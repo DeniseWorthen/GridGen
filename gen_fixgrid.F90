@@ -43,7 +43,7 @@ program gen_fixgrid
   real(kind=dbl_kind), parameter :: pi = 3.14159265358979323846_dbl_kind
   real(kind=dbl_kind), parameter :: deg2rad = pi/180.0_dbl_kind
 
-  real(real_kind), allocatable, dimension(:,:) :: ww3dpth
+  real(real_kind),   allocatable, dimension(:,:) :: ww3dpth
   integer(int_kind), allocatable, dimension(:,:) :: ww3mask
 
   character(len=CL) :: fsrc, fdst, fwgt, fatm
@@ -68,8 +68,7 @@ program gen_fixgrid
   !-------------------------------------------------------------------------
   ! Initialize esmf environment.
   ! Everthing except the generation of the weights to map the ocean mask to
-  ! the ATM tiles and generation of the tripole:tripole weights is done on
-  ! the root PE.
+  ! the ATM tiles is done on the root PE.
   !-------------------------------------------------------------------------
 
   ! Providing the optional vm argument to ESMF_Initialize() is one way of obtaining the global VM.
@@ -454,50 +453,58 @@ program gen_fixgrid
      close(21); close(22); close(23); close(24); close(25)
      deallocate(ww3mask); deallocate(ww3dpth)
      deallocate(wet4, wet8)
-  end if ! if (maintask)
 
-  !---------------------------------------------------------------------
-  ! use ESMF to find the tripole:tripole weights for creation
-  ! of CICE ICs; the source grid is always mx025; don't create this
-  ! file if destination is also mx025
-  !---------------------------------------------------------------------
+     !---------------------------------------------------------------------
+     ! use ESMF to find the tripole:tripole weights for creation
+     ! of CICE ICs; the source grid is always mx025; don't create this
+     ! file if destination is also mx025
+     !---------------------------------------------------------------------
 
-  call mpi_bcast(res,    len(res),    MPI_CHARACTER, 0, mpi_dup, ierr)
-  call mpi_bcast(atmres, len(atmres), MPI_CHARACTER, 0, mpi_dup, ierr)
-  call mpi_bcast(dirout, len(dirout), MPI_CHARACTER, 0, mpi_dup, ierr)
-  call mpi_bcast(fv3dir, len(fv3dir), MPI_CHARACTER, 0, mpi_dup, ierr)
-
-  if(trim(res) .ne. '025') then
-     fsrc = trim(dirout)//'/'//'Ct.mx025_SCRIP.nc'
-     inquire(FILE=trim(fsrc), EXIST=fexist)
-     if (fexist ) then
-        method=ESMF_REGRIDMETHOD_NEAREST_STOD
-        fdst = trim(dirout)//'/'//'Ct.mx'//trim(res)//'_SCRIP.nc'
-        fwgt = trim(dirout)//'/'//'tripole.mx025.Ct.to.mx'//trim(res)//'.Ct.neareststod.nc'
-        if(maintask) then
-           logmsg = 'creating weight file '//trim(fwgt)
-           print '(a)',trim(logmsg)
+     if(trim(res) .ne. '025') then
+        fsrc = trim(dirout)//'/'//'Ct.mx025_SCRIP.nc'
+        inquire(FILE=trim(fsrc), EXIST=fexist)
+        if (fexist ) then
+           method=ESMF_REGRIDMETHOD_NEAREST_STOD
+           fdst = trim(dirout)//'/'//'Ct.mx'//trim(res)//'_SCRIP.nc'
+           fwgt = trim(dirout)//'/'//'tripole.mx025.Ct.to.mx'//trim(res)//'.Ct.neareststod.nc'
+           if(maintask) then
+              logmsg = 'creating weight file '//trim(fwgt)
+              print '(a)',trim(logmsg)
+           end if
+           call ESMF_RegridWeightGen(srcFile=trim(fsrc),dstFile=trim(fdst), &
+                weightFile=trim(fwgt), regridmethod=method, &
+                ignoreDegenerate=.true., verboseFlag=debug, &
+                unmappedaction=ESMF_UNMAPPEDACTION_IGNORE, rc=rc)
+           if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, &
+                line=__LINE__, file=__FILE__)) call ESMF_Finalize(endflag=ESMF_END_ABORT)
+        else
+           if(maintask) then
+              logmsg = 'ERROR: '//trim(fsrc)//' is required to generate tripole:tripole weights'
+              print '(a)',trim(logmsg)
+           end if
+           stop
         end if
-        call ESMF_RegridWeightGen(srcFile=trim(fsrc),dstFile=trim(fdst), &
-             weightFile=trim(fwgt), regridmethod=method, &
-             ignoreDegenerate=.true., verboseFlag=debug, &
-             unmappedaction=ESMF_UNMAPPEDACTION_IGNORE, rc=rc)
-        if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, &
-             line=__LINE__, file=__FILE__)) call ESMF_Finalize(endflag=ESMF_END_ABORT)
-     else
-        if(maintask) then
-           logmsg = 'ERROR: '//trim(fsrc)//' is required to generate tripole:tripole weights'
-           print '(a)',trim(logmsg)
-        end if
-        stop
      end if
-  end if
+
+     !---------------------------------------------------------------------
+     !
+     !---------------------------------------------------------------------
+
+     if(do_postwgts)call make_postwgts
+
+  end if ! if (maintask)
 
   !---------------------------------------------------------------------
   ! use ESMF regridding to produce mapped ocean mask; first generate
   ! conservative regrid weights from ocean to tiles; then generate the
   ! tiled files containing the mapped ocean mask
   !---------------------------------------------------------------------
+
+  call mpi_bcast(res,    len(res),    MPI_CHARACTER, 0, mpi_dup, ierr)
+  call mpi_bcast(atmres, len(atmres), MPI_CHARACTER, 0, mpi_dup, ierr)
+  call mpi_bcast(dirout, len(dirout), MPI_CHARACTER, 0, mpi_dup, ierr)
+  call mpi_bcast(fv3dir, len(fv3dir), MPI_CHARACTER, 0, mpi_dup, ierr)
+  call mpi_bcast(npx,              1, MPI_INTEGER,   0, mpi_dup, ierr)
 
   method=ESMF_REGRIDMETHOD_CONSERVE
   fsrc = trim(dirout)//'/'//'Ct.mx'//trim(res)//'_SCRIP_land.nc'
@@ -514,6 +521,13 @@ program gen_fixgrid
      !   print *,'fatm ='//trim(fatm)
   end if
 
+  ! atmmesh = ESMF_MeshCreateCubedSphere(npx, 1, 1, rc=rc)
+  ! if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, &
+  !      line=__LINE__, file=__FILE__)) call ESMF_Finalize(endflag=ESMF_END_ABORT)
+  ! ocnmesh = ESMF_MeshCreate(filename=trim(fsrc), fileformat=ESMF_FILEFORMAT_SCRIP, rc=rc)
+  ! if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, &
+  !      line=__LINE__, file=__FILE__)) call ESMF_Finalize(endflag=ESMF_END_ABORT)
+
   call ESMF_RegridWeightGen(srcFile=trim(fsrc),dstFile=trim(fdst), &
        weightFile=trim(fwgt), regridmethod=method, &
        unmappedaction=ESMF_UNMAPPEDACTION_IGNORE, &
@@ -522,6 +536,10 @@ program gen_fixgrid
   if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, &
        line=__LINE__, file=__FILE__)) call ESMF_Finalize(endflag=ESMF_END_ABORT)
 
+  !---------------------------------------------------------------------
+  ! write out mapped ocean mask and clean up
+  !---------------------------------------------------------------------
+
   if (maintask) then
      logmsg = 'creating mapped ocean mask for '//trim(atmres)
      print '(a)',trim(logmsg)
@@ -529,16 +547,6 @@ program gen_fixgrid
      fsrc = trim(dirout)//'/'//'Ct.mx'//trim(res)//'_SCRIP_land.nc'
      fwgt = trim(dirout)//'/'//'Ct.mx'//trim(res)//'.to.'//trim(atmres)//'.nc'
      call make_frac_land(trim(fsrc), trim(fwgt))
-
-     !---------------------------------------------------------------------
-     !
-     !---------------------------------------------------------------------
-
-     if(do_postwgts)call make_postwgts
-
-     !---------------------------------------------------------------------
-     ! clean up
-     !---------------------------------------------------------------------
 
      deallocate(x,y, angq, dx, dy, xsgp1, ysgp1)
      deallocate(areaCt, anglet, angle)

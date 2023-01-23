@@ -26,23 +26,23 @@ contains
 
     ! local variables
     integer, parameter :: ntile = 6
-    integer(int_kind) :: n_a, n_b, n_s
+    integer(int_kind)  :: n_a, n_b, n_s
 
     integer(int_kind), allocatable, dimension(:) :: col, row
-    real(dbl_kind), allocatable, dimension(:) :: S
-    real(dbl_kind), allocatable, dimension(:) :: lat1d, lon1d
+    real(dbl_kind), allocatable, dimension(:)    :: S
+    real(dbl_kind), allocatable, dimension(:)    :: lat1d, lon1d
 
     integer(int_kind), allocatable, dimension(:) :: src_field
-    real(dbl_kind), allocatable, dimension(:) :: dst_field
+    real(dbl_kind), allocatable, dimension(:)    :: dst_field
 
-    real(dbl_kind), allocatable, dimension(:,:)   :: dst2d
-    real(dbl_kind), allocatable, dimension(:,:)   :: lat2d,lon2d
+    real(dbl_kind), allocatable, dimension(:,:)  :: dst2d
+    real(dbl_kind), allocatable, dimension(:,:)  :: lat2d,lon2d
 
     character(len=CS) :: ctile
     character(len=CL) :: fdst
-    integer :: i,ii,jj,id,rc,ncid, dim2(2)
-    integer :: istr,iend
-    integer :: idimid,jdimid
+    integer           :: i,ii,jj,id,rc,ncid, dim2(2)
+    integer           :: istr,iend
+    integer           :: idimid,jdimid
 
     character(len=CM) :: vname
     !---------------------------------------------------------------------
