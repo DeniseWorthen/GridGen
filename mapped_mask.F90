@@ -4,6 +4,7 @@
 !!
 !> This writes the mapped ocean mask on the FV3 tiles
 !! @author Denise.Worthen@noaa.gov
+
 module mapped_mask
 
   use gengrid_kinds, only : dbl_kind,int_kind,CL,CM,CS
@@ -14,12 +15,14 @@ module mapped_mask
   implicit none
 
 contains
+
   !> Use ESMF weights to map the ocean land mask to the FV3 tiles and write the mapped mask to 6 tile files
   !!
   !! @param[in]  src a SCRIP file containing the land mask for the ocean domain
   !! @param[in]  wgt a file containing the ESMF weights to regrid from the ocean domain to the FV3 tile domain
   !!
   !! @author Denise.Worthen@noaa.gov
+
   subroutine make_frac_land(src, wgt)
 
     character(len=*), intent(in) :: src, wgt
@@ -43,8 +46,8 @@ contains
     integer           :: i,ii,jj,id,rc,ncid, dim2(2)
     integer           :: istr,iend
     integer           :: idimid,jdimid
-
     character(len=CM) :: vname
+
     !---------------------------------------------------------------------
     ! retrieve the weights
     !---------------------------------------------------------------------

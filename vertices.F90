@@ -9,6 +9,7 @@
 !! most vertex values. For the Cv and Bu grids, the routine fill_top fills the topmost vertex values using
 !! the values from across the tripole seam.
 !! @author Denise.Worthen@noaa.gov
+
 module vertices
 
   use gengrid_kinds, only : dbl_kind
@@ -28,6 +29,7 @@ contains
   !! @param[out] latvert   the latitudes of each vertex
   !! @param[out] lonvert   the longitudes of each vertex
   !! @author Denise.Worthen@noaa.gov
+
   subroutine fill_vertices(jbeg,jend,iVert,jVert,lat,lon,latvert,lonvert)
 
     integer, intent( in) :: jbeg,jend
@@ -62,6 +64,7 @@ contains
   !! @param[out] latvert   the latitudes of each vertex
   !! @param[out] lonvert   the longitudes of each vertex
   !! @author Denise.Worthen@noaa.gov
+
   subroutine fill_bottom(iVert,jVert,lat,lon,latvert,lonvert,dlat)
 
     integer, intent( in) :: iVert(nv), jVert(nv)
@@ -107,6 +110,7 @@ contains
   !! @param[out] latvert   the latitudes of each vertex
   !! @param[out] lonvert   the longitudes of each vertex
   !! @author Denise.Worthen@noaa.gov
+
   subroutine fill_top(iVert,jVert,lat,lon,latvert,lonvert,xlat,xlon)
 
     integer, intent( in) :: iVert(nv), jVert(nv)

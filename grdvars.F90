@@ -4,6 +4,7 @@
 !!
 !> This module contains the grid variables
 !! @author Denise.Worthen@noaa.gov
+
 module grdvars
 
   use gengrid_kinds, only : dbl_kind, real_kind, int_kind
@@ -136,7 +137,7 @@ module grdvars
                                                                    !! grid bottom
   real(dbl_kind), allocatable, dimension(:) :: dlatCv              !< The latitude spacing between Cv points at the
                                                                    !! grid bottom
-                                                                   ! MOM6 fix fields
+  ! MOM6 fix fields
   real(real_kind), allocatable, dimension(:,:) :: wet4             !< The ocean mask from a MOM6 mask file, stored as
                                                                    !! real*4 (nd)
   real(dbl_kind),  allocatable, dimension(:,:) :: wet8             !< The ocean mask from a MOM6 mask file, stored as
@@ -168,6 +169,7 @@ contains
   !> Allocate grid variables
   !!
   !! @author Denise Worthen
+
   subroutine allocate_all
 
     allocate( x(0:nx,0:ny),  y(0:nx,0:ny), angq(0:nx,0:ny) )

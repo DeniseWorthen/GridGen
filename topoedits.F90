@@ -5,6 +5,7 @@
 !> This module adds the required topo edits to a file for use by MOM6 at run time
 !!
 !! @author Denise.Worthen@noaa.gov
+
 module topoedits
 
   use gengrid_kinds, only: real_kind,int_kind
@@ -27,6 +28,7 @@ contains
   !! @param[out] fdst the modified topoedits file name
   !!
   !! @author Denise.Worthen@noaa.gov
+
   subroutine add_topoedits(fsrc,fdst)
 
     character(len=*), intent(in) :: fsrc, fdst
@@ -159,6 +161,7 @@ contains
   !! @param[in]  fsrc the topoedits file name
   !!
   !! @author Denise.Worthen@noaa.gov
+
   subroutine apply_topoedits(fsrc)
 
     character(len=*), intent(in) :: fsrc

@@ -4,6 +4,7 @@
 !!
 !> Print values for debugging
 !! @author Denise.Worthen@noaa.gov
+
 module debugprint
 
   use esmf,    only : ESMF_LogFoundError, ESMF_LOGERR_PASSTHRU
@@ -22,6 +23,7 @@ contains
   !> Print values across the tripole seam
   !!
   !! @author Denise.Worthen@noaa.gov
+
   subroutine checkseam
 
     ! local variables
@@ -102,6 +104,7 @@ contains
   !> Print values near the poles and along the domain edges
   !!
   !! @author Denise.Worthen@noaa.gov
+
   subroutine checkxlatlon
 
     ! local variables
@@ -163,6 +166,7 @@ contains
   !> Print values at specified point
   !!
   !! @author Denise.Worthen@noaa.gov
+
   subroutine checkpoint
 
     ! local variables

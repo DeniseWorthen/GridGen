@@ -4,6 +4,7 @@
 !!
 !> This module contains the namelist variables
 !! @author Denise.Worthen@noaa.gov
+
 module inputnml
 
   use grdvars,     only : nx,ny,ni,nj,npx
@@ -19,6 +20,7 @@ contains
   !! @param[in]  fname  the file name to read
   !!
   !! @author Denise.Worthen@noaa.gov
+
   subroutine read_inputnml(fname)
 
     character(len=*),   intent(in) :: fname

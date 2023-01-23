@@ -36,7 +36,6 @@ program gen_fixgrid
   implicit none
 
   include "mpif.h"
-
   ! local variables
   real(dbl_kind) :: dxT, dyT
 
@@ -152,6 +151,7 @@ program gen_fixgrid
 
      print *,minval(wet8),maxval(wet8)
      print *,minval(wet4),maxval(wet4)
+
      !---------------------------------------------------------------------
      ! read the MOM6 depth file
      !---------------------------------------------------------------------
@@ -487,7 +487,7 @@ program gen_fixgrid
      end if
 
      !---------------------------------------------------------------------
-     !
+     ! use ESMF to find the weights from tripole:rectilinear grids
      !---------------------------------------------------------------------
 
      if(do_postwgts)call make_postwgts

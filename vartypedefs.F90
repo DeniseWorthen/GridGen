@@ -4,6 +4,7 @@
 !!
 !> This module defines the attributes for variables written to the tripole, cice and scrip grid files
 !! @author Denise.Worthen@noaa.gov
+
 module vartypedefs
 
   use charstrings, only : CL, CM, CS
@@ -29,6 +30,7 @@ contains
   !> Define the variables written to the tripole grid file
   !!
   !! @author Denise.Worthen@noaa.gov
+
   subroutine fixvars_typedefine
 
     ! local variables
@@ -130,6 +132,7 @@ contains
   !> Define the variables written to the CICE grid file
   !!
   !! @author Denise.Worthen@noaa.gov
+
   subroutine cicevars_typedefine
 
     ! local variables
@@ -174,6 +177,7 @@ contains
   !> Define the variables written to any SCRIP grid file
   !!
   !! @author Denise.Worthen@noaa.gov
+
   subroutine scripvars_typedefine
 
     ! local variables

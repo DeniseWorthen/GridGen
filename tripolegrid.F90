@@ -4,6 +4,7 @@
 !!
 !> This module writes the main tripole grid file
 !! @author Denise.Worthen@noaa.gov
+
 module tripolegrid
 
   use gengrid_kinds, only: dbl_kind,int_kind,CM
@@ -28,6 +29,7 @@ contains
   !! @param[in]  fname  the name of the tripole grid file to write
   !!
   !! @author Denise.Worthen@noaa.gov
+
   subroutine write_tripolegrid(fname)
 
     character(len=*), intent(in) :: fname
