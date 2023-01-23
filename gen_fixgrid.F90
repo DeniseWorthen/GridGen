@@ -49,7 +49,7 @@ program gen_fixgrid
   character(len= 2) :: cstagger
 
   integer :: rc,ncid,id,xtype
-  integer :: i,j,k,i2,j2
+  integer :: i,j,k,n,i2,j2
   integer :: ii,jj
   integer :: mpi_comm, mpi_dup, ierr
   integer :: localPet, nPet
@@ -63,6 +63,10 @@ program gen_fixgrid
   character(len=CS) :: form1
   character(len=CS) :: form2
   character(len= 6) :: cnx
+
+  character(len=CS), dimension(4) :: o025a = (/'C384 ', 'C768 ', 'C1152', 'C3072'/)
+  character(len=CS), dimension(2) :: o050a = (/'C192 ', 'C384 '/)
+  character(len=CS), dimension(1) :: o100a = (/'C96  '/)
 
   !-------------------------------------------------------------------------
   ! Initialize esmf environment.
@@ -91,8 +95,6 @@ program gen_fixgrid
      print '(a)',' output grid tag '//trim(res)
      print '(a)',' supergrid source directory '//trim(dirsrc)
      print '(a)',' output grid directory '//trim(dirout)
-     print '(a)',' atm resolution '//trim(atmres)
-     print '(a,i6)',' fv3 tile grid size ',npx
      print '(a)',' atm mosaic directory '//trim(fv3dir)
      print '(a)',' MOM6 topography file '//trim(topofile)
      print '(a)',' MOM6 edits file '//trim(editsfile)
@@ -494,47 +496,38 @@ program gen_fixgrid
 
   end if ! if (maintask)
 
-  !---------------------------------------------------------------------
-  ! use ESMF regridding to produce mapped ocean mask; first generate
-  ! conservative regrid weights from ocean to tiles; then generate the
-  ! tiled files containing the mapped ocean mask
-  !---------------------------------------------------------------------
 
   call mpi_bcast(res,    len(res),    MPI_CHARACTER, 0, mpi_dup, ierr)
-  call mpi_bcast(atmres, len(atmres), MPI_CHARACTER, 0, mpi_dup, ierr)
+  !call mpi_bcast(atmres, len(atmres), MPI_CHARACTER, 0, mpi_dup, ierr)
   call mpi_bcast(dirout, len(dirout), MPI_CHARACTER, 0, mpi_dup, ierr)
   call mpi_bcast(fv3dir, len(fv3dir), MPI_CHARACTER, 0, mpi_dup, ierr)
-  call mpi_bcast(npx,              1, MPI_INTEGER,   0, mpi_dup, ierr)
+  !call mpi_bcast(npx,              1, MPI_INTEGER,   0, mpi_dup, ierr)
 
-  method=ESMF_REGRIDMETHOD_CONSERVE
-  fsrc = trim(dirout)//'/'//'Ct.mx'//trim(res)//'_SCRIP_land.nc'
-  fdst = trim(fv3dir)//'/'//trim(atmres)//'/'//trim(atmres)//'_mosaic.nc'
-  fwgt = trim(dirout)//'/'//'Ct.mx'//trim(res)//'.to.'//trim(atmres)//'.nc'
-  fatm = trim(fv3dir)//'/'//trim(atmres)//'/'
-  if(maintask) then
-     logmsg = 'creating weight file '//trim(fwgt)
-     print '(a)',trim(logmsg)
+     !---------------------------------------------------------------------
+     ! use ESMF regridding to produce mapped ocean mask; first generate
+     ! conservative regrid weights from ocean to tiles; then generate the
+     ! tiled files containing the mapped ocean mask
+     !---------------------------------------------------------------------
 
-     !   print *,'fsrc ='//trim(fsrc)
-     !   print *,'fdst ='//trim(fdst)
-     !   print *,'fwgt ='//trim(fwgt)
-     !   print *,'fatm ='//trim(fatm)
-  end if
+     method=ESMF_REGRIDMETHOD_CONSERVE
+     fsrc = trim(dirout)//'/'//'Ct.mx'//trim(res)//'_SCRIP_land.nc'
+     fdst = trim(fv3dir)//'/'//trim(atmres)//'/'//trim(atmres)//'_mosaic.nc'
+     fwgt = trim(dirout)//'/'//'Ct.mx'//trim(res)//'.to.'//trim(atmres)//'.nc'
+     fatm = trim(fv3dir)//'/'//trim(atmres)//'/'
+     if(maintask) then
+        logmsg = 'creating weight file '//trim(fwgt)
+        print '(a)',trim(logmsg)
+     end if
 
-  ! atmmesh = ESMF_MeshCreateCubedSphere(npx, 1, 1, rc=rc)
-  ! if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, &
-  !      line=__LINE__, file=__FILE__)) call ESMF_Finalize(endflag=ESMF_END_ABORT)
-  ! ocnmesh = ESMF_MeshCreate(filename=trim(fsrc), fileformat=ESMF_FILEFORMAT_SCRIP, rc=rc)
-  ! if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, &
-  !      line=__LINE__, file=__FILE__)) call ESMF_Finalize(endflag=ESMF_END_ABORT)
+     call ESMF_RegridWeightGen(srcFile=trim(fsrc),dstFile=trim(fdst), &
+          weightFile=trim(fwgt), regridmethod=method, &
+          unmappedaction=ESMF_UNMAPPEDACTION_IGNORE, &
+          ignoreDegenerate=.true., verboseFlag=debug, largefileFlag=.true., &
+          tileFilePath=trim(fatm), rc=rc)
+     if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, &
+          line=__LINE__, file=__FILE__)) call ESMF_Finalize(endflag=ESMF_END_ABORT)
 
-  call ESMF_RegridWeightGen(srcFile=trim(fsrc),dstFile=trim(fdst), &
-       weightFile=trim(fwgt), regridmethod=method, &
-       unmappedaction=ESMF_UNMAPPEDACTION_IGNORE, &
-       ignoreDegenerate=.true., verboseFlag=debug, largefileFlag=.true., &
-       tileFilePath=trim(fatm), rc=rc)
-  if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, &
-       line=__LINE__, file=__FILE__)) call ESMF_Finalize(endflag=ESMF_END_ABORT)
+  end do
 
   !---------------------------------------------------------------------
   ! write out mapped ocean mask and clean up
@@ -546,7 +539,7 @@ program gen_fixgrid
 
      fsrc = trim(dirout)//'/'//'Ct.mx'//trim(res)//'_SCRIP_land.nc'
      fwgt = trim(dirout)//'/'//'Ct.mx'//trim(res)//'.to.'//trim(atmres)//'.nc'
-     call make_frac_land(trim(fsrc), trim(fwgt))
+     !call make_frac_land(npx, trim(fsrc), trim(fwgt))
 
      deallocate(x,y, angq, dx, dy, xsgp1, ysgp1)
      deallocate(areaCt, anglet, angle)

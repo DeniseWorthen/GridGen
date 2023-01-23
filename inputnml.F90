@@ -7,7 +7,7 @@
 
 module inputnml
 
-  use grdvars,     only : nx,ny,ni,nj,npx
+  use grdvars,     only : nx,ny,ni,nj
   use grdvars,     only : editmask, debug, do_postwgts
   use charstrings, only : dirsrc, dirout, fv3dir, res, atmres, topofile, editsfile
 
@@ -29,7 +29,7 @@ contains
     integer :: stderr, iounit, rc
 
     namelist /grid_nml/ ni, nj, dirsrc, dirout, fv3dir,  topofile, editsfile, &
-         res, atmres, npx, editmask, debug, &
+         res, editmask, debug, &
          do_postwgts
 
     ! Check whether file exists.

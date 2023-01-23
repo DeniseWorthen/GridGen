@@ -8,7 +8,7 @@
 module mapped_mask
 
   use gengrid_kinds, only : dbl_kind,int_kind,CL,CM,CS
-  use grdvars,       only : ni,nj,npx,maintask
+  use grdvars,       only : ni,nj,maintask
   use charstrings,   only : dirout,res,atmres,logmsg
   use netcdf
 
@@ -23,9 +23,10 @@ contains
   !!
   !! @author Denise.Worthen@noaa.gov
 
-  subroutine make_frac_land(src, wgt)
+  subroutine make_frac_land(npx, src, wgt)
 
-    character(len=*), intent(in) :: src, wgt
+    integer(int_kind), intent(in) :: npx
+    character(len=*) , intent(in) :: src, wgt
 
     ! local variables
     integer, parameter :: ntile = 6
