@@ -8,7 +8,7 @@
 module scripgrid
 
   use gengrid_kinds, only: dbl_kind,int_kind,CM
-  use grdvars,       only: ni,nj,nv,maintask
+  use grdvars,       only: ni,nj,nv
   use grdvars,       only: lonCt,latCt,lonCt_vert,latCt_vert
   use grdvars,       only: lonCu,latCu,lonCu_vert,latCu_vert
   use grdvars,       only: lonCv,latCv,lonCv_vert,latCv_vert
@@ -119,11 +119,9 @@ contains
     ! 64_bit offset reqd for 008 grid
     ! produces b4b results for smaller grids
     rc = nf90_create(trim(fname), nf90_64bit_offset, ncid)
-    if(maintask) then
-       logmsg = '==> writing SCRIP grid to '//trim(fname)
-       print '(a)',trim(logmsg)
-       if(rc .ne. 0)print '(a)', 'nf90_create = '//trim(nf90_strerror(rc))
-    end if
+    logmsg = '==> writing SCRIP grid to '//trim(fname)
+    print '(a)',trim(logmsg)
+    if(rc .ne. 0)print '(a)', 'nf90_create = '//trim(nf90_strerror(rc))
 
     rc = nf90_def_dim(ncid, 'grid_size',     ni*nj, idimid)
     rc = nf90_def_dim(ncid, 'grid_corners',     nv, jdimid)

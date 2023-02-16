@@ -8,7 +8,7 @@
 module mapped_mask
 
   use gengrid_kinds, only : dbl_kind,int_kind,CL,CM,CS
-  use grdvars,       only : ni,nj,npx,maintask
+  use grdvars,       only : ni,nj,npx
   use charstrings,   only : dirout,res,atmres,logmsg
   use netcdf
 
@@ -29,25 +29,25 @@ contains
 
     ! local variables
     integer, parameter :: ntile = 6
-    integer(int_kind)  :: n_a, n_b, n_s
+    integer(int_kind) :: n_a, n_b, n_s
 
     integer(int_kind), allocatable, dimension(:) :: col, row
-    real(dbl_kind), allocatable, dimension(:)    :: S
-    real(dbl_kind), allocatable, dimension(:)    :: lat1d, lon1d
+    real(dbl_kind), allocatable, dimension(:) :: S
+    real(dbl_kind), allocatable, dimension(:) :: lat1d, lon1d
 
     integer(int_kind), allocatable, dimension(:) :: src_field
-    real(dbl_kind), allocatable, dimension(:)    :: dst_field
+    real(dbl_kind), allocatable, dimension(:) :: dst_field
 
-    real(dbl_kind), allocatable, dimension(:,:)  :: dst2d
-    real(dbl_kind), allocatable, dimension(:,:)  :: lat2d,lon2d
+    real(dbl_kind), allocatable, dimension(:,:)   :: dst2d
+    real(dbl_kind), allocatable, dimension(:,:)   :: lat2d,lon2d
 
     character(len=CS) :: ctile
     character(len=CL) :: fdst
-    integer           :: i,ii,jj,id,rc,ncid, dim2(2)
-    integer           :: istr,iend
-    integer           :: idimid,jdimid
-    character(len=CM) :: vname
+    integer :: i,ii,jj,id,rc,ncid, dim2(2)
+    integer :: istr,iend
+    integer :: idimid,jdimid
 
+    character(len=CM) :: vname
     !---------------------------------------------------------------------
     ! retrieve the weights
     !---------------------------------------------------------------------
@@ -115,10 +115,8 @@ contains
 
        write(ctile,'(a5,i1)')'.tile',i+1
        fdst = trim(dirout)//'/'//trim(atmres)//'.mx'//trim(res)//trim(ctile)//'.nc'
-       if(maintask) then
-          logmsg = 'creating mapped ocean mask file '//trim(fdst)
-          print '(a)',trim(logmsg)
-       end if
+       logmsg = 'creating mapped ocean mask file '//trim(fdst)
+       print '(a)',trim(logmsg)
 
        dst2d(:,:) = reshape(dst_field(istr:iend), (/npx,npx/))
        lat2d(:,:) = reshape(    lat1d(istr:iend), (/npx,npx/))

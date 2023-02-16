@@ -7,7 +7,7 @@
 
 module cicegrid
 
-  use grdvars,       only: ni,nj,ulat,ulon,htn,hte,angle,wet4,maintask
+  use grdvars,       only: ni,nj,ulat,ulon,htn,hte,angle,wet4
   use charstrings,   only: history, logmsg
   use vartypedefs,   only: maxvars, cicevars, cicevars_typedefine
   use gengrid_kinds, only: CM
@@ -46,11 +46,9 @@ contains
     call cicevars_typedefine
 
     rc = nf90_create(fname, nf90_write, ncid)
-    if(maintask) then
-       logmsg = '==> writing CICE grid to '//trim(fname)
-       print '(a)', trim(logmsg)
-       if(rc .ne. 0)print '(a)', 'nf90_create = '//trim(nf90_strerror(rc))
-    end if
+    logmsg = '==> writing CICE grid to '//trim(fname)
+    print '(a)', trim(logmsg)
+    if(rc .ne. 0)print '(a)', 'nf90_create = '//trim(nf90_strerror(rc))
 
     rc = nf90_def_dim(ncid, 'ni', ni, idimid)
     rc = nf90_def_dim(ncid, 'nj', nj, jdimid)

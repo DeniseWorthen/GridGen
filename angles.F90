@@ -14,7 +14,7 @@ module angles
   use grdvars,       only : x,y,xsgp1,ysgp1,sg_maxlat
   use grdvars,       only : latBu,lonBu,lonCt
   use grdvars,       only : angq,anglet
-  use grdvars,       only : maintask, debug
+  use grdvars,       only : debug
 
   implicit none
 
@@ -75,23 +75,21 @@ contains
     enddo
 
     !check
-    if(debug)then
-       j = ny+1
-       i1 = ipolesg(1); i2 = ipolesg(2)-(ipolesg(1)-i1)
-       print *,'replicate X across seam on SG'
-       print *,xsgp1(i1-2,j),xsgp1(i2+2,j)
-       print *,xsgp1(i1-1,j),xsgp1(i2+1,j)
-       print *,xsgp1(i1,  j),xsgp1(i2,  j)
-       print *,xsgp1(i1+1,j),xsgp1(i2-1,j)
-       print *,xsgp1(i1+2,j),xsgp1(i2-2,j)
+    j = ny+1
+    i1 = ipolesg(1); i2 = ipolesg(2)-(ipolesg(1)-i1)
+    print *,'replicate X across seam on SG'
+    print *,xsgp1(i1-2,j),xsgp1(i2+2,j)
+    print *,xsgp1(i1-1,j),xsgp1(i2+1,j)
+    print *,xsgp1(i1,  j),xsgp1(i2,  j)
+    print *,xsgp1(i1+1,j),xsgp1(i2-1,j)
+    print *,xsgp1(i1+2,j),xsgp1(i2-2,j)
 
-       print *,'replicate Y across seam on SG'
-       print *,ysgp1(i1-2,j),ysgp1(i2+2,j)
-       print *,ysgp1(i1-1,j),ysgp1(i2+1,j)
-       print *,ysgp1(i1,  j),ysgp1(i2,  j)
-       print *,ysgp1(i1+1,j),ysgp1(i2-1,j)
-       print *,ysgp1(i1+2,j),ysgp1(i2-2,j)
-    end if
+    print *,'replicate Y across seam on SG'
+    print *,ysgp1(i1-2,j),ysgp1(i2+2,j)
+    print *,ysgp1(i1-1,j),ysgp1(i2+1,j)
+    print *,ysgp1(i1,  j),ysgp1(i2,  j)
+    print *,ysgp1(i1+1,j),ysgp1(i2-1,j)
+    print *,ysgp1(i1+2,j),ysgp1(i2-2,j)
 
     !---------------------------------------------------------------------
     ! rotation angle on supergrid vertices
