@@ -9,7 +9,7 @@ module postwgts
   use ESMF
 
   use gengrid_kinds, only : CL,CM,CS
-  use grdvars,       only : nv, maintask
+  use grdvars,       only : nv
   use charstrings,   only : dirout, res, staggerlocs, logmsg
   use netcdf
 
@@ -67,10 +67,8 @@ contains
        cstagger = trim(staggerlocs(k))
        fsrc = trim(dirout)//'/'//trim(cstagger)//'.mx'//trim(res)//'_SCRIP.nc'
        fwgt = trim(dirout)//'/'//'tripole.mx'//trim(res)//'.'//trim(cstagger)//'.to.Ct.bilinear.nc'
-       if(maintask) then
-          logmsg = 'creating weight file '//trim(fwgt)
-          print '(a)',trim(logmsg)
-       end if
+       logmsg = 'creating weight file '//trim(fwgt)
+       print '(a)',trim(logmsg)
 
        call ESMF_RegridWeightGen(srcFile=trim(fsrc),dstFile=trim(fdst), &
             weightFile=trim(fwgt), regridmethod=method, &
@@ -96,10 +94,8 @@ contains
 
           fwgt = trim(dirout)//'/'//'tripole.mx'//trim(res)//'.Ct.to.rect.'//trim(destgrds(nd)) &
                //'.'//trim(methodname(k))//'.nc'
-          if(maintask) then
-             logmsg = 'creating weight file '//trim(fwgt)
-             print '(a)',trim(logmsg)
-          end if
+          logmsg = 'creating weight file '//trim(fwgt)
+          print '(a)',trim(logmsg)
 
           call ESMF_RegridWeightGen(srcFile=trim(fsrc),dstFile=trim(fdst), &
                weightFile=trim(fwgt), regridmethod=method, &

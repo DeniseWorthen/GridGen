@@ -150,8 +150,8 @@ program gen_fixgrid
 
      if(xtype.eq. 6)wet4 = real(wet8,4)
 
-     print *,minval(wet8),maxval(wet8)
-     print *,minval(wet4),maxval(wet4)
+     !print *,minval(wet8),maxval(wet8)
+     !print *,minval(wet4),maxval(wet4)
 
      !---------------------------------------------------------------------
      ! read the MOM6 depth file
@@ -172,8 +172,8 @@ program gen_fixgrid
 
      if(xtype.eq. 6)dp4 = real(dp8,4)
 
-     print *,minval(dp8),maxval(dp8)
-     print *,minval(dp4),maxval(dp4)
+     !print *,minval(dp8),maxval(dp8)
+     !print *,minval(dp4),maxval(dp4)
 
      if(editmask)then
         !---------------------------------------------------------------------
@@ -223,8 +223,8 @@ program gen_fixgrid
      rc = nf90_get_var(ncid,     id, dy)
 
      rc = nf90_close(ncid)
-     print *,'super grid size ',size(y,1),size(y,2)
-     print *,'max lat in super grid ',maxval(y)
+     !print *,'super grid size ',size(y,1),size(y,2)
+     !print *,'max lat in super grid ',maxval(y)
      sg_maxlat = maxval(y)
 
      !---------------------------------------------------------------------
@@ -426,16 +426,14 @@ program gen_fixgrid
      allocate(ww3mask(1:ni,1:nj)); ww3mask = wet4
      allocate(ww3dpth(1:ni,1:nj)); ww3dpth = dp4
 
-     !where(latCt .ge. maximum_lat)ww3mask = 3
+     where(latCt .ge. maximum_lat)ww3mask = 3
      !close last row
-     !ww3mask(:,nj) = 3
-     where(latCt .ge. maximum_lat .and. wet4 .gt. 0.0)ww3mask = 3
+     ww3mask(:,nj) = 3
 
      open(unit=21,file=trim(dirout)//'/'//'ww3.mx'//trim(res)//'_x.inp',form='formatted')
      open(unit=22,file=trim(dirout)//'/'//'ww3.mx'//trim(res)//'_y.inp',form='formatted')
      open(unit=23,file=trim(dirout)//'/'//'ww3.mx'//trim(res)//'_bottom.inp',form='formatted')
-     !open(unit=24,file=trim(dirout)//'/'//'ww3.mx'//trim(res)//'_mapsta.inp',form='formatted')
-     open(unit=24,file=trim(dirout)//'/'//'ww3.mx'//trim(res)//'_mapsta.opn.inp',form='formatted')
+     open(unit=24,file=trim(dirout)//'/'//'ww3.mx'//trim(res)//'_mapsta.inp',form='formatted')
      ! cice0 .ne. cicen requires obstruction map, should be initialized as zeros (w3grid,ln3032)
      open(unit=25,file=trim(dirout)//'/'//'ww3.mx'//trim(res)//'_obstr.inp',form='formatted')
 
@@ -455,44 +453,44 @@ program gen_fixgrid
      deallocate(ww3mask); deallocate(ww3dpth)
      deallocate(wet4, wet8)
 
+     !---------------------------------------------------------------------
+     ! use ESMF to find the tripole:tripole weights for creation
+     ! of CICE ICs; the source grid is always mx025; don't create this
+     ! file if destination is also mx025
+     !---------------------------------------------------------------------
+
+     if(trim(res) .ne. '025') then
+        fsrc = trim(dirout)//'/'//'Ct.mx025_SCRIP.nc'
+        inquire(FILE=trim(fsrc), EXIST=fexist)
+        if (fexist ) then
+           method=ESMF_REGRIDMETHOD_NEAREST_STOD
+           fdst = trim(dirout)//'/'//'Ct.mx'//trim(res)//'_SCRIP.nc'
+           fwgt = trim(dirout)//'/'//'tripole.mx025.Ct.to.mx'//trim(res)//'.Ct.neareststod.nc'
+           if(maintask) then
+              logmsg = 'creating weight file '//trim(fwgt)
+              print '(a)',trim(logmsg)
+           end if
+           call ESMF_RegridWeightGen(srcFile=trim(fsrc),dstFile=trim(fdst), &
+                weightFile=trim(fwgt), regridmethod=method,                 &
+                ignoreDegenerate=.true., verboseFlag=debug,                 &
+                unmappedaction=ESMF_UNMAPPEDACTION_IGNORE, rc=rc)
+           if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, &
+                line=__LINE__, file=__FILE__)) call ESMF_Finalize(endflag=ESMF_END_ABORT)
+        else
+           if(maintask) then
+              logmsg = 'ERROR: '//trim(fsrc)//' is required to generate tripole:tripole weights'
+              print '(a)',trim(logmsg)
+           end if
+           stop
+        end if
+     end if
+
   end if ! if (maintask)
 
   call mpi_bcast(res,    len(res),    MPI_CHARACTER, 0, mpi_dup, ierr)
   call mpi_bcast(atmres, len(atmres), MPI_CHARACTER, 0, mpi_dup, ierr)
   call mpi_bcast(dirout, len(dirout), MPI_CHARACTER, 0, mpi_dup, ierr)
   call mpi_bcast(fv3dir, len(fv3dir), MPI_CHARACTER, 0, mpi_dup, ierr)
-
-  !---------------------------------------------------------------------
-  ! use ESMF to find the tripole:tripole weights for creation
-  ! of CICE ICs; the source grid is always mx025; don't create this
-  ! file if destination is also mx025
-  !---------------------------------------------------------------------
-
-  if(trim(res) .ne. '025') then
-     fsrc = trim(dirout)//'/'//'Ct.mx025_SCRIP.nc'
-     inquire(FILE=trim(fsrc), EXIST=fexist)
-     if (fexist ) then
-        method=ESMF_REGRIDMETHOD_NEAREST_STOD
-        fdst = trim(dirout)//'/'//'Ct.mx'//trim(res)//'_SCRIP.nc'
-        fwgt = trim(dirout)//'/'//'tripole.mx025.Ct.to.mx'//trim(res)//'.Ct.neareststod.nc'
-        if(maintask) then
-           logmsg = 'creating weight file '//trim(fwgt)
-           print '(a)',trim(logmsg)
-        end if
-        call ESMF_RegridWeightGen(srcFile=trim(fsrc),dstFile=trim(fdst),       &
-             weightFile=trim(fwgt), regridmethod=method,                       &
-             ignoreDegenerate=.true., verboseFlag=debug, largefileFlag=.true., &
-             unmappedaction=ESMF_UNMAPPEDACTION_IGNORE, rc=rc)
-        if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, &
-             line=__LINE__, file=__FILE__)) call ESMF_Finalize(endflag=ESMF_END_ABORT)
-     else
-        if(maintask) then
-           logmsg = 'ERROR: '//trim(fsrc)//' is required to generate tripole:tripole weights'
-           print '(a)',trim(logmsg)
-        end if
-        stop
-     end if
-  end if
 
   !---------------------------------------------------------------------
   ! use ESMF regridding to produce mapped ocean mask; first generate
@@ -510,17 +508,17 @@ program gen_fixgrid
      print '(a)',trim(logmsg)
   end if
 
-  call ESMF_RegridWeightGen(srcFile=trim(fsrc),dstFile=trim(fdst),      &
-       weightFile=trim(fwgt), regridmethod=method,                      &
-       unmappedaction=ESMF_UNMAPPEDACTION_IGNORE, largefileFlag=.true., &
+  call ESMF_RegridWeightGen(srcFile=trim(fsrc),dstFile=trim(fdst),        &
+       weightFile=trim(fwgt), regridmethod=method,                        &
+       unmappedaction=ESMF_UNMAPPEDACTION_IGNORE, netcdf4fileFlag=.true., &
        ignoreDegenerate=.true., verboseFlag=debug, tileFilePath=trim(fatm), rc=rc)
   if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, &
        line=__LINE__, file=__FILE__)) call ESMF_Finalize(endflag=ESMF_END_ABORT)
 
   if (maintask) then
-  !---------------------------------------------------------------------
-  ! make mapped ocean mask file and clean up
-  !---------------------------------------------------------------------
+     !---------------------------------------------------------------------
+     ! make mapped ocean mask file and clean up
+     !---------------------------------------------------------------------
 
      logmsg = 'creating mapped ocean mask for '//trim(atmres)
      print '(a)',trim(logmsg)

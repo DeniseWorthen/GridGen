@@ -26,7 +26,7 @@ module grdvars
   logical :: do_postwgts                                           !< flag indicating whether then ESMF weights to
                                                                    !! regrid from the tripole grid to a rectilinear
                                                                    !! grid should be generated. Default is false.
-  logical :: maintask                                              !< flag indicating whether this is the root task
+  logical :: roottask                                              !< flag indicating whether this is the roottask
 
   integer, parameter :: nv = 4.                                    !< the number of vertices for each stagger location
   integer, parameter :: ncoord = 2*4.                              !< the number of coord pairs (lat,lon) for each of
