@@ -22,12 +22,13 @@ export RESNAME=$1
 export MOSAICRES=$2
 export DEBUG=.false.
 export MASKEDIT=.false.
-export DO_POSTWGTS=.false.
+export DO_POSTWGTS=.true.
 #export OUTDIR_PATH=/scratch2/NCEPDEV/climate/Denise.Worthen/grids-20210727/
 #export OUTDIR_PATH=/scratch2/NCEPDEV/climate/Denise.Worthen/grids-esmf-20210822/
 #export OUTDIR_PATH=/scratch2/NCEPDEV/climate/Denise.Worthen/grids-esmf-20211107
-export OUTDIR_PATH=/scratch1/NCEPDEV/climate/Denise.Worthen/grids-test-202210
+export OUTDIR_PATH=/scratch1/NCEPDEV/climate/Denise.Worthen/grids-mesh-20231008
 export MOSAICDIR_PATH=/scratch1/NCEPDEV/global/glopara/fix/orog/20220805
+export APRUN='srun -A nems --nodes=1'
 
 if [ $RESNAME = 400 ]; then
   export FIXDIR_PATH=/scratch2/NCEPDEV/climate/Denise.Worthen/soca/test/Data/72x35x25/INPUT
@@ -66,9 +67,10 @@ if [ $RESNAME = 100 ]; then
   export EDITSFILE=topo_edits_011818.nc
   if [ $DO_POSTWGTS == .true. ]; then
    #pre-generate SCRIP files for dst rectilinear grids using NCO
-   # TODO: is the stagger really correct? The first pt is at 0.0E?
-   # should lat_type be cap? #lon_typ=grn_ctr#lat_typ=cap
-   ncremap -g ${OUTDIR_PATH}/rect.1p0_SCRIP.nc -G latlon=181,360#lon_typ=grn_ctr
+   $APRUN ncremap -g ${OUTDIR_PATH}/rect.1p0_SCRIP.nc -G latlon=181,360#lon_typ=grn_ctr#lat_typ=cap
+   export FSRC=${OUTDIR_PATH}/rect.1p0_SCRIP.nc
+   export FDST=${OUTDIR_PATH}/rect.1p0_mesh.nc
+   $APRUN ESMF_Scrip2Unstruct ${FSRC} ${FDST} 0
   fi
 fi
 
@@ -78,11 +80,15 @@ if [ $RESNAME = 050 ]; then
   export TOPOGFILE=ocean_topog.nc
   export EDITSFILE='none'
   if [ $DO_POSTWGTS == .true. ]; then
-   #pre-generate SCRIP files for dst rectilinear grids using NCO
-   # TODO: is the stagger really correct? The first pt is at 0.0E?
-   # should lat_type be cap? #lon_typ=grn_ctr#lat_typ=cap
-   ncremap -g ${OUTDIR_PATH}/rect.1p0_SCRIP.nc -G latlon=181,360#lon_typ=grn_ctr
-   ncremap -g ${OUTDIR_PATH}/rect.0p5_SCRIP.nc -G latlon=361,720#lon_typ=grn_ctr
+        #pre-generate SCRIP files for dst rectilinear grids using NCO
+        ncremap -g ${OUTDIR_PATH}/rect.1p0_SCRIP.nc -G latlon=181,360#lon_typ=grn_ctr#lat_typ=cap
+        ncremap -g ${OUTDIR_PATH}/rect.0p5_SCRIP.nc -G latlon=361,720#lon_typ=grn_ctr#lat_typ=cap
+        export FSRC=${OUTDIR_PATH}/rect.1p0_SCRIP.nc
+        export FDST=${OUTDIR_PATH}/rect.1p0_mesh.nc
+        $APRUN ESMF_Scrip2Unstruct ${FSRC} ${FDST} 0
+        export FSRC=${OUTDIR_PATH}/rect.0p5_SCRIP.nc
+        export FDST=${OUTDIR_PATH}/rect.0p5_mesh.nc
+        $APRUN ESMF_Scrip2Unstruct ${FSRC} ${FDST} 0
   fi
 fi
 
@@ -91,14 +97,29 @@ if [ $RESNAME = 025 ]; then
   export NJ=1080
   export TOPOGFILE=ocean_topog.nc
   export EDITSFILE=All_edits.nc
-  if [ $DO_POSTWGTS == .true. ]; then
+  #if [ $DO_POSTWGTS == .true. ]; then
    #pre-generate SCRIP files for dst rectilinear grids using NCO
    # TODO: is the stagger really correct? The first pt is at 0.0E?
    # should lat_type be cap? #lon_typ=grn_ctr#lat_typ=cap
-   ncremap -g ${OUTDIR_PATH}/rect.1p0_SCRIP.nc -G latlon=181,360#lon_typ=grn_ctr
-   ncremap -g ${OUTDIR_PATH}/rect.0p5_SCRIP.nc -G latlon=361,720#lon_typ=grn_ctr
-   ncremap -g ${OUTDIR_PATH}/rect.0p25_SCRIP.nc -G latlon=721,1440#lon_typ=grn_ctr
-  fi
+   #srun -A -nems --mem=12g --nodes=1 ncremap -g ${OUTDIR_PATH}/rect.1p0_SCRIP.nc -G latlon=181,360#lon_typ=grn_ctr#lat_typ=cap
+   #srun -A -nems --mem=12g --nodes=1 ncremap -g ${OUTDIR_PATH}/rect.0p5_SCRIP.nc -G latlon=361,720#lon_typ=grn_ctr#lat_typ=cap
+   #srun -A -nems --mem=12g --nodes=11 ncremap -g ${OUTDIR_PATH}/rect.0p25_SCRIP.nc -G latlon=721,1440#lon_typ=grn_ctr#lat_typ=cap
+  #fi
+  #if [ $DO_POSTWGTS == .true. ]; then
+      #pre-generate SCRIP files for dst rectilinear grids using NCO
+      # $APRUN ncremap -g ${OUTDIR_PATH}/rect.1p0_SCRIP.nc -G latlon=181,360#lon_typ=grn_ctr#lat_typ=cap
+      # $APRUN ncremap -g ${OUTDIR_PATH}/rect.0p5_SCRIP.nc -G latlon=361,720#lon_typ=grn_ctr#lat_typ=cap
+      # $APRUN ncremap -g ${OUTDIR_PATH}/rect.0p25_SCRIP.nc -G latlon=721,1440#lon_typ=grn_ctr#lat_typ=cap
+      # export FSRC=${OUTDIR_PATH}/rect.1p0_SCRIP.nc
+      # export FDST=${OUTDIR_PATH}/rect.1p0_mesh.nc
+      # $APRUN ESMF_Scrip2Unstruct ${FSRC} ${FDST} 0
+      # export FSRC=${OUTDIR_PATH}/rect.0p5_SCRIP.nc
+      # export FDST=${OUTDIR_PATH}/rect.0p5_mesh.nc
+      # $APRUN ESMF_Scrip2Unstruct ${FSRC} ${FDST} 0
+      # export FSRC=${OUTDIR_PATH}/rect.0p25_SCRIP.nc
+      # export FDST=${OUTDIR_PATH}/rect.0p25_mesh.nc
+      # $APRUN ESMF_Scrip2Unstruct ${FSRC} ${FDST} 0
+  #fi
 fi
 
 if [ ! -d ${OUTDIR_PATH} ]; then
@@ -109,7 +130,7 @@ edit_namelist < grid.nml.IN > grid.nml
 make
 #srun -A nems --ntasks=2 ./gengrid
 #time srun -n 60 ./gengrid
-srun --nodes=4 --ntasks-per-node=5 ./gengrid
+srun -A nems --mem=12g --nodes=1 -t 00:30:00 ./gengrid
 
 # generate ice mesh
 export FSRC=${OUTDIR_PATH}/Ct.mx${RESNAME}_SCRIP_land.nc

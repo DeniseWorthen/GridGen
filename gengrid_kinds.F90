@@ -15,6 +15,7 @@ module gengrid_kinds
   integer,parameter ::  int_kind = selected_int_kind ( 6) !< 4 byte integer
   integer,parameter :: int8_kind = selected_int_kind (13) !< 8 byte integer
 
+  integer, parameter :: XL = 1024                         !< a very long length character string
   integer, parameter :: CL = 256                          !< a long length character string
   integer, parameter :: CM =  64                          !< a medium length character string
   integer, parameter :: CS =  24                          !< a short length character string

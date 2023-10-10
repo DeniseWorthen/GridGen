@@ -62,6 +62,9 @@ program gen_fixgrid
   character(len=CS) :: form2
   character(len= 6) :: cnx
 
+  character(len=CL) :: cmdstr
+  integer :: system
+
   !-------------------------------------------------------------------------
   ! Initialize esmf environment.
   !-------------------------------------------------------------------------
@@ -401,6 +404,16 @@ program gen_fixgrid
   deallocate(latCu_vert, lonCu_vert)
   deallocate(latBu_vert, lonBu_vert)
 
+  ! generate ESMF mesh from source SCRIP file
+  !fsrc = trim(dirout)//'/'//'Ct.mx'//trim(res)//'_SCRIP.nc'
+  !fdst = trim(dirout)//'/'//'Ct.mx'//trim(res)//'_mesh.nc'
+  !cmdstr = 'srun -A nems --nodes=1 ESMF_Scrip2Unstruct '//trim(fsrc)//' '//trim(fdst)//' 0'
+  !cmdstr = 'srun ESMF_Scrip2Unstruct '//trim(fsrc)//' '//trim(fdst)//' 0'
+  !print '(A)','XXXXX ',trim(cmdstr)
+  !call execute_command_line(trim(cmdstr), wait=.true.)
+  !rc = system(trim(cmdstr))
+  !print *,'here'
+
   ! write SCRIP file with land mask, used for mapped ocean mask
   ! and  mesh creation
   cstagger = trim(staggerlocs(1))
@@ -448,7 +461,7 @@ program gen_fixgrid
   close(21); close(22); close(23); close(24); close(25)
   deallocate(ww3mask); deallocate(ww3dpth)
   deallocate(wet4, wet8)
-
+#ifdef test
   !---------------------------------------------------------------------
   ! use ESMF regridding to produce mapped ocean mask; first generate
   ! conservative regrid weights from ocean to tiles; then generate the
@@ -472,7 +485,7 @@ program gen_fixgrid
   logmsg = 'creating mapped ocean mask for '//trim(atmres)
   print '(a)',trim(logmsg)
   call make_frac_land(trim(fsrc), trim(fwgt))
-
+#endif
   !---------------------------------------------------------------------
   ! use ESMF to find the tripole:tripole weights for creation
   ! of CICE ICs; the source grid is always mx025; don't create this

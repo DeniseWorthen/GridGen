@@ -8,7 +8,7 @@ module postwgts
 
   use ESMF
 
-  use gengrid_kinds, only : CL,CM,CS
+  use gengrid_kinds, only : XL,CL,CM,CS
   use grdvars,       only : nv
   use charstrings,   only : dirout, res, staggerlocs, logmsg
   use netcdf
@@ -25,12 +25,15 @@ contains
 
     ! local variables
     character(len=CL) :: fsrc, fdst, fwgt
+    character(len=CL) :: cmdstr
     character(len= 2) :: cstagger
 
     character(len=CM), dimension(2) :: methodname = (/'conserve', 'bilinear'/)
 
     type(ESMF_RegridMethod_Flag) :: method
+    type(ESMF_RouteHandle)       :: RH
     ! the number of possible destination grids depends on the source grid resolution
+    integer :: system
     integer :: k,rc,nd,ndest
     character(len=CS), allocatable, dimension(:) :: destgrds
 
@@ -60,7 +63,7 @@ contains
     ! use ESMF to create the weights for unstaggering the points onto
     ! the Ct staggers for post; the destination is always Ct
     !---------------------------------------------------------------------
-
+#ifdef test
     method=ESMF_REGRIDMETHOD_BILINEAR
     fdst = trim(dirout)//'/'//'Ct.mx'//trim(res)//'_SCRIP.nc'
     do k = 2,nv
@@ -77,15 +80,25 @@ contains
        if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, &
             line=__LINE__, file=__FILE__)) call ESMF_Finalize(endflag=ESMF_END_ABORT)
     end do
-
+#endif
     !---------------------------------------------------------------------
     ! use ESMF to create the weights from the Ct tripole to the rectilinear
     ! grids with conservative and bilinear methods for post; the source
     ! file is always Ct
     !---------------------------------------------------------------------
 
+    ! generate ESMF mesh from source SCRIP file
+    fsrc = trim(dirout)//'/'//'Ct.mx'//trim(res)//'_SCRIP.nc'
+    !fdst = trim(dirout)//'/'//'Ct.mx'//trim(res)//'_mesh.nc'
+    !cmdstr = 'srun -A nems --nodes=1 ESMF_Scrip2Unstruct '//trim(fsrc)//' '//trim(fdst)//' 0'
+    !cmdstr = 'srun ESMF_Scrip2Unstruct '//trim(fsrc)//' '//trim(fdst)//' 0'
+    !print '(A)',trim(cmdstr)
+    !call execute_command_line(trim(cmdstr), wait=.true.)
+    !rc = system(trim(cmdstr))
+    !print *,'here'
+!#ifdef test
+!    fsrc = trim(dirout)//'/'//'Ct.mx'//trim(res)//'_mesh.nc'
     do nd = 1,ndest
-       fsrc = trim(dirout)//'/'//'Ct.mx'//trim(res)//'_SCRIP.nc'
        fdst = trim(dirout)//'/rect.'//trim(destgrds(nd))//'_SCRIP.nc'
 
        do k = 1,size(methodname)
@@ -97,15 +110,15 @@ contains
           logmsg = 'creating weight file '//trim(fwgt)
           print '(a)',trim(logmsg)
 
-          call ESMF_RegridWeightGen(srcFile=trim(fsrc),dstFile=trim(fdst), &
-               weightFile=trim(fwgt), regridmethod=method, &
-               ignoreDegenerate=.true., &
+          call ESMF_RegridWeightGen(srcFile=trim(fsrc),dstFile=trim(fdst),       &
+               regridRouteHandle=RH, weightFile=trim(fwgt), regridmethod=method, &
+               ignoreDegenerate=.true.,                                          &
                unmappedaction=ESMF_UNMAPPEDACTION_IGNORE, rc=rc)
           if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, &
                line=__LINE__, file=__FILE__)) call ESMF_Finalize(endflag=ESMF_END_ABORT)
        end do
     end do
-
+!#endif
     deallocate(destgrds)
 
   end subroutine make_postwgts
