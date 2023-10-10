@@ -454,7 +454,7 @@ program gen_fixgrid
   ! conservative regrid weights from ocean to tiles; then generate the
   ! tiled files containing the mapped ocean mask
   !---------------------------------------------------------------------
-
+#ifdef test
   method=ESMF_REGRIDMETHOD_CONSERVE
   fsrc = trim(dirout)//'/'//'Ct.mx'//trim(res)//'_SCRIP_land.nc'
   fdst = trim(fv3dir)//'/'//trim(atmres)//'/'//trim(atmres)//'_mosaic.nc'
@@ -472,7 +472,7 @@ program gen_fixgrid
   logmsg = 'creating mapped ocean mask for '//trim(atmres)
   print '(a)',trim(logmsg)
   call make_frac_land(trim(fsrc), trim(fwgt))
-
+#endif
   !---------------------------------------------------------------------
   ! use ESMF to find the tripole:tripole weights for creation
   ! of CICE ICs; the source grid is always mx025; don't create this
