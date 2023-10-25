@@ -204,13 +204,14 @@ program gen_fixgrid
 
   fsrc = trim(dirsrc)//'/'//trim(editsfile)
   if(editmask)fsrc = trim(dirout)//'/'//'ufs.'//trim(editsfile)
-     if (trim(editsfile) /= 'none') then
-        inquire(file=trim(fsrc),exist=fexist)
-        if (.not. fexist) then
-           print '(a)', 'Required topoedits file '//trim(fsrc)//' is missing '
-           call abort()
-        end if
+
+  if (trim(editsfile) /= 'none') then
+     inquire(file=trim(fsrc),exist=fexist)
+     if (.not. fexist) then
+        print '(a)', 'Required topoedits file '//trim(fsrc)//' is missing '
+        call abort()
      end if
+  end if
   call apply_topoedits(fsrc)
 
   !---------------------------------------------------------------------

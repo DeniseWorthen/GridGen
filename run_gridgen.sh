@@ -31,12 +31,12 @@ export OUTDIR_PATH=/scratch1/NCEPDEV/climate/Denise.Worthen/grids-mesh-20231008
 export MOSAICDIR_PATH=/scratch1/NCEPDEV/global/glopara/fix/orog/20220805
 export APRUN='srun -A nems --nodes=1 -t 00:30:00'
 
-if [ $RESNAME = 400 ]; then
-  export FIXDIR_PATH=/scratch2/NCEPDEV/climate/Denise.Worthen/soca/test/Data/72x35x25/INPUT
-else
+#if [ $RESNAME = 500 ]; then
+  #export FIXDIR_PATH=/scratch2/NCEPDEV/climate/Denise.Worthen/soca/test/Data/72x35x25/INPUT
+#else
   #export FIXDIR_PATH=/scratch2/NCEPDEV/climate/climpara/S2S/FIX/fix_UFSp4/fix_mom6/${RESNAME}
-  export FIXDIR_PATH=/scratch1/NCEPDEV/global/glopara/fix/mom6/20220805/${RESNAME}
-fi
+#fi
+export FIXDIR_PATH=/scratch1/NCEPDEV/global/glopara/fix/mom6/20220805/${RESNAME}
 
 if [[ $MOSAICRES == C3072 ]]; then
     export NPX=3072
@@ -51,13 +51,23 @@ elif [[ $MOSAICRES == C192 ]]; then
 elif [[ $MOSAICRES == C96 ]]; then
   export MOSAICRES=C96
   export NPX=96
+elif [[ $MOSAICRES == C48 ]]; then
+  export MOSAICRES=C48
+  export NPX=48
 fi
 
-if [ $RESNAME = 400 ]; then
+if [ $RESNAME = 500 ]; then
   export NI=72
   export NJ=35
   export TOPOGFILE=ocean_topog.nc
   export EDITSFILE='none'
+  if [ $DO_POSTWGTS == .true. ]; then
+      #pre-generate SCRIP files for dst rectilinear grids using NCO
+      $APRUN ncremap -g ${OUTDIR_PATH}/rect.5p0_SCRIP.nc -G latlon=36,72#lon_typ=grn_ctr#lat_typ=cap
+      export FSRC=${OUTDIR_PATH}/rect.1p0_SCRIP.nc
+      export FDST=${OUTDIR_PATH}/rect.1p0_mesh.nc
+      $APRUN ESMF_Scrip2Unstruct ${FSRC} ${FDST} 0
+  fi
 fi
 
 if [ $RESNAME = 100 ]; then
