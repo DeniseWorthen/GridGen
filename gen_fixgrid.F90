@@ -169,17 +169,23 @@ program gen_fixgrid
 
   if(xtype.eq. 6)dp4 = real(dp8,4)
 
-  !print *,minval(dp8),maxval(dp8)
-  !print *,minval(dp4),maxval(dp4)
 
   if(editmask)then
      !---------------------------------------------------------------------
      !  apply topoedits run time mask changes if required for this config
+     ! this will create a modified topoedits file which accounts for any
+     ! land mask changes created at run time by MOM6
      !---------------------------------------------------------------------
 
      if(trim(editsfile)  == 'none')then
         print '(a)', 'Need a valid editsfile to make mask edits '
-        stop
+        call abort()
+     end if
+     inquire(file=trim(dirsrc)//'/'//trim(editsfile),exist=fexist)
+     if (.not. fexist) then
+        print '(a)', 'Required topoedits file '//trim(editsfile) &
+             //'for land mask changes is missing '
+        call abort()
      end if
 
      fsrc = trim(dirsrc)//'/'//trim(editsfile)
@@ -191,10 +197,20 @@ program gen_fixgrid
   ! MOM6 reads the depth file, applies the topo edits and then adjusts
   ! depth using masking_depth and min/max depth. This call mimics
   ! MOM6 routines apply_topography_edits_from_file and limit_topography
+  ! If the the topoedits file has been modified to account for MOM6 run
+  ! time land mask changes (above), then the depth will be created using
+  ! this modified topoedits file
   !---------------------------------------------------------------------
 
   fsrc = trim(dirsrc)//'/'//trim(editsfile)
   if(editmask)fsrc = trim(dirout)//'/'//'ufs.'//trim(editsfile)
+     if (trim(editsfile) /= 'none') then
+        inquire(file=trim(fsrc),exist=fexist)
+        if (.not. fexist) then
+           print '(a)', 'Required topoedits file '//trim(fsrc)//' is missing '
+           call abort()
+        end if
+     end if
   call apply_topoedits(fsrc)
 
   !---------------------------------------------------------------------
@@ -454,7 +470,7 @@ program gen_fixgrid
   ! conservative regrid weights from ocean to tiles; then generate the
   ! tiled files containing the mapped ocean mask
   !---------------------------------------------------------------------
-#ifdef test
+
   method=ESMF_REGRIDMETHOD_CONSERVE
   fsrc = trim(dirout)//'/'//'Ct.mx'//trim(res)//'_SCRIP_land.nc'
   fdst = trim(fv3dir)//'/'//trim(atmres)//'/'//trim(atmres)//'_mosaic.nc'
@@ -472,7 +488,7 @@ program gen_fixgrid
   logmsg = 'creating mapped ocean mask for '//trim(atmres)
   print '(a)',trim(logmsg)
   call make_frac_land(trim(fsrc), trim(fwgt))
-#endif
+
   !---------------------------------------------------------------------
   ! use ESMF to find the tripole:tripole weights for creation
   ! of CICE ICs; the source grid is always mx025; don't create this

@@ -206,6 +206,9 @@ contains
           dp4(ii+1,jj+1) = abs(zeds1(i))
        end do
        deallocate(ieds1, jeds1, zeds1)
+    else
+       print '(a)','required topo edits file '//trim(fsrc)//' is missing '
+       call abort()
     end if
 
     !---------------------------------------------------------------------
