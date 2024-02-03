@@ -169,10 +169,9 @@ program gen_fixgrid
 
   if(xtype.eq. 6)dp4 = real(dp8,4)
 
-
   if(editmask)then
      !---------------------------------------------------------------------
-     !  apply topoedits run time mask changes if required for this config
+     ! apply topoedits run time mask changes if required for this config
      ! this will create a modified topoedits file which accounts for any
      ! land mask changes created at run time by MOM6
      !---------------------------------------------------------------------
@@ -202,17 +201,17 @@ program gen_fixgrid
   ! this modified topoedits file
   !---------------------------------------------------------------------
 
-  fsrc = trim(dirsrc)//'/'//trim(editsfile)
-  if(editmask)fsrc = trim(dirout)//'/'//'ufs.'//trim(editsfile)
+     fsrc = trim(dirsrc)//'/'//trim(editsfile)
+     if(editmask)fsrc = trim(dirout)//'/'//'ufs.'//trim(editsfile)
 
-  if (trim(editsfile) /= 'none') then
-     inquire(file=trim(fsrc),exist=fexist)
-     if (.not. fexist) then
-        print '(a)', 'Required topoedits file '//trim(fsrc)//' is missing '
-        call abort()
+     if (trim(editsfile) /= 'none') then
+        inquire(file=trim(fsrc),exist=fexist)
+        if (.not. fexist) then
+           print '(a)', 'Required topoedits file '//trim(fsrc)//' is missing '
+           call abort()
+        end if
      end if
-  end if
-  call apply_topoedits(fsrc)
+     call apply_topoedits(fsrc)
 
   !---------------------------------------------------------------------
   ! read MOM6 supergrid file
