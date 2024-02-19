@@ -27,7 +27,7 @@ export DO_POSTWGTS=.true.
 #export OUTDIR_PATH=/scratch2/NCEPDEV/climate/Denise.Worthen/grids-esmf-20210822/
 #export OUTDIR_PATH=/scratch2/NCEPDEV/climate/Denise.Worthen/grids-esmf-20211107
 #export OUTDIR_PATH=/scratch1/NCEPDEV/climate/Denise.Worthen/grids-test-202210
-export OUTDIR_PATH=/scratch1/NCEPDEV/climate/Denise.Worthen/grids-mesh-20231008
+export OUTDIR_PATH=/scratch1/NCEPDEV/climate/Denise.Worthen/grids-20240218
 export MOSAICDIR_PATH=/scratch1/NCEPDEV/global/glopara/fix/orog/20220805
 export APRUN='srun -A nems --nodes=1 -t 00:30:00'
 
@@ -61,13 +61,13 @@ if [ $RESNAME = 500 ]; then
   export NJ=35
   export TOPOGFILE=ocean_topog.nc
   export EDITSFILE='none'
-  if [ $DO_POSTWGTS == .true. ]; then
+  #if [ $DO_POSTWGTS == .true. ]; then
       #pre-generate SCRIP files for dst rectilinear grids using NCO
-      $APRUN ncremap -g ${OUTDIR_PATH}/rect.5p0_SCRIP.nc -G latlon=36,72#lon_typ=grn_ctr#lat_typ=cap
-      export FSRC=${OUTDIR_PATH}/rect.1p0_SCRIP.nc
-      export FDST=${OUTDIR_PATH}/rect.1p0_mesh.nc
-      $APRUN ESMF_Scrip2Unstruct ${FSRC} ${FDST} 0
-  fi
+      #$APRUN ncremap -g ${OUTDIR_PATH}/rect.5p0_SCRIP.nc -G latlon=36,72#lon_typ=grn_ctr#lat_typ=cap
+      #export FSRC=${OUTDIR_PATH}/rect.5p00_SCRIP.nc
+      #export FDST=${OUTDIR_PATH}/rect.5p00_mesh.nc
+      #$APRUN ESMF_Scrip2Unstruct ${FSRC} ${FDST} 0
+  #fi
 fi
 
 if [ $RESNAME = 100 ]; then
@@ -76,13 +76,13 @@ if [ $RESNAME = 100 ]; then
   export MASKEDIT=.T.
   export TOPOGFILE=topog.nc
   export EDITSFILE=topo_edits_011818.nc
-  if [ $DO_POSTWGTS == .true. ]; then
+  #if [ $DO_POSTWGTS == .true. ]; then
       #pre-generate SCRIP files for dst rectilinear grids using NCO
-      $APRUN ncremap -g ${OUTDIR_PATH}/rect.1p0_SCRIP.nc -G latlon=181,360#lon_typ=grn_ctr#lat_typ=cap
-      export FSRC=${OUTDIR_PATH}/rect.1p0_SCRIP.nc
-      export FDST=${OUTDIR_PATH}/rect.1p0_mesh.nc
-      $APRUN ESMF_Scrip2Unstruct ${FSRC} ${FDST} 0
-  fi
+      #$APRUN ncremap -g ${OUTDIR_PATH}/rect.1p0_SCRIP.nc -G latlon=181,360#lon_typ=grn_ctr#lat_typ=cap
+      #export FSRC=${OUTDIR_PATH}/rect.1p00_SCRIP.nc
+      #export FDST=${OUTDIR_PATH}/rect.1p00_mesh.nc
+      #$APRUN ESMF_Scrip2Unstruct ${FSRC} ${FDST} 0
+  #fi
 fi
 
 if [ $RESNAME = 050 ]; then
@@ -90,17 +90,17 @@ if [ $RESNAME = 050 ]; then
   export NJ=576
   export TOPOGFILE=ocean_topog.nc
   export EDITSFILE='none'
-  if [ $DO_POSTWGTS == .true. ]; then
+  #if [ $DO_POSTWGTS == .true. ]; then
       #pre-generate SCRIP files for dst rectilinear grids using NCO
-      ncremap -g ${OUTDIR_PATH}/rect.1p0_SCRIP.nc -G latlon=181,360#lon_typ=grn_ctr#lat_typ=cap
-      ncremap -g ${OUTDIR_PATH}/rect.0p5_SCRIP.nc -G latlon=361,720#lon_typ=grn_ctr#lat_typ=cap
-      export FSRC=${OUTDIR_PATH}/rect.1p0_SCRIP.nc
-      export FDST=${OUTDIR_PATH}/rect.1p0_mesh.nc
-      $APRUN ESMF_Scrip2Unstruct ${FSRC} ${FDST} 0
-      export FSRC=${OUTDIR_PATH}/rect.0p5_SCRIP.nc
-      export FDST=${OUTDIR_PATH}/rect.0p5_mesh.nc
-      $APRUN ESMF_Scrip2Unstruct ${FSRC} ${FDST} 0
-  fi
+      #ncremap -g ${OUTDIR_PATH}/rect.1p0_SCRIP.nc -G latlon=181,360#lon_typ=grn_ctr#lat_typ=cap
+      #ncremap -g ${OUTDIR_PATH}/rect.0p5_SCRIP.nc -G latlon=361,720#lon_typ=grn_ctr#lat_typ=cap
+      #export FSRC=${OUTDIR_PATH}/rect.1p00_SCRIP.nc
+      #export FDST=${OUTDIR_PATH}/rect.1p00_mesh.nc
+      #$APRUN ESMF_Scrip2Unstruct ${FSRC} ${FDST} 0
+      #export FSRC=${OUTDIR_PATH}/rect.0p50_SCRIP.nc
+      #export FDST=${OUTDIR_PATH}/rect.0p50_mesh.nc
+      #$APRUN ESMF_Scrip2Unstruct ${FSRC} ${FDST} 0
+  #fi
 fi
 
 if [ $RESNAME = 025 ]; then
@@ -108,21 +108,21 @@ if [ $RESNAME = 025 ]; then
   export NJ=1080
   export TOPOGFILE=ocean_topog.nc
   export EDITSFILE=All_edits.nc
-  if [ $DO_POSTWGTS == .true. ]; then
+  #if [ $DO_POSTWGTS == .true. ]; then
       #pre-generate SCRIP files for dst rectilinear grids using NCO
       #$APRUN ncremap -g ${OUTDIR_PATH}/rect.1p0_SCRIP.nc -G latlon=181,360#lon_typ=grn_ctr#lat_typ=cap
       #$APRUN ncremap -g ${OUTDIR_PATH}/rect.0p5_SCRIP.nc -G latlon=361,720#lon_typ=grn_ctr#lat_typ=cap
       #$APRUN ncremap -g ${OUTDIR_PATH}/rect.0p25_SCRIP.nc -G latlon=721,1440#lon_typ=grn_ctr#lat_typ=cap
-      export FSRC=${OUTDIR_PATH}/rect.1p0_SCRIP.nc
-      export FDST=${OUTDIR_PATH}/rect.1p0_mesh.nc
-      $APRUN ESMF_Scrip2Unstruct ${FSRC} ${FDST} 0
-      export FSRC=${OUTDIR_PATH}/rect.0p5_SCRIP.nc
-      export FDST=${OUTDIR_PATH}/rect.0p5_mesh.nc
-      $APRUN ESMF_Scrip2Unstruct ${FSRC} ${FDST} 0
-      export FSRC=${OUTDIR_PATH}/rect.0p25_SCRIP.nc
-      export FDST=${OUTDIR_PATH}/rect.0p25_mesh.nc
-      $APRUN ESMF_Scrip2Unstruct ${FSRC} ${FDST} 0
-  fi
+      #export FSRC=${OUTDIR_PATH}/rect.1p00_SCRIP.nc
+      #export FDST=${OUTDIR_PATH}/rect.1p00_mesh.nc
+      #$APRUN ESMF_Scrip2Unstruct ${FSRC} ${FDST} 0
+      #export FSRC=${OUTDIR_PATH}/rect.0p50_SCRIP.nc
+      #export FDST=${OUTDIR_PATH}/rect.0p50_mesh.nc
+      #$APRUN ESMF_Scrip2Unstruct ${FSRC} ${FDST} 0
+      #export FSRC=${OUTDIR_PATH}/rect.0p25_SCRIP.nc
+      #export FDST=${OUTDIR_PATH}/rect.0p25_mesh.nc
+      #$APRUN ESMF_Scrip2Unstruct ${FSRC} ${FDST} 0
+  #fi
 fi
 
 if [ ! -d ${OUTDIR_PATH} ]; then
@@ -136,20 +136,20 @@ make
 #srun --nodes=4 --ntasks-per-node=5 ./gengrid
 srun -A nems --mem=12g --nodes=1 -t 00:30:00 ./gengrid
 
-# create mesh
-export FSRC=${OUTDIR_PATH}/Ct.mx${RESNAME}_SCRIP.nc
-export FDST=${OUTDIR_PATH}/Ct.mx${RESNAME}_mesh.nc
-srun -A nems -n 1 ESMF_Scrip2Unstruct ${FSRC} ${FDST} 0
+# # create mesh
+# export FSRC=${OUTDIR_PATH}/Ct.mx${RESNAME}_SCRIP.nc
+# export FDST=${OUTDIR_PATH}/Ct.mx${RESNAME}_mesh.nc
+# srun -A nems -n 1 ESMF_Scrip2Unstruct ${FSRC} ${FDST} 0
 
-# generate ice mesh
-export FSRC=${OUTDIR_PATH}/Ct.mx${RESNAME}_SCRIP_land.nc
-export FDST=${OUTDIR_PATH}/mesh.mx${RESNAME}.nc
-time srun -A nems -n 1 ESMF_Scrip2Unstruct ${FSRC} ${FDST} 0
+# # generate ice mesh
+# export FSRC=${OUTDIR_PATH}/Ct.mx${RESNAME}_SCRIP_land.nc
+# export FDST=${OUTDIR_PATH}/mesh.mx${RESNAME}.nc
+# time srun -A nems -n 1 ESMF_Scrip2Unstruct ${FSRC} ${FDST} 0
 
-# generate kmt file for CICE
-export FSRC=${OUTDIR_PATH}/grid_cice_NEMS_mx${RESNAME}.nc
-export FDST=${OUTDIR_PATH}/kmtu_cice_NEMS_mx${RESNAME}.nc
-ncks -O -v kmt ${FSRC} ${FDST}
+# # generate kmt file for CICE
+# export FSRC=${OUTDIR_PATH}/grid_cice_NEMS_mx${RESNAME}.nc
+# export FDST=${OUTDIR_PATH}/kmtu_cice_NEMS_mx${RESNAME}.nc
+# ncks -O -v kmt ${FSRC} ${FDST}
 
 # clean up
 #make clean
