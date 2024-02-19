@@ -172,7 +172,6 @@ program gen_fixgrid
 
      if(xtype.eq. 6)dp4 = real(dp8,4)
 
-
      if(editmask)then
         !---------------------------------------------------------------------
         !  apply topoedits run time mask changes if required for this config
@@ -489,8 +488,7 @@ program gen_fixgrid
            end if
            call ESMF_RegridWeightGen(srcFile=trim(fsrc),dstFile=trim(fdst), &
                 weightFile=trim(fwgt), regridmethod=method,                 &
-                ignoreDegenerate=.true., verboseFlag=debug,                 &
-                unmappedaction=ESMF_UNMAPPEDACTION_IGNORE, rc=rc)
+                ignoreDegenerate=.true., unmappedaction=ESMF_UNMAPPEDACTION_IGNORE, rc=rc)
            if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, &
                 line=__LINE__, file=__FILE__)) call ESMF_Finalize(endflag=ESMF_END_ABORT)
         else
@@ -525,10 +523,10 @@ program gen_fixgrid
      print '(a)',trim(logmsg)
   end if
 
-  call ESMF_RegridWeightGen(srcFile=trim(fsrc),dstFile=trim(fdst),        &
-       weightFile=trim(fwgt), regridmethod=method,                        &
-       unmappedaction=ESMF_UNMAPPEDACTION_IGNORE, netcdf4fileFlag=.true., &
-       ignoreDegenerate=.true., verboseFlag=debug, tileFilePath=trim(fatm), rc=rc)
+  call ESMF_RegridWeightGen(srcFile=trim(fsrc),dstFile=trim(fdst),         &
+       weightFile=trim(fwgt), regridmethod=method,                         &
+       ignoreDegenerate=.true., unmappedaction=ESMF_UNMAPPEDACTION_IGNORE, &
+       netcdf4fileFlag=.true., tileFilePath=trim(fatm), rc=rc)
   if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, &
        line=__LINE__, file=__FILE__)) call ESMF_Finalize(endflag=ESMF_END_ABORT)
 
