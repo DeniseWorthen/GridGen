@@ -110,11 +110,13 @@ if [ ! -d ${OUTDIR_PATH} ]; then
 fi
 
 edit_namelist < grid.nml.IN > grid.nml
-make
+#make
 #srun -A nems --ntasks=2 ./gengrid
 #time srun -n 60 ./gengrid
-#srun --nodes=4 --ntasks-per-node=5 ./gengrid
-srun -A nems --mem=12g --nodes=1 -t 00:30:00 ./gengrid
+#srun -A nems -n 1 --mem=12g ./gengrid
+#srun -A nems --ntasks=4 --ntasks-per-node=40 ./gengrid
+#srun -A nems --ntasks=1 --ntasks-per-node=40 ./gengrid
+#srun -A nems --mem=12g --nodes=1 -t 00:30:00 ./gengrid
 
 # generate ice mesh
 # export FSRC=${OUTDIR_PATH}/Ct.mx${RESNAME}_SCRIP_land.nc

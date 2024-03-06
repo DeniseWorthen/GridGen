@@ -54,6 +54,7 @@ program gen_fixgrid
   integer :: mpi_comm, mpi_dup, ierr
   integer :: localPet, nPet
   logical :: fexist = .false.
+  logical :: maintask
 
   type(ESMF_RegridMethod_Flag) :: method
   type(ESMF_VM) :: vm
@@ -67,8 +68,7 @@ program gen_fixgrid
   !-------------------------------------------------------------------------
   ! Initialize esmf environment.
   ! Everthing except the generation of the weights to map the ocean mask to
-  ! the ATM tiles and generation of the tripole:tripole weights is done on
-  ! the root PE.
+  ! the ATM tiles is done on the root PE.
   !-------------------------------------------------------------------------
 
   ! Providing the optional vm argument to ESMF_Initialize() is one way of obtaining the global VM.
@@ -340,20 +340,17 @@ program gen_fixgrid
      print '(a)',trim(logmsg)
 
      if(debug)call checkseam
-
      do i = 1,ni
         i2 = ipole(2)+(ipole(1)-i)+1
         xlonCt(i) = lonCt(i2,nj)
         xlatCt(i) = latCt(i2,nj)
      enddo
-
      do i = 1,ni
         i2 = ipole(2)+(ipole(1)-i)
         if(i2 .lt. 1)i2 = ni
         xlonCu(i) = lonCu(i2,nj)
         xlatCu(i) = latCu(i2,nj)
      enddo
-
      if(debug)call checkxlatlon
 
      !approx lat at grid bottom
@@ -372,7 +369,6 @@ program gen_fixgrid
 
      call fill_vertices(2,nj  , iVertCu,jVertCu, latCv,lonCv, latCu_vert,lonCu_vert)
      call           fill_bottom(iVertCu,jVertCu, latCv,lonCv, latCu_vert,lonCu_vert,dlatCv)
-
      !Cv and Bu grids align in j
      call fill_vertices(1,nj-1, iVertCv,jVertCv, latCu,lonCu, latCv_vert,lonCv_vert)
      call              fill_top(iVertCv,jVertCv, latCu,lonCu, latCv_vert,lonCv_vert, xlatCu, xlonCu)
@@ -381,7 +377,6 @@ program gen_fixgrid
      call              fill_top(iVertBu,jVertBu, latCt,lonCt, latBu_vert,lonBu_vert, xlatCt, xlonCt)
 
      if(debug)call checkpoint
-
      if(minval(latCt_vert) .lt. -1.e3)stop
      if(minval(lonCt_vert) .lt. -1.e3)stop
      if(minval(latCu_vert) .lt. -1.e3)stop
@@ -468,7 +463,7 @@ program gen_fixgrid
      close(21); close(22); close(23); close(24); close(25)
      deallocate(ww3mask); deallocate(ww3dpth)
      deallocate(wet4, wet8)
-
+#ifdef test
      !---------------------------------------------------------------------
      ! use ESMF to find the tripole:tripole weights for creation
      ! of CICE ICs; the source grid is always mx025; don't create this
@@ -500,6 +495,8 @@ program gen_fixgrid
         end if
      end if
 
+     if(do_postwgts)call make_postwgts
+#endif
   end if ! if (maintask)
 
   call mpi_bcast(res,    len(res),    MPI_CHARACTER, 0, mpi_dup, ierr)
@@ -541,8 +538,6 @@ program gen_fixgrid
      fsrc = trim(dirout)//'/'//'Ct.mx'//trim(res)//'_SCRIP_land.nc'
      fwgt = trim(dirout)//'/'//'Ct.mx'//trim(res)//'.to.'//trim(atmres)//'.nc'
      call make_frac_land(trim(fsrc), trim(fwgt))
-
-     if(do_postwgts)call make_postwgts
 
      deallocate(x,y, angq, dx, dy, xsgp1, ysgp1)
      deallocate(areaCt, anglet, angle)
