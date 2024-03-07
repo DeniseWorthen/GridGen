@@ -510,6 +510,13 @@ program gen_fixgrid
              ignoreDegenerate=.true., unmappedaction=ESMF_UNMAPPEDACTION_IGNORE, rc=rc)
         if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, &
              line=__LINE__, file=__FILE__)) call ESMF_Finalize(endflag=ESMF_END_ABORT)
+
+        ! in ncl rotate-> EW
+        ! fsrc = bu.mxres -> ct.mxres
+        ! remap ew velocities mx025->mxres
+        ! ct.mxres -> bu.mxres
+        ! unrotate
+        ! so need ct->bu for given res
      else
         logmsg = 'ERROR: '//trim(fsrc)//' is required to generate tripole:triple weights'
         print '(a)',trim(logmsg)
