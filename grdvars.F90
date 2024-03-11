@@ -103,6 +103,8 @@ module grdvars
   real(dbl_kind), allocatable, dimension(:,:) :: anglet            !< The rotation angle on Ct points (opposite sense
                                                                    !! from angle)
   real(dbl_kind), allocatable, dimension(:,:) :: angle             !< The rotation angle on Bu points
+  real(dbl_kind), allocatable, dimension(:,:) :: angchk            !< The rotation angle on Ct points, as calculated by
+                                                                   !! CICE internally using angle on Bu
 
   real(dbl_kind), allocatable, dimension(:,:,:) :: latCt_vert      !< The latitudes of the 4 vertices of each Ct grid
                                                                    !! point
@@ -182,7 +184,7 @@ contains
     allocate( latCu(ni,nj), lonCu(ni,nj) )
     allocate( latBu(ni,nj), lonBu(ni,nj) )
 
-    allocate( areaCt(ni,nj), anglet(ni,nj), angle(ni,nj) )
+    allocate( areaCt(ni,nj), anglet(ni,nj), angle(ni,nj), angchk(ni,nj))
 
     allocate( latCt_vert(ni,nj,nv), lonCt_vert(ni,nj,nv) )
     allocate( latCv_vert(ni,nj,nv), lonCv_vert(ni,nj,nv) )

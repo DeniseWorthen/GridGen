@@ -40,6 +40,9 @@ program gen_fixgrid
 
   real(kind=dbl_kind), parameter :: pi = 3.14159265358979323846_dbl_kind
   real(kind=dbl_kind), parameter :: deg2rad = pi/180.0_dbl_kind
+  ! for angchk
+  real(kind=dbl_kind) :: angle_0, angle_w, angle_s, angle_sw
+  real(kind=dbl_kind) :: p25 = 0.25
 
   real(real_kind),   allocatable, dimension(:,:) :: ww3dpth
   integer(int_kind), allocatable, dimension(:,:) :: ww3mask
@@ -286,6 +289,26 @@ program gen_fixgrid
   call find_ang
   print *,'ANGLET ',minval(anglet),maxval(anglet)
   print *,'ANGLE  ',minval(angle),maxval(angle)
+
+  ! calculate anglet from angq as CICE does internally
+  angchk = 0.0
+  do j = 2,nj
+     do i = 2,ni
+        angle_0  = angle(i  ,j  ) !   w----0
+        angle_w  = angle(i-1,j  ) !   |    |
+	angle_s  = angle(i,  j-1) !   |    |
+        angle_sw = angle(i-1,j-1) !   sw---s
+        angchk(i,j) = atan2(p25*(sin(angle_0)+   &
+                                 sin(angle_w)+   &
+                                 sin(angle_s)+   &
+                                 sin(angle_sw)), &
+                            p25*(cos(angle_0)+   &
+                                 cos(angle_w)+   &
+                                 cos(angle_s)+   &
+                                 cos(angle_sw)))
+     enddo
+  enddo
+  print *,'ANGCHK ',minval(angchk), maxval(angchk)
 
   !---------------------------------------------------------------------
   ! For the 1/4deg grid, hte at j=720 and j = 1440 is identically=0.0 for
