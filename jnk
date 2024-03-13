@@ -1,0 +1,1 @@
+ srun -A nems ESMF_Scrip2Unstruct /scratch1/NCEPDEV/climate/Denise.Worthen/grids-mesh-20231008/Ct.mx025_SCRIP.nc /scratch1/NCEPDEV/climate/Denise.Worthen/grids-mesh-20231008/Ct.mx025_mesh.nc 0

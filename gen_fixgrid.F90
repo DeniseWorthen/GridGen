@@ -289,6 +289,7 @@ program gen_fixgrid
   call find_ang
   print *,'ANGLET ',minval(anglet),maxval(anglet)
   print *,'ANGLE  ',minval(angle),maxval(angle)
+
   !---------------------------------------------------------------------
   ! check: calculate anglet from angq as CICE does internally. note sign
   ! will be reversed from MOM6 anglet
@@ -300,6 +301,7 @@ program gen_fixgrid
   !   Bu(i-1,j-1) sw----------------s
   !
   !---------------------------------------------------------------------
+
   angchk = 0.0
   do j = 2,nj
      do i = 2,ni

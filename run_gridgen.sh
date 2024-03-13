@@ -27,7 +27,8 @@ export DO_POSTWGTS=.false.
 #export OUTDIR_PATH=/scratch2/NCEPDEV/climate/Denise.Worthen/grids-esmf-20210822/
 #export OUTDIR_PATH=/scratch2/NCEPDEV/climate/Denise.Worthen/grids-esmf-20211107
 #export OUTDIR_PATH=/scratch1/NCEPDEV/climate/Denise.Worthen/grids-test-202210
-export OUTDIR_PATH=/scratch1/NCEPDEV/climate/Denise.Worthen/grids-20240311
+#export OUTDIR_PATH=/scratch1/NCEPDEV/climate/Denise.Worthen/grids-20240311
+export OUTDIR_PATH=/scratch1/NCEPDEV/climate/Denise.Worthen/addangvar-20240313
 export MOSAICDIR_PATH=/scratch1/NCEPDEV/global/glopara/fix/orog/20220805
 export APRUN='srun -A nems --nodes=1 -t 00:30:00'
 
