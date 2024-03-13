@@ -10,8 +10,8 @@ begin
 ; read in netCDF file
 ;************************************************
 
-  ;rtsrc = "/scratch1/NCEPDEV/climate/Denise.Worthen/grids-20240311/"
-  rtsrc = "/scratch1/NCEPDEV/climate/Denise.Worthen/addangvar-20240313/"
+  rtsrc = "/scratch1/NCEPDEV/climate/Denise.Worthen/grids-20240311/"
+  ;rtsrc = "/scratch1/NCEPDEV/climate/Denise.Worthen/addangvar-20240313/"
 
   grdfile = "tripole.mx025.nc"
   grdsrc = ""
@@ -23,6 +23,7 @@ begin
 
   ; load the grid file
   gr =addfile(rtsrc+grdsrc+grdfile,"r")
+  print(rtsrc+grdfile)
 
   ;varname="htn"
   ;latname="latCv"
@@ -37,7 +38,8 @@ begin
   ;minlat=82.0
 
   levs=(/-1.6,1.6,.1/)
-  minlat = 89.5
+  ;minlat = 89.5
+  minlat = 85.0
 
 ;************************************************
 ; add a poly line showing the polar seem along
@@ -54,9 +56,10 @@ begin
 ;************************************************
   wkstype="X11"
   ;wkstype="png"
+  wkstitle=grdfile
   wkstype@wkWidth=800
   wkstype@wkHeight=800
-  wks   = gsn_open_wks (wkstype,"grid")              ; send graphics to X11 window
+  wks   = gsn_open_wks (wkstype,wkstitle)              ; send graphics to X11 window
 
   plot = new(2,graphic)
   dum = new(2,graphic)
@@ -85,8 +88,8 @@ begin
   res@cnMaxLevelValF  = levs(1)                      ; set the maximum contour level
   res@cnLevelSpacingF = levs(2)                      ; set the interval between contours
 
-  res@cnFillPalette        = "NCV_jet"              ; choose colormap
-  ;res@cnFillPalette        = "BlueWhiteOrangeRed"              ; choose colormap
+  ;res@cnFillPalette        = "NCV_jet"              ; choose colormap
+  res@cnFillPalette        = "BlueWhiteOrangeRed"              ; choose colormap
 
   res@gsnCenterStringOrthogonalPosF = .15	    ; raise the CenterString slightly
   res@gsnStringFontHeightF = 0.02
@@ -116,31 +119,30 @@ begin
 
   resP@gsnPanelMainFontHeightF = 0.015           ; new resource added in NCL V6.4.0
   resP@gsnPanelMainString = grdfile
-  resP@gsnPanelFigureStrings = (/"angle on Bu","angle on Ct"/)
+  resP@gsnPanelFigureStrings = (/"angle on Ct","angle on Bu"/)
 ;************************************************
 ;
 ;************************************************
 
-  varname="angle"
-  lonname="lonBu"
-  latname="latBu"
-
+  ; in tripole file, anglet=(-1)*angle
   ii=0
+  varname="anglet"
+  lonname="lonCt"
+  latname="latCt"
   var = gr->$varname$
+  var = -1.0*var
   var@lon2d=gr->$lonname$
   var@lat2d=gr->$latname$
   var@units=" "
   plot(ii) = gsn_csm_contour_map_polar(wks,var,res)    ; create the plot
   dum(ii) = gsn_add_polyline(wks,plot(ii),(/lon1, lon2/) , (/lat1, lat2/) ,pres)
 
-  ; in tripole file, anglet=(-1)*angle
-  varname="anglet"
-  lonname="lonCt"
-  latname="latCt"
 
   ii=1
+  varname="angle"
+  lonname="lonBu"
+  latname="latBu"
   var = gr->$varname$
-  var = -1.0*var
   var@lon2d=gr->$lonname$
   var@lat2d=gr->$latname$
   var@units=" "
@@ -154,5 +156,11 @@ begin
   gsn_panel(wks,plot,(/1,2/),resP)
 
   frame(wks)
+
+  if(wkstype .eq. "png")then
+   imcmd = "convert -trim "+wkstitle+".png "+wkstitle+".jpg"
+   system(imcmd)
+  end if
+
 exit
 end

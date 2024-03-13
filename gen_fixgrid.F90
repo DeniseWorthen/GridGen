@@ -293,7 +293,7 @@ program gen_fixgrid
   print '(a)',trim(logmsg)
 
   !---------------------------------------------------------------------
-  ! find the angle on centers
+  ! find the angle on centers using the same procedure as MOM6
   !---------------------------------------------------------------------
 
   call find_ang
@@ -342,8 +342,8 @@ program gen_fixgrid
   print *,'ANGLE ',minval(angle), maxval(angle)
 
   !---------------------------------------------------------------------
-  ! check: calculate anglet from angq as CICE does internally. note sign
-  ! will be reversed from MOM6 anglet
+  ! check: calculate anglet from angq as CICE does internally.
+  ! since angle changes sign between CICE and MOM6, (-1)*angchk ~ anglet
   !
   !               w-----------------0 Bu(i,j)
   !               |                 |
