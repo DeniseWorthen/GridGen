@@ -11,7 +11,9 @@ begin
 ;************************************************
 
   ;rtsrc = "/scratch1/NCEPDEV/climate/Denise.Worthen/grids-20240311/"
+  ; plottitle="fix"
   rtsrc = "/scratch1/NCEPDEV/climate/Denise.Worthen/addangvar-20240313/"
+  plottitle = "original code"
 
   grdfile = "tripole.mx025.nc"
   grdsrc = ""
@@ -37,7 +39,7 @@ begin
   ;minlat=82.0
 
   levs=(/-1.6,1.6,.1/)
-  minlat = 89.5
+  minlat = 66.0
 
 ;************************************************
 ; add a poly line showing the polar seem along
@@ -85,8 +87,8 @@ begin
   res@cnMaxLevelValF  = levs(1)                      ; set the maximum contour level
   res@cnLevelSpacingF = levs(2)                      ; set the interval between contours
 
-  res@cnFillPalette        = "NCV_jet"              ; choose colormap
-  ;res@cnFillPalette        = "BlueWhiteOrangeRed"              ; choose colormap
+  ;res@cnFillPalette        = "NCV_jet"              ; choose colormap
+  res@cnFillPalette        = "BlueWhiteOrangeRed"              ; choose colormap
 
   res@gsnCenterStringOrthogonalPosF = .15	    ; raise the CenterString slightly
   res@gsnStringFontHeightF = 0.02
@@ -115,30 +117,18 @@ begin
   resP@gsnPanelLabelBar      = True                 ; turn on a common labelbar for the entire panel plot
 
   resP@gsnPanelMainFontHeightF = 0.015           ; new resource added in NCL V6.4.0
-  resP@gsnPanelMainString = grdfile
-  resP@gsnPanelFigureStrings = (/"angle on Bu","angle on Ct"/)
+  resP@gsnPanelMainString = plottitle+"  "+grdfile
+
+  resP@gsnPanelFigureStrings = (/"angle on Ct","angle on Bu"/)
 ;************************************************
 ;
 ;************************************************
 
-  varname="angle"
-  lonname="lonBu"
-  latname="latBu"
-
-  ii=0
-  var = gr->$varname$
-  var@lon2d=gr->$lonname$
-  var@lat2d=gr->$latname$
-  var@units=" "
-  plot(ii) = gsn_csm_contour_map_polar(wks,var,res)    ; create the plot
-  dum(ii) = gsn_add_polyline(wks,plot(ii),(/lon1, lon2/) , (/lat1, lat2/) ,pres)
-
   ; in tripole file, anglet=(-1)*angle
+  ii=0
   varname="anglet"
   lonname="lonCt"
   latname="latCt"
-
-  ii=1
   var = gr->$varname$
   var = -1.0*var
   var@lon2d=gr->$lonname$
@@ -146,6 +136,19 @@ begin
   var@units=" "
   plot(ii) = gsn_csm_contour_map_polar(wks,var,res)    ; create the plot
   dum(ii) = gsn_add_polyline(wks,plot(ii),(/lon1, lon2/) , (/lat1, lat2/) ,pres)
+
+
+  ii=1
+  varname="angle"
+  lonname="lonBu"
+  latname="latBu"
+  var = gr->$varname$
+  var@lon2d=gr->$lonname$
+  var@lat2d=gr->$latname$
+  var@units=" "
+  plot(ii) = gsn_csm_contour_map_polar(wks,var,res)    ; create the plot
+  dum(ii) = gsn_add_polyline(wks,plot(ii),(/lon1, lon2/) , (/lat1, lat2/) ,pres)
+
 
 ;************************************************
 ; make the panel
