@@ -107,8 +107,10 @@ contains
 
     rc = nf90_inq_varid(ncid,'anglet',      id)
     rc = nf90_put_var(ncid,        id,  anglet)
+
     rc = nf90_inq_varid(ncid, 'angle',      id)
     rc = nf90_put_var(ncid,        id,   angle)
+
     rc = nf90_inq_varid(ncid,'angchk',      id)
     rc = nf90_put_var(ncid,        id,  angchk)
 

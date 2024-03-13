@@ -1,4 +1,4 @@
-# GridGen
+ # GridGen
 Generate fixed grid files from MOM6 supergrid
 
  Denise.Worthen@noaa.gov

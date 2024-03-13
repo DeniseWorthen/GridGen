@@ -131,6 +131,9 @@ module grdvars
                                                                    !! opposite side of the tripole seam
   real(dbl_kind), allocatable, dimension(:) :: xlatCt              !< The latitude of the Ct grid points on the
                                                                    !! opposite side of the tripole seam
+  real(dbl_kind), allocatable, dimension(:) :: xangCt              !< The rotation angle on the Ct grid points on the
+                                                                   !! opposite side of the tripole seam
+
   real(dbl_kind), allocatable, dimension(:) :: xlonCu              !< The longitude of the Cu grid points on the
                                                                    !! opposite side of the tripole seam
   real(dbl_kind), allocatable, dimension(:) :: xlatCu              !< The latitude of the Cu grid points on the
@@ -191,7 +194,7 @@ contains
     allocate( latCu_vert(ni,nj,nv), lonCu_vert(ni,nj,nv) )
     allocate( latBu_vert(ni,nj,nv), lonBu_vert(ni,nj,nv) )
 
-    allocate( xlonCt(ni), xlatCt(ni) )
+    allocate( xlonCt(ni), xlatCt(ni), xangCt(ni) )
     allocate( xlonCu(ni), xlatCu(ni) )
     allocate( dlatBu(ni), dlatCv(ni) )
 
