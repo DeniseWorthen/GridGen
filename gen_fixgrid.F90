@@ -340,10 +340,10 @@ program gen_fixgrid
   !
   !---------------------------------------------------------------------
 
-  !where(lonCt .lt. 0.0)lonCt = lonCt + 360._dbl_kind
-  !where(lonCu .lt. 0.0)lonCu = lonCu + 360._dbl_kind
-  !where(lonCv .lt. 0.0)lonCv = lonCv + 360._dbl_kind
-  !where(lonBu .lt. 0.0)lonBu = lonBu + 360._dbl_kind
+  where(lonCt .lt. 0.0)lonCt = lonCt + 360._dbl_kind
+  where(lonCu .lt. 0.0)lonCu = lonCu + 360._dbl_kind
+  where(lonCv .lt. 0.0)lonCv = lonCv + 360._dbl_kind
+  where(lonBu .lt. 0.0)lonBu = lonBu + 360._dbl_kind
 
   !---------------------------------------------------------------------
   ! some basic error checking
