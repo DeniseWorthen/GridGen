@@ -298,6 +298,7 @@ program gen_fixgrid
 
   call find_ang
   print *,'ANGLET ',minval(anglet),maxval(anglet)
+  print *,'anglet(1,nj),anglet(ni,nj) ',anglet(1,nj),anglet(ni,nj)
 
   !---------------------------------------------------------------------
   ! find the angle on corners using the same relationship CICE uses
@@ -319,7 +320,7 @@ program gen_fixgrid
 
   angle = 0.0
   do j = 2,nj
-     do i = 2,ni
+     do i = 1,ni-1
         if (j .lt. nj) then
            angle_0  = anglet(i+1,j+1)
            angle_w  = anglet(i,  j+1)
@@ -335,9 +336,11 @@ program gen_fixgrid
                            p25*(cos(angle_0) + cos(angle_w) + cos(angle_s) + cos(angle_sw)))
 
         if (abs(angle(i,j)) .le. 1.0e-10)angle(i,j) = 0.0
-        if(j.eq. nj)print *,i,angle(i,j)
+        !if(j.eq. nj)print *,i,angle(i,j)
      enddo
   enddo
+  !? angle(ni,:) = angle(ni-1,:)
+
   angle = -angle
   print *,'ANGLE ',minval(angle), maxval(angle)
 
@@ -391,10 +394,10 @@ program gen_fixgrid
   !
   !---------------------------------------------------------------------
 
-  where(lonCt .lt. 0.0)lonCt = lonCt + 360._dbl_kind
-  where(lonCu .lt. 0.0)lonCu = lonCu + 360._dbl_kind
-  where(lonCv .lt. 0.0)lonCv = lonCv + 360._dbl_kind
-  where(lonBu .lt. 0.0)lonBu = lonBu + 360._dbl_kind
+  !where(lonCt .lt. 0.0)lonCt = lonCt + 360._dbl_kind
+  !where(lonCu .lt. 0.0)lonCu = lonCu + 360._dbl_kind
+  !where(lonCv .lt. 0.0)lonCv = lonCv + 360._dbl_kind
+  !where(lonBu .lt. 0.0)lonBu = lonBu + 360._dbl_kind
 
   !---------------------------------------------------------------------
   ! find required extended values for setting all vertices
