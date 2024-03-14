@@ -28,7 +28,7 @@ export DO_POSTWGTS=.false.
 #export OUTDIR_PATH=/scratch2/NCEPDEV/climate/Denise.Worthen/grids-esmf-20211107
 #export OUTDIR_PATH=/scratch1/NCEPDEV/climate/Denise.Worthen/grids-test-202210
 #export OUTDIR_PATH=/scratch1/NCEPDEV/climate/Denise.Worthen/grids-20240311
-export OUTDIR_PATH=/scratch1/NCEPDEV/climate/Denise.Worthen/addangvar-20240313
+export OUTDIR_PATH=/scratch1/NCEPDEV/climate/Denise.Worthen/grids-no360
 export MOSAICDIR_PATH=/scratch1/NCEPDEV/global/glopara/fix/orog/20220805
 export APRUN='srun -A nems --nodes=1 -t 00:30:00'
 
@@ -147,16 +147,16 @@ srun ./gengrid
 srun ESMF_Scrip2Unstruct ${FSRC} ${FDST} 0
 
 # # generate ice mesh
-# export FSRC=${OUTDIR_PATH}/Ct.mx${RESNAME}_SCRIP_land.nc
-# export FDST=${OUTDIR_PATH}/mesh.mx${RESNAME}.nc
+ export FSRC=${OUTDIR_PATH}/Ct.mx${RESNAME}_SCRIP_land.nc
+ export FDST=${OUTDIR_PATH}/mesh.mx${RESNAME}.nc
 # time srun -A nems -n 1 ESMF_Scrip2Unstruct ${FSRC} ${FDST} 0
 # interactive shell
-#srun ESMF_Scrip2Unstruct ${FSRC} ${FDST} 0
+srun ESMF_Scrip2Unstruct ${FSRC} ${FDST} 0
 
 # # generate kmt file for CICE
-# export FSRC=${OUTDIR_PATH}/grid_cice_NEMS_mx${RESNAME}.nc
-# export FDST=${OUTDIR_PATH}/kmtu_cice_NEMS_mx${RESNAME}.nc
-# ncks -O -v kmt ${FSRC} ${FDST}
+ export FSRC=${OUTDIR_PATH}/grid_cice_NEMS_mx${RESNAME}.nc
+ export FDST=${OUTDIR_PATH}/kmtu_cice_NEMS_mx${RESNAME}.nc
+ ncks -O -v kmt ${FSRC} ${FDST}
 
 # clean up
 #make clean

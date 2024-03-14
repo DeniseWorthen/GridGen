@@ -39,7 +39,8 @@ begin
   ;minlat=82.0
 
   levs=(/-1.6,1.6,.1/)
-  minlat = 66.0
+  ;minlat = 66.0
+  minlat = 89.0
 
 ;************************************************
 ; add a poly line showing the polar seem along
