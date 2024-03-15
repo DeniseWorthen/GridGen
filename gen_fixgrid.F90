@@ -313,6 +313,7 @@ program gen_fixgrid
                             p25*(cos(angle_0) + cos(angle_w) + cos(angle_s) + cos(angle_sw)))
      enddo
   enddo
+  angchk(1,:) = -angchk(ni,:)
   print *,'ANGCHK ',minval(angchk), maxval(angchk)
 
   !---------------------------------------------------------------------
