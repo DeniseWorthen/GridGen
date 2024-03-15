@@ -10,8 +10,10 @@ begin
 ; read in netCDF file
 ;************************************************
 
-  rtsrc = "/scratch1/NCEPDEV/climate/Denise.Worthen/grids-20240311/"
-  ;rtsrc = "/scratch1/NCEPDEV/climate/Denise.Worthen/addangvar-20240313/"
+  ;rtsrc = "/scratch1/NCEPDEV/climate/Denise.Worthen/gridsfix-no360/"
+  ;plottitle="fix"
+  rtsrc = "/scratch1/NCEPDEV/climate/Denise.Worthen/addangvar-no360/"
+  plottitle = "original code"
 
   grdfile = "tripole.mx025.nc"
   grdsrc = ""
@@ -23,23 +25,11 @@ begin
 
   ; load the grid file
   gr =addfile(rtsrc+grdsrc+grdfile,"r")
-  print(rtsrc+grdfile)
-
-  ;varname="htn"
-  ;latname="latCv"
-  ;lonname="lonCv"
-  ;levs=(/6400.0, 6600.0, 5.0/)
-  ;minlat=88.0
-
-  ;varname="hte"
-  ;latname="latCu"
-  ;lonname="lonCu"
-  ;levs=(/9200.0, 12200.0, 100.0/)
-  ;minlat=82.0
+  print(rtsrc+grdsrc+grdfile)
 
   levs=(/-1.6,1.6,.1/)
-  ;minlat = 89.5
-  minlat = 85.0
+  ;minlat = 66.0
+  minlat = 89.0
 
 ;************************************************
 ; add a poly line showing the polar seem along
@@ -56,10 +46,9 @@ begin
 ;************************************************
   wkstype="X11"
   ;wkstype="png"
-  wkstitle=grdfile
   wkstype@wkWidth=800
   wkstype@wkHeight=800
-  wks   = gsn_open_wks (wkstype,wkstitle)              ; send graphics to X11 window
+  wks   = gsn_open_wks (wkstype,"grid")              ; send graphics to X11 window
 
   plot = new(2,graphic)
   dum = new(2,graphic)
@@ -118,7 +107,8 @@ begin
   resP@gsnPanelLabelBar      = True                 ; turn on a common labelbar for the entire panel plot
 
   resP@gsnPanelMainFontHeightF = 0.015           ; new resource added in NCL V6.4.0
-  resP@gsnPanelMainString = grdfile
+  resP@gsnPanelMainString = plottitle+"  "+grdfile
+
   resP@gsnPanelFigureStrings = (/"angle on Ct","angle on Bu"/)
 ;************************************************
 ;
@@ -149,6 +139,7 @@ begin
   plot(ii) = gsn_csm_contour_map_polar(wks,var,res)    ; create the plot
   dum(ii) = gsn_add_polyline(wks,plot(ii),(/lon1, lon2/) , (/lat1, lat2/) ,pres)
 
+
 ;************************************************
 ; make the panel
 ;************************************************
@@ -156,11 +147,5 @@ begin
   gsn_panel(wks,plot,(/1,2/),resP)
 
   frame(wks)
-
-  if(wkstype .eq. "png")then
-   imcmd = "convert -trim "+wkstitle+".png "+wkstitle+".jpg"
-   system(imcmd)
-  end if
-
 exit
 end

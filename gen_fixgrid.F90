@@ -315,7 +315,6 @@ program gen_fixgrid
   do i = 1,ni
      i2 = ipole(2)+(ipole(1)-i)+1
      xangCt(i) = -angleT(i2,nj)       ! angle changes sign across seam
-     !print *,i,xangCt(i),latCt(i,nj)
   end do
 
   angle = 0.0
@@ -336,16 +335,16 @@ program gen_fixgrid
                            p25*(cos(angle_0) + cos(angle_w) + cos(angle_s) + cos(angle_sw)))
 
         if (abs(angle(i,j)) .le. 1.0e-10)angle(i,j) = 0.0
-        !if(j.eq. nj)print *,i,angle(i,j)
      enddo
   enddo
-  !? angle(ni,:) = angle(ni-1,:)
+  angle(ni,:) = -angle(1,:)
 
+  ! reverse angle for CICE
   angle = -angle
   print *,'ANGLE ',minval(angle), maxval(angle)
 
   !---------------------------------------------------------------------
-  ! check: calculate anglet from angq as CICE does internally.
+  ! check: calculate anglet from angle on corners as CICE does internally.
   ! since angle changes sign between CICE and MOM6, (-1)*angchk ~ anglet
   !
   !               w-----------------0 Bu(i,j)
@@ -367,6 +366,7 @@ program gen_fixgrid
                             p25*(cos(angle_0) + cos(angle_w) + cos(angle_s) + cos(angle_sw)))
      enddo
   enddo
+  angchk(1,:) = -angchk(ni,:)
   print *,'ANGCHK ',minval(angchk), maxval(angchk)
 
   !---------------------------------------------------------------------
@@ -386,8 +386,7 @@ program gen_fixgrid
      ii = ni
      if(hte(ii,j) .le. 1.0)hte(ii,j) = 0.5*(hte(ii-1,j) + hte(   1,j))
   enddo
-  write(logmsg,'(a,2e12.5)')'min vals of hte at folds ', &
-       minval(hte(ni/2,:)),minval(hte(ni,:))
+  write(logmsg,'(a,2e12.5)')'min vals of hte at folds ', minval(hte(ni/2,:)),minval(hte(ni,:))
   print '(a)',trim(logmsg)
 
   !---------------------------------------------------------------------
@@ -556,7 +555,7 @@ program gen_fixgrid
   logmsg = 'creating mapped ocean mask for '//trim(atmres)
   print '(a)',trim(logmsg)
   call make_frac_land(trim(fsrc), trim(fwgt))
-!#endif
+
   !---------------------------------------------------------------------
   ! use ESMF to find the tripole:tripole weights for downscaling
   ! of CICE ICs; the source grid is always mx025; don't create this
@@ -583,33 +582,33 @@ program gen_fixgrid
         print '(a)',trim(logmsg)
         stop
      end if
-
-     ! Bu->Ct for CICE
-     fsrc = trim(dirout)//'/'//'Bu.mx'//trim(res)//'_SCRIP.nc'
-     fdst = trim(dirout)//'/'//'Ct.mx'//trim(res)//'_SCRIP.nc'
-     fwgt = trim(dirout)//'/'//'tripole.mx'//trim(res)//'.Bu.to.mx'//trim(res)//'.Ct.bilinear.nc'
-     logmsg = 'creating weight file '//trim(fwgt)
-     print '(a)',trim(logmsg)
-
-     call ESMF_RegridWeightGen(srcFile=trim(fsrc),dstFile=trim(fdst), &
-          weightFile=trim(fwgt), regridmethod=method,                 &
-             ignoreDegenerate=.true., unmappedaction=ESMF_UNMAPPEDACTION_IGNORE, rc=rc)
-     if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, &
-          line=__LINE__, file=__FILE__)) call ESMF_Finalize(endflag=ESMF_END_ABORT)
-
-     ! Ct->Bu for CICE
-     fsrc = trim(dirout)//'/'//'Ct.mx'//trim(res)//'_SCRIP.nc'
-     fdst = trim(dirout)//'/'//'Bu.mx'//trim(res)//'_SCRIP.nc'
-     fwgt = trim(dirout)//'/'//'tripole.mx'//trim(res)//'.Ct.to.mx'//trim(res)//'.Bu.bilinear.nc'
-     logmsg = 'creating weight file '//trim(fwgt)
-     print '(a)',trim(logmsg)
-
-     call ESMF_RegridWeightGen(srcFile=trim(fsrc),dstFile=trim(fdst), &
-          weightFile=trim(fwgt), regridmethod=method,                 &
-          ignoreDegenerate=.true., unmappedaction=ESMF_UNMAPPEDACTION_IGNORE, rc=rc)
-     if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, &
-          line=__LINE__, file=__FILE__)) call ESMF_Finalize(endflag=ESMF_END_ABORT)
   end if
+
+  ! tripole Bu->tripole Ct for CICE
+  fsrc = trim(dirout)//'/'//'Bu.mx'//trim(res)//'_SCRIP.nc'
+  fdst = trim(dirout)//'/'//'Ct.mx'//trim(res)//'_SCRIP.nc'
+  fwgt = trim(dirout)//'/'//'tripole.mx'//trim(res)//'.Bu.to.mx'//trim(res)//'.Ct.bilinear.nc'
+  logmsg = 'creating weight file '//trim(fwgt)
+  print '(a)',trim(logmsg)
+
+  call ESMF_RegridWeightGen(srcFile=trim(fsrc),dstFile=trim(fdst), &
+       weightFile=trim(fwgt), regridmethod=method,                 &
+       ignoreDegenerate=.true., unmappedaction=ESMF_UNMAPPEDACTION_IGNORE, rc=rc)
+  if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, &
+       line=__LINE__, file=__FILE__)) call ESMF_Finalize(endflag=ESMF_END_ABORT)
+
+  ! tripole Ct->tripole Bu for CICE
+  fsrc = trim(dirout)//'/'//'Ct.mx'//trim(res)//'_SCRIP.nc'
+  fdst = trim(dirout)//'/'//'Bu.mx'//trim(res)//'_SCRIP.nc'
+  fwgt = trim(dirout)//'/'//'tripole.mx'//trim(res)//'.Ct.to.mx'//trim(res)//'.Bu.bilinear.nc'
+  logmsg = 'creating weight file '//trim(fwgt)
+  print '(a)',trim(logmsg)
+
+  call ESMF_RegridWeightGen(srcFile=trim(fsrc),dstFile=trim(fdst), &
+       weightFile=trim(fwgt), regridmethod=method,                 &
+       ignoreDegenerate=.true., unmappedaction=ESMF_UNMAPPEDACTION_IGNORE, rc=rc)
+  if (ESMF_LogFoundError(rcToCheck=rc, msg=ESMF_LOGERR_PASSTHRU, &
+       line=__LINE__, file=__FILE__)) call ESMF_Finalize(endflag=ESMF_END_ABORT)
 
   !---------------------------------------------------------------------
   !
