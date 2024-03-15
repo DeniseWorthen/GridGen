@@ -360,7 +360,7 @@ program gen_fixgrid
      do i = 2,ni
         angle_0  = angle(i  ,j  )
         angle_w  = angle(i-1,j  )
-	angle_s  = angle(i,  j-1)
+        angle_s  = angle(i,  j-1)
         angle_sw = angle(i-1,j-1)
         angchk(i,j) = atan2(p25*(sin(angle_0) + sin(angle_w) + sin(angle_s) + sin(angle_sw)), &
                             p25*(cos(angle_0) + cos(angle_w) + cos(angle_s) + cos(angle_sw)))
@@ -388,15 +388,6 @@ program gen_fixgrid
   enddo
   write(logmsg,'(a,2e12.5)')'min vals of hte at folds ', minval(hte(ni/2,:)),minval(hte(ni,:))
   print '(a)',trim(logmsg)
-
-  !---------------------------------------------------------------------
-  !
-  !---------------------------------------------------------------------
-
-  !where(lonCt .lt. 0.0)lonCt = lonCt + 360._dbl_kind
-  !where(lonCu .lt. 0.0)lonCu = lonCu + 360._dbl_kind
-  !where(lonCv .lt. 0.0)lonCv = lonCv + 360._dbl_kind
-  !where(lonBu .lt. 0.0)lonBu = lonBu + 360._dbl_kind
 
   !---------------------------------------------------------------------
   ! find required extended values for setting all vertices
@@ -531,7 +522,7 @@ program gen_fixgrid
   close(21); close(22); close(23); close(24); close(25)
   deallocate(ww3mask); deallocate(ww3dpth)
   deallocate(wet4, wet8)
-!#ifdef test
+
   !---------------------------------------------------------------------
   ! use ESMF regridding to produce mapped ocean mask; first generate
   ! conservative regrid weights from ocean to tiles; then generate the
@@ -557,7 +548,7 @@ program gen_fixgrid
   call make_frac_land(trim(fsrc), trim(fwgt))
 
   !---------------------------------------------------------------------
-  ! use ESMF to find the tripole:tripole weights for downscaling
+  ! use ESMF to find the tripole:tripole weights for creation
   ! of CICE ICs; the source grid is always mx025; don't create this
   ! file if destination is also mx025
   !---------------------------------------------------------------------

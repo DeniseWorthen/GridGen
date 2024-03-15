@@ -13,7 +13,7 @@ module angles
   use grdvars,       only : ni,nj,nx,ny
   use grdvars,       only : x,y,xsgp1,ysgp1,sg_maxlat
   use grdvars,       only : latBu,lonBu,lonCt
-  use grdvars,       only : angq,anglet
+  use grdvars,       only : anglet
   use grdvars,       only : debug
 
   implicit none
