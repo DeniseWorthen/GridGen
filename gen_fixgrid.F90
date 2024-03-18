@@ -300,6 +300,8 @@ program gen_fixgrid
   !---------------------------------------------------------------------
 
   call find_angq(anglet,angle)
+  ! reverse angle for CICE
+  angle = -angle
   write(logmsg,'(a,2f12.2)')'ANGLE min,max: ',minval(angle),maxval(angle)
   print '(a)',trim(logmsg)
   write(logmsg,'(a,2f12.2)')'ANGLE edges i=1,i=ni: ',angle(1,nj),angle(ni,nj)

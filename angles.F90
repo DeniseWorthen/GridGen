@@ -46,6 +46,7 @@ contains
     !
     !---------------------------------------------------------------------
 
+    xangCt(:) = 0.0
     do i = 1,ni
        i2 = ipole(2)+(ipole(1)-i)+1
        xangCt(i) = -anglet(i2,nj)       ! angle changes sign across seam
@@ -72,8 +73,6 @@ contains
        enddo
     enddo
     angle(ni,:) = -angle(1,:)
-    ! reverse angle for CICE
-    angle = -angle
 
   end subroutine find_angq
 
