@@ -289,17 +289,23 @@ program gen_fixgrid
   ! find the angle on centers using the same procedure as MOM6
   !---------------------------------------------------------------------
 
-  call find_ang(anglet)
+  call find_ang(ni,nj,lonBu,latBu,lonCt,anglet)
   write(logmsg,'(a,2f12.2)')'ANGLET min,max: ',minval(anglet),maxval(anglet)
   print '(a)',trim(logmsg)
   write(logmsg,'(a,2f12.2)')'ANGLET edges i=1,i=ni: ',anglet(1,nj),anglet(ni,nj)
   print '(a)',trim(logmsg)
 
+  xangCt(:) = 0.0
+  do i = 1,ni
+     i2 = ipole(2)+(ipole(1)-i)+1
+     xangCt(i) = -anglet(i2,nj)       ! angle changes sign across seam
+  end do
+
   !---------------------------------------------------------------------
   ! find the angle on corners using the same procedure as CICE6
   !---------------------------------------------------------------------
 
-  call find_angq(anglet,angle)
+  call find_angq(ni,nj,xangCt,anglet,angle)
   ! reverse angle for CICE
   angle = -angle
   write(logmsg,'(a,2f12.2)')'ANGLE min,max: ',minval(angle),maxval(angle)
@@ -311,7 +317,7 @@ program gen_fixgrid
   ! check the Bu angle
   !---------------------------------------------------------------------
 
-  call find_angchk(angle,angchk)
+  call find_angchk(ni,nj,angle,angchk)
   write(logmsg,'(a,2f12.2)')'ANGCHK min,max: ',minval(angchk),maxval(angchk)
   print '(a)',trim(logmsg)
   write(logmsg,'(a,2f12.2)')'ANGCHK edges i=1,i=ni: ',angchk(1,nj),angchk(ni,nj)
@@ -405,6 +411,7 @@ program gen_fixgrid
   fdst = trim(dirout)//'/'//'tripole.mx'//trim(res)//'.nc'
   call write_tripolegrid(trim(fdst))
 
+#ifdef test
   ! write cice grid
   fdst = trim(dirout)//'/'//'grid_cice_NEMS_mx'//trim(res)//'.nc'
   call write_cicegrid(trim(fdst))
@@ -550,7 +557,7 @@ program gen_fixgrid
   !---------------------------------------------------------------------
 
   if(do_postwgts)call make_postwgts
-
+#endif
   !---------------------------------------------------------------------
   ! clean up
   !---------------------------------------------------------------------

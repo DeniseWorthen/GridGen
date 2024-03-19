@@ -10,8 +10,8 @@
 module angles
 
   use gengrid_kinds, only : dbl_kind, int_kind
-  use grdvars,       only : ni,nj,nx,ny
-  use grdvars,       only : latBu,lonBu,lonCt,xangCt,ipole
+  !use grdvars,       only : ni,nj
+  !use grdvars,       only : latBu,lonBu,lonCt,xangCt,ipole
   use grdvars,       only : debug
 
   implicit none
@@ -23,8 +23,10 @@ contains
   !! @param[out] angle        the rotation angle on Bu points
   !! @author Denise.Worthen@noaa.gov
 
-  subroutine find_angq(anglet,angle)
+  subroutine find_angq(ni,nj,xangCt,anglet,angle)
 
+    integer       , intent(in)  :: ni,nj
+    real(dbl_kind), intent(in)  :: xangCt(:)
     real(dbl_kind), intent(in)  :: anglet(:,:)
     real(dbl_kind), intent(out) :: angle(:,:)
 
@@ -46,12 +48,6 @@ contains
     !
     !---------------------------------------------------------------------
 
-    xangCt(:) = 0.0
-    do i = 1,ni
-       i2 = ipole(2)+(ipole(1)-i)+1
-       xangCt(i) = -anglet(i2,nj)       ! angle changes sign across seam
-    end do
-
     angle = 0.0
     do j = 2,nj
        do i = 1,ni-1
@@ -67,7 +63,7 @@ contains
              angle_sw = anglet(i,  j)
           end if
           angle(i,j) = atan2(p25*(sin(angle_0) + sin(angle_w) + sin(angle_s) + sin(angle_sw)), &
-               p25*(cos(angle_0) + cos(angle_w) + cos(angle_s) + cos(angle_sw)))
+                             p25*(cos(angle_0) + cos(angle_w) + cos(angle_s) + cos(angle_sw)))
 
           if (abs(angle(i,j)) .le. 1.0e-10)angle(i,j) = 0.0
        enddo
@@ -82,8 +78,9 @@ contains
   !! @param[in]  angle      the rotation angle on Bu points
   !! @param[out] angchk     the rotation angle on Ct points
   !! @author Denise.Worthen@noaa.gov
-  subroutine find_angchk(angle,angchk)
+  subroutine find_angchk(ni,nj,angle,angchk)
 
+    integer       , intent(in)  :: ni,nj
     real(dbl_kind), intent(in)  :: angle(:,:)
     real(dbl_kind), intent(out) :: angchk(:,:)
 
@@ -112,7 +109,7 @@ contains
           angle_s  = angle(i,  j-1)
           angle_sw = angle(i-1,j-1)
           angchk(i,j) = atan2(p25*(sin(angle_0) + sin(angle_w) + sin(angle_s) + sin(angle_sw)), &
-               p25*(cos(angle_0) + cos(angle_w) + cos(angle_s) + cos(angle_sw)))
+                              p25*(cos(angle_0) + cos(angle_w) + cos(angle_s) + cos(angle_sw)))
        enddo
     enddo
     angchk(1,:) = -angchk(ni,:)
@@ -124,8 +121,12 @@ contains
   !! @param[out] anglet        the rotation angle on Ct points
   !! @author Denise.Worthen@noaa.gov
 
-  subroutine find_ang(anglet)
+  subroutine find_ang(ni,nj,lonBu,latBu,lonCt,anglet)
 
+    integer       , intent(in)  :: ni,nj
+    real(dbl_kind), intent(in)  :: lonBu(:,:)
+    real(dbl_kind), intent(in)  :: latBu(:,:)
+    real(dbl_kind), intent(in)  :: lonCt(:,:)
     real(dbl_kind), intent(out) :: anglet(:,:)
 
     ! local variables

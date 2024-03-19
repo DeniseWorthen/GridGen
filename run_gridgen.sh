@@ -22,14 +22,16 @@ export RESNAME=$1
 export MOSAICRES=$2
 export DEBUG=.false.
 export MASKEDIT=.false.
-export DO_POSTWGTS=.true.
+export DO_POSTWGTS=.false.
 #export OUTDIR_PATH=/scratch2/NCEPDEV/climate/Denise.Worthen/grids-20210727/
 #export OUTDIR_PATH=/scratch2/NCEPDEV/climate/Denise.Worthen/grids-esmf-20210822/
 #export OUTDIR_PATH=/scratch2/NCEPDEV/climate/Denise.Worthen/grids-esmf-20211107
 #export OUTDIR_PATH=/scratch1/NCEPDEV/climate/Denise.Worthen/grids-test-202210
 #export OUTDIR_PATH=/scratch1/NCEPDEV/climate/Denise.Worthen/grids-20240311
-export OUTDIR_PATH=/scratch1/NCEPDEV/climate/Denise.Worthen/gridsfix-no360
-export MOSAICDIR_PATH=/scratch1/NCEPDEV/global/glopara/fix/orog/20220805
+#export OUTDIR_PATH=/scratch1/NCEPDEV/climate/Denise.Worthen/gridsfix-no360
+#export MOSAICDIR_PATH=/scratch1/NCEPDEV/global/glopara/fix/orog/20220805
+export OUTDIR_PATH=/work/noaa/stmp/dworthen/stmp/dworthen/gridsfix-no360
+export MOSAICDIR_PATH=/work/noaa/global/glopara/fix/orog/20231027
 export APRUN='srun -A nems --nodes=1 -t 00:30:00'
 
 #if [ $RESNAME = 500 ]; then
@@ -37,7 +39,8 @@ export APRUN='srun -A nems --nodes=1 -t 00:30:00'
 #else
   #export FIXDIR_PATH=/scratch2/NCEPDEV/climate/climpara/S2S/FIX/fix_UFSp4/fix_mom6/${RESNAME}
 #fi
-export FIXDIR_PATH=/scratch1/NCEPDEV/global/glopara/fix/mom6/20220805/${RESNAME}
+#export FIXDIR_PATH=/scratch1/NCEPDEV/global/glopara/fix/mom6/20220805/${RESNAME}
+export FIXDIR_PATH=/work/noaa/global/glopara/fix/mom6/20231219/${RESNAME}
 
 if [[ $MOSAICRES == C3072 ]]; then
     export NPX=3072
@@ -151,12 +154,12 @@ srun ./gengrid
  export FDST=${OUTDIR_PATH}/mesh.mx${RESNAME}.nc
 # time srun -A nems -n 1 ESMF_Scrip2Unstruct ${FSRC} ${FDST} 0
 # interactive shell
-srun ESMF_Scrip2Unstruct ${FSRC} ${FDST} 0
+#srun ESMF_Scrip2Unstruct ${FSRC} ${FDST} 0
 
 # # generate kmt file for CICE
  export FSRC=${OUTDIR_PATH}/grid_cice_NEMS_mx${RESNAME}.nc
  export FDST=${OUTDIR_PATH}/kmtu_cice_NEMS_mx${RESNAME}.nc
- ncks -O -v kmt ${FSRC} ${FDST}
+# ncks -O -v kmt ${FSRC} ${FDST}
 
 # clean up
 #make clean
