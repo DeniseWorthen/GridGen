@@ -10,8 +10,6 @@
 module angles
 
   use gengrid_kinds, only : dbl_kind, int_kind
-  !use grdvars,       only : ni,nj
-  !use grdvars,       only : latBu,lonBu,lonCt,xangCt,ipole
   use grdvars,       only : debug
 
   implicit none
@@ -19,6 +17,9 @@ module angles
 contains
   !> Find the rotation angle on center (Bu) grid points
   !!
+  !! @param[in]  ni           the i-dimension of the grid
+  !! @param[in]  nj           the j-dimension of the grid
+  !! @param[in]  xangCt       the angle across the tripole seam
   !! @param[in]  anglet       the rotation angle on Ct points
   !! @param[out] angle        the rotation angle on Bu points
   !! @author Denise.Worthen@noaa.gov
@@ -75,6 +76,8 @@ contains
   !> Verify the rotation angle on center (Ct) grid points using angle on corner
   !! (Bu) grid points
   !!
+  !! @param[in]  ni         the i-dimension of the grid
+  !! @param[in]  nj         the j-dimension of the grid
   !! @param[in]  angle      the rotation angle on Bu points
   !! @param[out] angchk     the rotation angle on Ct points
   !! @author Denise.Worthen@noaa.gov
@@ -118,6 +121,11 @@ contains
 
   !> Find the rotation angle on center (Ct) grid points
   !!
+  !! @param[in]  ni            the i-dimension of the grid
+  !! @param[in]  nj            the j-dimension of the grid
+  !! @param[in]  lonBu         the longitudes of the corner grid points
+  !! @param[in]  latBu         the latitudes of the corner grid points
+  !! @param[in]  lonCt         the longitudes of the center grid points
   !! @param[out] anglet        the rotation angle on Ct points
   !! @author Denise.Worthen@noaa.gov
 

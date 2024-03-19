@@ -301,6 +301,16 @@ program gen_fixgrid
      xangCt(i) = -anglet(i2,nj)       ! angle changes sign across seam
   end do
 
+  do j = nj,nj-2,-1
+     print '(5(f15.6,a))',(lonct(i,j),',',i=ipole(1)-2,ipole(1)+2)
+  end do
+  do j = nj,nj-2,-1
+     print '(5(f15.6,a))',(lonbu(i,j),',',i=ipole(1)-2,ipole(1)+2)
+  end do
+  do j = nj,nj-2,-1
+     print '(5(f15.6,a))',(latbu(i,j),',',i=ipole(1)-2,ipole(1)+2)
+  end do
+
   !---------------------------------------------------------------------
   ! find the angle on corners using the same procedure as CICE6
   !---------------------------------------------------------------------
