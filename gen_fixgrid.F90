@@ -301,16 +301,6 @@ program gen_fixgrid
      xangCt(i) = -anglet(i2,nj)       ! angle changes sign across seam
   end do
 
-  do j = nj,nj-2,-1
-     print '(5(f15.6,a))',(lonct(i,j),',',i=ipole(1)-2,ipole(1)+2)
-  end do
-  do j = nj,nj-2,-1
-     print '(5(f15.6,a))',(lonbu(i,j),',',i=ipole(1)-2,ipole(1)+2)
-  end do
-  do j = nj,nj-2,-1
-     print '(5(f15.6,a))',(latbu(i,j),',',i=ipole(1)-2,ipole(1)+2)
-  end do
-
   !---------------------------------------------------------------------
   ! find the angle on corners using the same procedure as CICE6
   !---------------------------------------------------------------------
@@ -332,6 +322,57 @@ program gen_fixgrid
   print '(a)',trim(logmsg)
   write(logmsg,'(a,2f12.2)')'ANGCHK edges i=1,i=ni: ',angchk(1,nj),angchk(ni,nj)
   print '(a)',trim(logmsg)
+
+  do j = nj-3,nj
+     print '(5(f14.5,a),a)',(lonct(i,j),',',i=ipole(1)-2,ipole(1)+2),' &'
+  end do
+  print *
+  do j = nj-3,nj
+     print '(5(f14.5,a),a)',(lonbu(i,j),',',i=ipole(1)-2,ipole(1)+2),' &'
+  end do
+  print *
+  do j = nj-3,nj
+     print '(5(f14.5,a),a)',(latbu(i,j),',',i=ipole(1)-2,ipole(1)+2),' &'
+  end do
+  print *
+  do j = nj-3,nj
+     print '(5(f14.5,a),a)',(anglet(i,j),',',i=ipole(1)-2,ipole(1)+2),' &'
+  end do
+  print *
+  do j = nj-3,nj
+     print '(5(f14.5,a),a)',(angle(i,j),',',i=ipole(1)-2,ipole(1)+2),' &'
+  end do
+  print *
+  do j = nj-3,nj
+     print '(5(f14.5,a),a)',(angchk(i,j),',',i=ipole(1)-2,ipole(1)+2),' &'
+  end do
+
+  print *
+  print *
+
+  do j = nj-3,nj
+     print '(5(f14.5,a),a)',(lonct(i,j),',',i=ipole(2)-2,ipole(2)+2),' &'
+  end do
+  print *
+  do j = nj-3,nj
+     print '(5(f14.5,a),a)',(lonbu(i,j),',',i=ipole(2)-2,ipole(2)+2),' &'
+  end do
+  print *
+  do j = nj-3,nj
+     print '(5(f14.5,a),a)',(latbu(i,j),',',i=ipole(2)-2,ipole(2)+2),' &'
+  end do
+  print *
+  do j = nj-3,nj
+     print '(5(f14.5,a),a)',(anglet(i,j),',',i=ipole(2)-2,ipole(2)+2),' &'
+  end do
+  print *
+  do j = nj-3,nj
+     print '(5(f14.5,a),a)',(angle(i,j),',',i=ipole(2)-2,ipole(2)+2),' &'
+  end do
+  print *
+  do j = nj-3,nj
+     print '(5(f14.5,a),a)',(angchk(i,j),',',i=ipole(2)-2,ipole(2)+2),' &'
+  end do
 
   !---------------------------------------------------------------------
   ! For the 1/4deg grid, hte at j=720 and j = 1440 is identically=0.0 for
