@@ -323,54 +323,54 @@ program gen_fixgrid
   write(logmsg,'(a,2f12.2)')'ANGCHK edges i=1,i=ni: ',angchk(1,nj),angchk(ni,nj)
   print '(a)',trim(logmsg)
 
-  do j = nj-3,nj
+  do j = nj-4,nj
      print '(5(f14.5,a),a)',(lonct(i,j),',',i=ipole(1)-2,ipole(1)+2),' &'
   end do
   print *
-  do j = nj-3,nj
+  do j = nj-4,nj
      print '(5(f14.5,a),a)',(lonbu(i,j),',',i=ipole(1)-2,ipole(1)+2),' &'
   end do
   print *
-  do j = nj-3,nj
+  do j = nj-4,nj
      print '(5(f14.5,a),a)',(latbu(i,j),',',i=ipole(1)-2,ipole(1)+2),' &'
   end do
   print *
-  do j = nj-3,nj
+  do j = nj-4,nj
      print '(5(f14.5,a),a)',(anglet(i,j),',',i=ipole(1)-2,ipole(1)+2),' &'
   end do
   print *
-  do j = nj-3,nj
+  do j = nj-4,nj
      print '(5(f14.5,a),a)',(angle(i,j),',',i=ipole(1)-2,ipole(1)+2),' &'
   end do
   print *
-  do j = nj-3,nj
+  do j = nj-4,nj
      print '(5(f14.5,a),a)',(angchk(i,j),',',i=ipole(1)-2,ipole(1)+2),' &'
   end do
 
   print *
   print *
 
-  do j = nj-3,nj
+  do j = nj-4,nj
      print '(5(f14.5,a),a)',(lonct(i,j),',',i=ipole(2)-2,ipole(2)+2),' &'
   end do
   print *
-  do j = nj-3,nj
+  do j = nj-4,nj
      print '(5(f14.5,a),a)',(lonbu(i,j),',',i=ipole(2)-2,ipole(2)+2),' &'
   end do
   print *
-  do j = nj-3,nj
+  do j = nj-4,nj
      print '(5(f14.5,a),a)',(latbu(i,j),',',i=ipole(2)-2,ipole(2)+2),' &'
   end do
   print *
-  do j = nj-3,nj
+  do j = nj-4,nj
      print '(5(f14.5,a),a)',(anglet(i,j),',',i=ipole(2)-2,ipole(2)+2),' &'
   end do
   print *
-  do j = nj-3,nj
+  do j = nj-4,nj
      print '(5(f14.5,a),a)',(angle(i,j),',',i=ipole(2)-2,ipole(2)+2),' &'
   end do
   print *
-  do j = nj-3,nj
+  do j = nj-4,nj
      print '(5(f14.5,a),a)',(angchk(i,j),',',i=ipole(2)-2,ipole(2)+2),' &'
   end do
 
