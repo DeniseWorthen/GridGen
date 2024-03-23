@@ -534,8 +534,6 @@ program gen_fixgrid
   ! write cice grid
   fdst = trim(dirout)//'/'//'grid_cice_NEMS_mx'//trim(res)//'.nc'
   call write_cicegrid(trim(fdst))
-
-#ifdef test
   deallocate(ulon, ulat, htn, hte)
   ! write scrip grids; only the Ct is required, the remaining
   ! staggers are used only in the postweights generation
@@ -678,7 +676,7 @@ program gen_fixgrid
   !---------------------------------------------------------------------
 
   if(do_postwgts)call make_postwgts
-#endif
+
   !---------------------------------------------------------------------
   ! clean up
   !---------------------------------------------------------------------
