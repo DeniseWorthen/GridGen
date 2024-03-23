@@ -62,6 +62,7 @@ program gen_fixgrid
   character(len=CS) :: form2
   character(len= 6) :: cnx
 
+  integer :: ilft, irht
   !-------------------------------------------------------------------------
   ! Initialize esmf environment.
   !-------------------------------------------------------------------------
@@ -300,6 +301,9 @@ program gen_fixgrid
      i2 = ipole(2)+(ipole(1)-i)+1
      xangCt(i) = -anglet(i2,nj)       ! angle changes sign across seam
   end do
+  !do i = 1,ni
+  !   print *,i,anglet(i,nj),xangCt(i)
+  !end do
 
   !---------------------------------------------------------------------
   ! find the angle on corners using the same procedure as CICE6
@@ -323,55 +327,120 @@ program gen_fixgrid
   write(logmsg,'(a,2f12.2)')'ANGCHK edges i=1,i=ni: ',angchk(1,nj),angchk(ni,nj)
   print '(a)',trim(logmsg)
 
+  !prints for unit test
+  ilft = ipole(1)-2
+  irht = ipole(1)+2
+  print '(a)','data ((lonct(i,j,1), i=1,ni), j=1,nj) / &'
   do j = nj-4,nj
-     print '(5(f14.5,a),a)',(lonct(i,j),',',i=ipole(1)-2,ipole(1)+2),' &'
+     print '(5(f14.5,a),a)',(lonct(i,j),',',i=ilft,irht),' &'
   end do
-  print *
-  do j = nj-4,nj
-     print '(5(f14.5,a),a)',(lonbu(i,j),',',i=ipole(1)-2,ipole(1)+2),' &'
-  end do
-  print *
-  do j = nj-4,nj
-     print '(5(f14.5,a),a)',(latbu(i,j),',',i=ipole(1)-2,ipole(1)+2),' &'
-  end do
-  print *
-  do j = nj-4,nj
-     print '(5(f14.5,a),a)',(anglet(i,j),',',i=ipole(1)-2,ipole(1)+2),' &'
-  end do
-  print *
-  do j = nj-4,nj
-     print '(5(f14.5,a),a)',(angle(i,j),',',i=ipole(1)-2,ipole(1)+2),' &'
-  end do
-  print *
-  do j = nj-4,nj
-     print '(5(f14.5,a),a)',(angchk(i,j),',',i=ipole(1)-2,ipole(1)+2),' &'
-  end do
-
-  print *
   print *
 
+  print '(a)','data ((lonbu(i,j,1), i=1,ni), j=1,nj) / &'
   do j = nj-4,nj
-     print '(5(f14.5,a),a)',(lonct(i,j),',',i=ipole(2)-2,ipole(2)+2),' &'
+     print '(5(f14.5,a),a)',(lonbu(i,j),',',i=ilft,irht),' &'
   end do
   print *
+
+  print '(a)','data ((latbu(i,j,1), i=1,ni), j=1,nj) / &'
   do j = nj-4,nj
-     print '(5(f14.5,a),a)',(lonbu(i,j),',',i=ipole(2)-2,ipole(2)+2),' &'
+     print '(5(f14.5,a),a)',(latbu(i,j),',',i=ilft,irht),' &'
   end do
   print *
+
+  print '(a)','data ((anglet(i,j,1), i=1,ni), j=1,nj) / &'
   do j = nj-4,nj
-     print '(5(f14.5,a),a)',(latbu(i,j),',',i=ipole(2)-2,ipole(2)+2),' &'
+     print '(5(f14.5,a),a)',(anglet(i,j),',',i=ilft,irht),' &'
   end do
   print *
+
+  print '(a)','data ((angle(i,j,1), i=1,ni), j=1,nj) / &'
   do j = nj-4,nj
-     print '(5(f14.5,a),a)',(anglet(i,j),',',i=ipole(2)-2,ipole(2)+2),' &'
+     print '(5(f14.5,a),a)',(angle(i,j),',',i=ilft,irht),' &'
   end do
   print *
+
+  print '(a)','data ((angchk(i,j,1), i=1,ni), j=1,nj) / &'
   do j = nj-4,nj
-     print '(5(f14.5,a),a)',(angle(i,j),',',i=ipole(2)-2,ipole(2)+2),' &'
+     print '(5(f14.5,a),a)',(angchk(i,j),',',i=ilft,irht),' &'
+  end do
+
+  ! second pole
+  ilft = ipole(2)-2
+  irht = ipole(2)+2
+
+  print '(a)','data ((lonct(i,j,2), i=1,ni), j=1,nj) / &'
+  do j = nj-4,nj
+     print '(5(f14.5,a),a)',(lonct(i,j),',',i=ilft,irht),' &'
   end do
   print *
+
+  print '(a)','data ((lonbu(i,j,2), i=1,ni), j=1,nj) / &'
   do j = nj-4,nj
-     print '(5(f14.5,a),a)',(angchk(i,j),',',i=ipole(2)-2,ipole(2)+2),' &'
+     print '(5(f14.5,a),a)',(lonbu(i,j),',',i=ilft,irht),' &'
+  end do
+  print *
+
+  print '(a)','data ((latbu(i,j,2), i=1,ni), j=1,nj) / &'
+  do j = nj-4,nj
+     print '(5(f14.5,a),a)',(latbu(i,j),',',i=ilft,irht),' &'
+  end do
+  print *
+
+  print '(a)','data ((anglet(i,j,2), i=1,ni), j=1,nj) / &'
+  do j = nj-4,nj
+     print '(5(f14.5,a),a)',(anglet(i,j),',',i=ilft,irht),' &'
+  end do
+  print *
+
+  print '(a)','data ((angle(i,j,2), i=1,ni), j=1,nj) / &'
+  do j = nj-4,nj
+     print '(5(f14.5,a),a)',(angle(i,j),',',i=ilft,irht),' &'
+  end do
+  print *
+
+  print '(a)','data ((angchk(i,j,2), i=1,ni), j=1,nj) / &'
+  do j = nj-4,nj
+     print '(5(f14.5,a),a)',(angchk(i,j),',',i=ilft,irht),' &'
+  end do
+
+  ! right quad
+  ilft = 300
+  irht = 304
+
+  print '(a)','data ((lonct(i,j,3), i=1,ni), j=1,nj) / &'
+  do j = 306,310
+     print '(5(f14.5,a),a)',(lonct(i,j),',',i=ilft,irht),' &'
+  end do
+  print *
+
+  print '(a)','data ((lonbu(i,j,3), i=1,ni), j=1,nj) / &'
+  do j = 306,310
+     print '(5(f14.5,a),a)',(lonbu(i,j),',',i=ilft,irht),' &'
+  end do
+  print *
+
+  print '(a)','data ((latbu(i,j,3), i=1,ni), j=1,nj) / &'
+  do j = 306,310
+     print '(5(f14.5,a),a)',(latbu(i,j),',',i=ilft,irht),' &'
+  end do
+  print *
+
+  print '(a)','data ((anglet(i,j,3), i=1,ni), j=1,nj) / &'
+  do j = 306,310
+     print '(5(f14.5,a),a)',(anglet(i,j),',',i=ilft,irht),' &'
+  end do
+  print *
+
+  print '(a)','data ((angle(i,j,3), i=1,ni), j=1,nj) / &'
+  do j = 306,310
+     print '(5(f14.5,a),a)',(angle(i,j),',',i=ilft,irht),' &'
+  end do
+  print *
+
+  print '(a)','data ((angchk(i,j,3), i=1,ni), j=1,nj) / &'
+  do j = 306,310
+     print '(5(f14.5,a),a)',(angchk(i,j),',',i=ilft,irht),' &'
   end do
 
   !---------------------------------------------------------------------
@@ -462,10 +531,11 @@ program gen_fixgrid
   fdst = trim(dirout)//'/'//'tripole.mx'//trim(res)//'.nc'
   call write_tripolegrid(trim(fdst))
 
-#ifdef test
   ! write cice grid
   fdst = trim(dirout)//'/'//'grid_cice_NEMS_mx'//trim(res)//'.nc'
   call write_cicegrid(trim(fdst))
+
+#ifdef test
   deallocate(ulon, ulat, htn, hte)
   ! write scrip grids; only the Ct is required, the remaining
   ! staggers are used only in the postweights generation
